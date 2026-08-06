@@ -1,5 +1,6 @@
 export type Experience = { id: string; title: string; category: string | null };
 export type StatusFilter = "all" | "completed" | "uncompleted";
+export type ListStatus = "saved" | "completed";
 
 export function hashString(value: string): number {
   let hash = 0;

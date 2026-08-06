@@ -2,17 +2,23 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Check, Sparkles, Users } from "lucide-react";
+import { Check, Sparkles, Users, Bookmark } from "lucide-react";
 import type { Experience } from "../types";
 import { getTaskMeta } from "../types";
 
-interface TaskCardProps {
+interface TaskRowProps {
   experience: Experience;
   done: boolean;
   onToggle: () => void;
+  onRemove?: () => void;
 }
 
-export function TaskCard({ experience, done, onToggle }: TaskCardProps) {
+export function TaskRow({
+  experience,
+  done,
+  onToggle,
+  onRemove,
+}: TaskRowProps) {
   const [prevDone, setPrevDone] = useState(done);
   const [isCelebrating, setIsCelebrating] = useState(false);
 
@@ -98,6 +104,17 @@ export function TaskCard({ experience, done, onToggle }: TaskCardProps) {
             </span>
           </div>
         </div>
+
+        {onRemove && (
+          <button
+            type="button"
+            onClick={onRemove}
+            aria-label={`Remove ${experience.title} from My List`}
+            className="pointer-events-auto flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-accent transition-colors hover:bg-background"
+          >
+            <Bookmark className="h-4 w-4" fill="currentColor" />
+          </button>
+        )}
       </div>
     </li>
   );

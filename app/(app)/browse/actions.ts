@@ -2,8 +2,15 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/utils/supabase/server";
+import type { ListStatus } from "./types";
 
-export async function addToList(experienceId: string) {
+function revalidateListPaths(experienceId: string) {
+  revalidatePath("/browse");
+  revalidatePath("/list");
+  revalidatePath(`/tasks/${experienceId}`);
+}
+
+export async function setListStatus(experienceId: string, status: ListStatus) {
   const supabase = await createClient();
 
   const {
@@ -14,13 +21,15 @@ export async function addToList(experienceId: string) {
 
   await supabase
     .from("user_lists")
-    .insert({ user_id: user.id, experience_id: experienceId });
+    .upsert(
+      { user_id: user.id, experience_id: experienceId, status },
+      { onConflict: "user_id,experience_id" },
+    );
 
-  revalidatePath("/browse");
-  revalidatePath("/app");
+  revalidateListPaths(experienceId);
 }
 
-export async function removeFromList(experienceId: string) {
+export async function removeFromMyList(experienceId: string) {
   const supabase = await createClient();
 
   const {
@@ -35,6 +44,5 @@ export async function removeFromList(experienceId: string) {
     .eq("user_id", user.id)
     .eq("experience_id", experienceId);
 
-  revalidatePath("/browse");
-  revalidatePath("/app");
+  revalidateListPaths(experienceId);
 }

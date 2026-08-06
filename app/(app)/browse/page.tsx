@@ -21,7 +21,8 @@ export default async function BrowsePage() {
       supabase
         .from("user_lists")
         .select("experience_id")
-        .eq("user_id", user.id),
+        .eq("user_id", user.id)
+        .eq("status", "completed"),
       supabase
         .from("profiles")
         .select("display_name, username")

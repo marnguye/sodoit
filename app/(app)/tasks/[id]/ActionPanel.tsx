@@ -4,12 +4,13 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Check, Share2, ListPlus } from "lucide-react";
 import { Card } from "@/components/ui";
-import { addToList, removeFromList } from "@/app/(app)/browse/actions";
+import { setListStatus, removeFromMyList } from "@/app/(app)/browse/actions";
+import type { ListStatus } from "@/app/(app)/browse/types";
 
 interface ActionPanelProps {
   taskId: string;
   taskTitle: string;
-  initialDone: boolean;
+  initialStatus: ListStatus | null;
   signedIn: boolean;
   totalCompleted: number;
 }
@@ -17,28 +18,38 @@ interface ActionPanelProps {
 export function ActionPanel({
   taskId,
   taskTitle,
-  initialDone,
+  initialStatus,
   signedIn,
   totalCompleted,
 }: ActionPanelProps) {
   const router = useRouter();
-  const [done, setDone] = useState(initialDone);
+  const [status, setStatus] = useState<ListStatus | null>(initialStatus);
   const [shared, setShared] = useState(false);
   const [, startTransition] = useTransition();
 
-  function toggle() {
+  function apply(next: ListStatus | null) {
+    setStatus(next);
+    startTransition(() => {
+      if (next) setListStatus(taskId, next);
+      else removeFromMyList(taskId);
+    });
+  }
+
+  function toggleComplete() {
     if (!signedIn) {
       router.push("/login");
       return;
     }
+    apply(status === "completed" ? null : "completed");
+  }
 
-    const next = !done;
-    setDone(next);
-
-    startTransition(() => {
-      if (next) addToList(taskId);
-      else removeFromList(taskId);
-    });
+  function toggleSave() {
+    if (!signedIn) {
+      router.push("/login");
+      return;
+    }
+    if (status === "completed") return;
+    apply(status === "saved" ? null : "saved");
   }
 
   async function share() {
@@ -49,7 +60,9 @@ export function ActionPanel({
       try {
         await navigator.share({ title: taskTitle, url });
         return;
-      } catch {}
+      } catch {
+        // user cancelled the share sheet — fall through to clipboard copy
+      }
     }
 
     if (typeof navigator !== "undefined" && navigator.clipboard) {
@@ -59,29 +72,43 @@ export function ActionPanel({
     }
   }
 
+  const saveLocked = status === "completed";
+  const saveLabel =
+    status === "saved"
+      ? "Saved"
+      : status === "completed"
+        ? "In My List"
+        : "Add to My List";
+
   return (
     <div className="flex flex-col gap-4">
       <Card className="flex flex-col gap-2">
         <button
           type="button"
-          onClick={toggle}
+          onClick={toggleComplete}
           className={`h-11 rounded-md text-sm font-bold transition-colors flex items-center justify-center gap-2 ${
-            done
+            status === "completed"
               ? "bg-accent-light text-accent-dark"
               : "bg-accent hover:bg-accent-dark text-white"
           }`}
         >
           <Check className="h-4 w-4" />
-          {done ? "Completed" : "Mark as complete"}
+          {status === "completed" ? "Completed" : "Mark as complete"}
         </button>
 
         <button
           type="button"
-          onClick={toggle}
-          className="h-11 rounded-md border border-border text-sm font-semibold text-ink hover:bg-background transition-colors flex items-center justify-center gap-2"
+          onClick={toggleSave}
+          disabled={saveLocked}
+          aria-disabled={saveLocked}
+          className={`h-11 rounded-md border border-border text-sm font-semibold transition-colors flex items-center justify-center gap-2 ${
+            saveLocked
+              ? "text-muted cursor-default"
+              : "text-ink hover:bg-background"
+          }`}
         >
           <ListPlus className="h-4 w-4" />
-          {done ? "Added to My List" : "Add to My List"}
+          {saveLabel}
         </button>
 
         <button

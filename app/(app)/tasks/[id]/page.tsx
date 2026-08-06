@@ -4,6 +4,7 @@ import { ChevronLeft, Sparkles, Users, CheckCircle2 } from "lucide-react";
 import { createClient } from "@/utils/supabase/server";
 import { Badge, Avatar, Card } from "@/components/ui";
 import { getTaskMeta } from "@/app/(app)/browse/types";
+import type { ListStatus } from "@/app/(app)/browse/types";
 import { ActionPanel } from "./ActionPanel";
 
 interface TaskRow {
@@ -52,23 +53,24 @@ export default async function TaskDetailPage({
     data: { user },
   } = await supabase.auth.getUser();
 
-  let done = false;
+  let status: ListStatus | null = null;
   let totalCompleted = 0;
 
   if (user) {
     const [{ data: mine }, { count }] = await Promise.all([
       supabase
         .from("user_lists")
-        .select("experience_id")
+        .select("status")
         .eq("user_id", user.id)
         .eq("experience_id", id)
-        .maybeSingle(),
+        .maybeSingle<{ status: ListStatus }>(),
       supabase
         .from("user_lists")
         .select("id", { count: "exact", head: true })
-        .eq("user_id", user.id),
+        .eq("user_id", user.id)
+        .eq("status", "completed"),
     ]);
-    done = !!mine;
+    status = mine?.status ?? null;
     totalCompleted = count ?? 0;
   }
 
@@ -120,7 +122,7 @@ export default async function TaskDetailPage({
           <ActionPanel
             taskId={task.id}
             taskTitle={task.title}
-            initialDone={done}
+            initialStatus={status}
             signedIn={!!user}
             totalCompleted={totalCompleted}
           />

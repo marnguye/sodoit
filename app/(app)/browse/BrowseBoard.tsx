@@ -3,8 +3,8 @@
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { BrowseToolbar } from "./components/BrowseToolbar";
-import { TaskCard } from "./components/TaskCard";
-import { addToList, removeFromList } from "./actions";
+import { TaskRow } from "./components/TaskRow";
+import { setListStatus, removeFromMyList } from "./actions";
 import type { Experience, StatusFilter } from "./types";
 
 export function BrowseBoard({
@@ -62,8 +62,8 @@ export function BrowseBoard({
     });
 
     startTransition(() => {
-      if (wasDone) removeFromList(id);
-      else addToList(id);
+      if (wasDone) removeFromMyList(id);
+      else setListStatus(id, "completed");
     });
   }
 
@@ -88,7 +88,7 @@ export function BrowseBoard({
       ) : (
         <ul className="divide-y divide-border">
           {filtered.map((exp) => (
-            <TaskCard
+            <TaskRow
               key={exp.id}
               experience={exp}
               done={completed.has(exp.id)}
