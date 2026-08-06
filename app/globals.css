@@ -17,6 +17,160 @@
   --radius-lg: 16px;
   --radius-xl: 20px;
   --radius-2xl: 24px;
+
+  --animate-checkbox-pop: checkbox-pop 200ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.task-checkbox {
+  position: relative;
+  z-index: 20;
+  display: grid;
+  width: 20px;
+  height: 20px;
+  place-items: center;
+  overflow: visible;
+  border: 2px solid #a8a29e;
+  border-radius: 6px;
+  background: #ffffff;
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    transform 180ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.task-checkbox::after {
+  content: "";
+  position: absolute;
+  inset: -9px;
+  border: 2px dotted #fb923c;
+  border-radius: 9999px;
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.35) rotate(-20deg);
+}
+
+.task-checkmark {
+  color: #ffffff;
+  opacity: 0;
+  transform: scale(0.35) rotate(-35deg);
+  transition:
+    opacity 120ms ease,
+    transform 220ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.task-title-wrap {
+  position: relative;
+  display: block;
+  width: fit-content;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.task-title {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  transition: color 180ms ease;
+}
+
+.task-strike-line {
+  position: absolute;
+  z-index: 2;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 2px;
+  border-radius: 9999px;
+  background: #f97316;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-50%) scaleX(0);
+  transform-origin: left center;
+  transition:
+    transform 360ms cubic-bezier(0.65, 0, 0.35, 1),
+    opacity 80ms linear;
+}
+
+.task-card.is-done .task-strike-line {
+  opacity: 1;
+  transform: translateY(-50%) scaleX(1);
+}
+
+.task-card.is-done .task-strike-line {
+  opacity: 1;
+  transform: scaleX(1);
+}
+
+.task-card.is-done .task-checkbox {
+  border-color: #f97316;
+  background: #f97316;
+  transform: scale(1);
+  transition-delay: 260ms;
+}
+
+.task-card.is-done .task-checkmark {
+  opacity: 1;
+  transform: scale(1) rotate(0deg);
+  transition-delay: 300ms;
+}
+
+.task-card.is-done .task-title {
+  color: #a8a29e;
+  transition-delay: 240ms;
+}
+
+.task-card.is-celebrating .task-checkbox::after {
+  animation: task-checkbox-burst 520ms ease-out 250ms both;
+}
+
+.task-card.is-celebrating > button {
+  animation: task-card-complete 520ms ease-out;
+}
+
+@keyframes task-checkbox-burst {
+  0% {
+    opacity: 0;
+    transform: scale(0.35) rotate(-20deg);
+  }
+
+  35% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(1.35) rotate(20deg);
+  }
+}
+
+@keyframes task-card-complete {
+  0%,
+  100% {
+    background-color: transparent;
+    box-shadow: none;
+  }
+
+  45% {
+    background-color: #fff7ed;
+    box-shadow: 0 0 0 4px rgb(249 115 22 / 8%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .task-checkbox,
+  .task-checkmark,
+  .task-title,
+  .task-strike-line {
+    transition-duration: 0ms;
+    transition-delay: 0ms;
+  }
+
+  .task-card.is-celebrating .task-checkbox::after,
+  .task-card.is-celebrating > button {
+    animation: none;
+  }
 }
 
 * {
