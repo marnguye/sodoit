@@ -10,7 +10,7 @@ const STATUS_FILTERS = [
   "uncompleted",
 ] as const satisfies readonly StatusFilter[];
 
-interface MarketplaceHeaderProps {
+interface BrowseToolbarProps {
   search: string;
   onSearchChange: (value: string) => void;
   categories: string[];
@@ -22,7 +22,7 @@ interface MarketplaceHeaderProps {
   totalCount: number;
 }
 
-export function MarketplaceHeader({
+export function BrowseToolbar({
   search,
   onSearchChange,
   categories,
@@ -32,9 +32,9 @@ export function MarketplaceHeader({
   onStatusChange,
   completedCount,
   totalCount,
-}: MarketplaceHeaderProps) {
+}: BrowseToolbarProps) {
   return (
-    <header className="sticky top-0 z-10 bg-background/95 backdrop-blur border-b border-border px-8 py-4 flex flex-col gap-3">
+    <header className="sticky top-16 z-10 bg-background/95 backdrop-blur border-b border-border py-4 flex flex-col gap-3">
       <div className="flex items-center gap-4">
         <SearchField value={search} onChange={onSearchChange} />
         <p className="text-sm text-muted whitespace-nowrap" aria-live="polite">
@@ -45,15 +45,15 @@ export function MarketplaceHeader({
 
       <nav
         aria-label="Marketplace filters"
-        className="flex items-center justify-between gap-4 flex-wrap"
+        className="flex items-center justify-between gap-4"
       >
         <FilterGroup
           label="Categories"
           options={categories}
           value={category}
           onChange={onCategoryChange}
-          className="flex gap-2 flex-wrap"
-          buttonClassName="h-8"
+          className="flex min-w-0 gap-2 overflow-x-auto"
+          buttonClassName="h-8 shrink-0"
           inactiveClassName="bg-white border border-border text-muted hover:text-ink"
         />
         <FilterGroup
@@ -61,7 +61,7 @@ export function MarketplaceHeader({
           options={STATUS_FILTERS}
           value={status}
           onChange={onStatusChange}
-          className="flex gap-1 bg-white border border-border rounded-full p-1 capitalize"
+          className="flex shrink-0 gap-1 bg-white border border-border rounded-full p-1 capitalize"
           buttonClassName="h-7"
           inactiveClassName="text-muted hover:text-ink"
         />

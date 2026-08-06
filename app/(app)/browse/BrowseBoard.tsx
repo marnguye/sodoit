@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { MarketplaceHeader } from "./components/MarketplaceHeader";
+import { BrowseToolbar } from "./components/BrowseToolbar";
 import { TaskCard } from "./components/TaskCard";
 import { addToList, removeFromList } from "./actions";
 import type { Experience, StatusFilter } from "./types";
@@ -68,39 +68,35 @@ export function BrowseBoard({
   }
 
   return (
-    <div className="-m-8 flex">
-      <div className="flex-1 min-w-0">
-        <MarketplaceHeader
-          search={search}
-          onSearchChange={setSearch}
-          categories={categories}
-          category={category}
-          onCategoryChange={setCategory}
-          status={status}
-          onStatusChange={setStatus}
-          completedCount={completed.size}
-          totalCount={experiences.length}
-        />
+    <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
+      <BrowseToolbar
+        search={search}
+        onSearchChange={setSearch}
+        categories={categories}
+        category={category}
+        onCategoryChange={setCategory}
+        status={status}
+        onStatusChange={setStatus}
+        completedCount={completed.size}
+        totalCount={experiences.length}
+      />
 
-        <div className="px-8 py-2">
-          {filtered.length === 0 ? (
-            <p className="text-sm text-muted text-center py-16">
-              Nothing matches. Try a different search or filter.
-            </p>
-          ) : (
-            <ul className="flex flex-col gap-1 py-3">
-              {filtered.map((exp) => (
-                <TaskCard
-                  key={exp.id}
-                  experience={exp}
-                  done={completed.has(exp.id)}
-                  onToggle={() => toggle(exp.id)}
-                />
-              ))}
-            </ul>
-          )}
-        </div>
-      </div>
+      {filtered.length === 0 ? (
+        <p className="text-sm text-muted text-center py-16">
+          Nothing matches. Try a different search or filter.
+        </p>
+      ) : (
+        <ul className="divide-y divide-border">
+          {filtered.map((exp) => (
+            <TaskCard
+              key={exp.id}
+              experience={exp}
+              done={completed.has(exp.id)}
+              onToggle={() => toggle(exp.id)}
+            />
+          ))}
+        </ul>
+      )}
     </div>
   );
 }

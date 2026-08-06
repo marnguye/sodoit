@@ -1,15 +1,10 @@
-import { Logo } from "@/components/ui";
+import { Header } from "@/components/layout/Header";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <div>
-      <aside className="fixed left-0 top-0 h-screen w-[240px] border-r border-border bg-card">
-        <div className="p-6">
-          <Logo />
-        </div>
-        <nav />
-      </aside>
-      <main className="ml-[240px] p-8 min-h-screen bg-background">
+      <Header />
+      <main className="pt-16 px-4 pb-8 sm:px-6 lg:px-8 min-h-screen bg-background">
         {children}
       </main>
     </div>

@@ -33,7 +33,7 @@ export function HowItWorks() {
           className="text-center font-extrabold text-ink mt-3"
           style={{ fontSize: "clamp(32px, 4vw, 48px)" }}
         >
-          Three steps. That's it.
+          Three steps. That&apos;s it.
         </h2>
 
         <div className="mt-[60px] max-w-[560px] mx-auto flex flex-col gap-0">

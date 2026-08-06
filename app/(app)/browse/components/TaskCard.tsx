@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Check, Sparkles, Users } from "lucide-react";
 import type { Experience } from "../types";
 import { hashString } from "../types";
@@ -26,7 +26,7 @@ interface TaskCardProps {
 }
 
 export function TaskCard({ experience, done, onToggle }: TaskCardProps) {
-  const previousDone = useRef(done);
+  const [prevDone, setPrevDone] = useState(done);
   const [isCelebrating, setIsCelebrating] = useState(false);
 
   const hash = hashString(experience.id);
@@ -35,27 +35,17 @@ export function TaskCard({ experience, done, onToggle }: TaskCardProps) {
   const adoption = 50 + (hash % 950);
   const completions = Math.floor(adoption * (0.2 + (hash % 50) / 100));
 
+  if (prevDone !== done) {
+    setPrevDone(done);
+    setIsCelebrating(done);
+  }
+
   useEffect(() => {
-    let timeout: ReturnType<typeof setTimeout> | undefined;
+    if (!isCelebrating) return;
 
-    if (done && !previousDone.current) {
-      setIsCelebrating(true);
-
-      timeout = setTimeout(() => {
-        setIsCelebrating(false);
-      }, 650);
-    }
-
-    if (!done) {
-      setIsCelebrating(false);
-    }
-
-    previousDone.current = done;
-
-    return () => {
-      if (timeout) clearTimeout(timeout);
-    };
-  }, [done]);
+    const timeout = setTimeout(() => setIsCelebrating(false), 650);
+    return () => clearTimeout(timeout);
+  }, [isCelebrating]);
 
   return (
     <li
