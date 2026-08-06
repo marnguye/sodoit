@@ -51,18 +51,19 @@ export function BrowseBoard({
       router.push("/login");
       return;
     }
+
+    const wasDone = completed.has(id);
+
     setCompleted((prev) => {
       const next = new Set(prev);
-      const wasDone = next.has(id);
       if (wasDone) next.delete(id);
       else next.add(id);
-
-      startTransition(() => {
-        if (wasDone) removeFromList(id);
-        else addToList(id);
-      });
-
       return next;
+    });
+
+    startTransition(() => {
+      if (wasDone) removeFromList(id);
+      else addToList(id);
     });
   }
 
