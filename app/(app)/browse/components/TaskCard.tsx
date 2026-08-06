@@ -1,23 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { Check, Sparkles, Users } from "lucide-react";
 import type { Experience } from "../types";
-import { hashString } from "../types";
-
-const DIFFICULTIES = [
-  { label: "Easy", xp: 10, color: "#16A34A" },
-  { label: "Medium", xp: 25, color: "#F97316" },
-  { label: "Hard", xp: 50, color: "#DC2626" },
-] as const;
-
-const THUMBNAIL_HUES = [
-  "#FED7AA",
-  "#BAE6FD",
-  "#BBF7D0",
-  "#E9D5FF",
-  "#FECACA",
-] as const;
+import { getTaskMeta } from "../types";
 
 interface TaskCardProps {
   experience: Experience;
@@ -29,11 +16,9 @@ export function TaskCard({ experience, done, onToggle }: TaskCardProps) {
   const [prevDone, setPrevDone] = useState(done);
   const [isCelebrating, setIsCelebrating] = useState(false);
 
-  const hash = hashString(experience.id);
-  const difficulty = DIFFICULTIES[hash % DIFFICULTIES.length];
-  const thumbnail = THUMBNAIL_HUES[hash % THUMBNAIL_HUES.length];
-  const adoption = 50 + (hash % 950);
-  const completions = Math.floor(adoption * (0.2 + (hash % 50) / 100));
+  const { difficulty, thumbnail, adoption, completions } = getTaskMeta(
+    experience.id,
+  );
 
   if (prevDone !== done) {
     setPrevDone(done);
@@ -50,21 +35,18 @@ export function TaskCard({ experience, done, onToggle }: TaskCardProps) {
   return (
     <li
       className={[
-        "task-card rounded-xl",
+        "task-card relative rounded-xl transition-colors duration-200 hover:bg-card",
         done ? "is-done" : "",
         isCelebrating ? "is-celebrating" : "",
       ].join(" ")}
     >
-      <button
-        type="button"
-        role="checkbox"
-        aria-checked={done}
-        aria-label={`${done ? "Mark as incomplete" : "Mark as complete"}: ${
-          experience.title
-        }`}
-        onClick={onToggle}
-        className="flex w-full items-center gap-4 rounded-xl p-3 text-left transition-colors duration-200 hover:bg-card focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/30"
-      >
+      <Link
+        href={`/tasks/${experience.id}`}
+        aria-label={experience.title}
+        className="absolute inset-0 z-10 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/30"
+      />
+
+      <div className="pointer-events-none flex items-center gap-4 rounded-xl p-3">
         <span
           aria-hidden="true"
           className="h-14 w-14 shrink-0 rounded-lg"
@@ -73,9 +55,18 @@ export function TaskCard({ experience, done, onToggle }: TaskCardProps) {
 
         <div className="min-w-0 flex-1">
           <div className="task-check-track flex min-w-0 items-center gap-3">
-            <span aria-hidden="true" className="task-checkbox shrink-0">
+            <button
+              type="button"
+              role="checkbox"
+              aria-checked={done}
+              aria-label={`${done ? "Mark as incomplete" : "Mark as complete"}: ${
+                experience.title
+              }`}
+              onClick={onToggle}
+              className="task-checkbox pointer-events-auto shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/30"
+            >
               <Check className="task-checkmark h-3 w-3" strokeWidth={3} />
-            </span>
+            </button>
 
             <span className="task-title-wrap">
               <span className="task-title text-sm font-semibold text-ink">
@@ -107,7 +98,7 @@ export function TaskCard({ experience, done, onToggle }: TaskCardProps) {
             </span>
           </div>
         </div>
-      </button>
+      </div>
     </li>
   );
 }
