@@ -9,6 +9,7 @@ import { checkAndUnlockAchievements } from "@/app/(app)/achievements/actions";
 
 import type { Experience } from "../types";
 import { getTaskMeta } from "../types";
+import { ExperienceImage } from "@/components/ui";
 
 interface TaskRowProps {
   experience: Experience;
@@ -34,9 +35,7 @@ export function TaskRow({
   const [isCelebrating, setIsCelebrating] = useState(false);
   const [isToggling, setIsToggling] = useState(false);
 
-  const { difficulty, thumbnail, adoption, completions } = getTaskMeta(
-    experience.id,
-  );
+  const { difficulty, adoption, completions } = getTaskMeta(experience.id);
 
   useEffect(() => {
     if (previousDone.current === done) {
@@ -103,10 +102,13 @@ export function TaskRow({
       />
 
       <div className="pointer-events-none flex items-center gap-4 rounded-xl p-3">
-        <span
-          aria-hidden="true"
-          className="h-14 w-14 shrink-0 rounded-lg"
-          style={{ backgroundColor: thumbnail }}
+        <ExperienceImage
+          id={experience.id}
+          title={experience.title}
+          imageUrl={experience.image_url}
+          imageAlt={experience.image_alt}
+          className="h-14 w-14 rounded-lg"
+          sizes="56px"
         />
 
         <div className="min-w-0 flex-1">

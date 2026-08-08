@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ChevronLeft, Sparkles, Users, CheckCircle2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
-import { Badge, Avatar, Card } from "@/components/ui";
+import { Badge, Avatar, Card, ExperienceImage } from "@/components/ui";
 import { getTaskMeta } from "@/app/(app)/browse/types";
 import type { ListStatus } from "@/app/(app)/browse/types";
 import { ActionPanel } from "./ActionPanel";
@@ -11,6 +11,8 @@ interface TaskRow {
   id: string;
   title: string;
   category: string | null;
+  image_url: string | null;
+  image_alt: string | null;
 }
 
 const PRACTICAL_TIPS: readonly string[] = [
@@ -41,7 +43,7 @@ export default async function TaskDetailPage({
 
   const { data: task } = await supabase
     .from("experiences")
-    .select("id, title, category")
+    .select("id, title, category, image_url, image_alt")
     .eq("id", id)
     .single<TaskRow>();
 
@@ -83,7 +85,7 @@ export default async function TaskDetailPage({
         .limit(3)
     : { data: [] as { id: string; title: string; category: string | null }[] };
 
-  const { difficulty, thumbnail, adoption, completions } = getTaskMeta(task.id);
+  const { difficulty, adoption, completions } = getTaskMeta(task.id);
 
   return (
     <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -96,9 +98,13 @@ export default async function TaskDetailPage({
       </Link>
 
       <div className="mt-4 grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6 items-start">
-        <div
+        <ExperienceImage
+          id={task.id}
+          title={task.title}
+          imageUrl={task.image_url}
+          imageAlt={task.image_alt}
           className="order-1 lg:order-none lg:col-start-1 lg:row-start-1 h-[320px] sm:h-[360px] rounded-2xl"
-          style={{ backgroundColor: thumbnail }}
+          sizes="(min-width: 1024px) 700px, 100vw"
         />
 
         <div className="order-2 lg:order-none lg:col-start-2 lg:row-start-1 lg:row-span-4 lg:sticky lg:top-20 flex flex-col gap-4">
