@@ -20,6 +20,7 @@ interface BrowseToolbarProps {
   onStatusChange: (value: StatusFilter) => void;
   completedCount: number;
   totalCount: number;
+  signedIn: boolean;
 }
 
 export function BrowseToolbar({
@@ -32,15 +33,21 @@ export function BrowseToolbar({
   onStatusChange,
   completedCount,
   totalCount,
+  signedIn,
 }: BrowseToolbarProps) {
   return (
     <header className="sticky top-16 z-10 bg-background/95 backdrop-blur border-b border-border py-4 flex flex-col gap-3">
       <div className="flex items-center gap-4">
         <SearchField value={search} onChange={onSearchChange} />
-        <p className="text-sm text-muted whitespace-nowrap" aria-live="polite">
-          <strong className="text-ink font-bold">{completedCount}</strong> /{" "}
-          {totalCount} completed
-        </p>
+        {signedIn && (
+          <p
+            className="text-sm text-muted whitespace-nowrap"
+            aria-live="polite"
+          >
+            <strong className="text-ink font-bold">{completedCount}</strong> /{" "}
+            {totalCount} completed
+          </p>
+        )}
       </div>
 
       <nav
@@ -56,15 +63,17 @@ export function BrowseToolbar({
           buttonClassName="h-8 shrink-0"
           inactiveClassName="bg-white border border-border text-muted hover:text-ink"
         />
-        <FilterGroup
-          label="Completion status"
-          options={STATUS_FILTERS}
-          value={status}
-          onChange={onStatusChange}
-          className="flex shrink-0 gap-1 bg-white border border-border rounded-full p-1 capitalize"
-          buttonClassName="h-7"
-          inactiveClassName="text-muted hover:text-ink"
-        />
+        {signedIn && (
+          <FilterGroup
+            label="Completion status"
+            options={STATUS_FILTERS}
+            value={status}
+            onChange={onStatusChange}
+            className="flex shrink-0 gap-1 bg-white border border-border rounded-full p-1 capitalize"
+            buttonClassName="h-7"
+            inactiveClassName="text-muted hover:text-ink"
+          />
+        )}
       </nav>
     </header>
   );
