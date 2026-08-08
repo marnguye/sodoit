@@ -4,24 +4,38 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Logo } from "../ui";
 
-const NAV_ITEMS = [
-  { href: "/browse", label: "Browse" },
+interface HeaderProps {
+  signedIn: boolean;
+}
+
+const PUBLIC_NAV = [
+  { href: "/", label: "Browse" },
+  { href: "/feed", label: "Feed" },
+] as const;
+
+const PRIVATE_NAV = [
+  { href: "/", label: "Browse" },
   { href: "/list", label: "My List" },
   { href: "/feed", label: "Feed" },
   { href: "/achievements", label: "Achievements" },
 ] as const;
 
-export function Header() {
+function isActiveRoute(pathname: string, href: string) {
+  if (href === "/") {
+    return pathname === "/" || pathname === "/browse";
+  }
+
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
+
+export function Header({ signedIn }: HeaderProps) {
   const pathname = usePathname();
+  const navItems = signedIn ? PRIVATE_NAV : PUBLIC_NAV;
 
   return (
-    <header className="fixed inset-x-0 top-0 z-50 h-16 border-b border-border bg-card/90 backdrop-blur-xl">
-      <div className="relative flex h-full w-full items-center px-5 lg:px-8">
-        <Link
-          href="/"
-          aria-label="Sodoit home"
-          className="shrink-0 rounded-md outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
-        >
+    <header className="fixed inset-x-0 top-0 z-50 h-16 border-b border-border bg-white">
+      <div className="relative flex h-full items-center px-6 lg:px-10">
+        <Link href="/" className="shrink-0">
           <Logo size="lg" />
         </Link>
 
@@ -29,19 +43,18 @@ export function Header() {
           aria-label="Primary navigation"
           className="absolute left-1/2 hidden h-full -translate-x-1/2 items-center gap-8 md:flex"
         >
-          {NAV_ITEMS.map((item) => {
-            const isActive =
-              pathname === item.href || pathname.startsWith(`${item.href}/`);
+          {navItems.map((item) => {
+            const active = isActiveRoute(pathname, item.href);
 
             return (
               <Link
                 key={item.href}
                 href={item.href}
-                aria-current={isActive ? "page" : undefined}
+                aria-current={active ? "page" : undefined}
                 className={[
                   "relative flex h-full items-center text-sm font-semibold transition-colors",
                   "outline-none focus-visible:text-accent",
-                  isActive ? "text-accent" : "text-muted hover:text-ink",
+                  active ? "text-accent" : "text-muted hover:text-ink",
                 ].join(" ")}
               >
                 {item.label}
@@ -50,13 +63,31 @@ export function Header() {
                   aria-hidden="true"
                   className={[
                     "absolute inset-x-0 bottom-0 h-0.5 rounded-full bg-accent transition-transform duration-200",
-                    isActive ? "scale-x-100" : "scale-x-0",
+                    active ? "scale-x-100" : "scale-x-0",
                   ].join(" ")}
                 />
               </Link>
             );
           })}
         </nav>
+
+        {!signedIn && (
+          <div className="ml-auto flex items-center gap-2">
+            <Link
+              href="/login"
+              className="rounded-lg px-4 py-2 text-sm font-semibold text-muted transition-colors hover:text-ink"
+            >
+              Log in
+            </Link>
+
+            <Link
+              href="/signup"
+              className="rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-accent-dark"
+            >
+              Sign up
+            </Link>
+          </div>
+        )}
       </div>
     </header>
   );
