@@ -158,6 +158,144 @@
   }
 }
 
+@keyframes achievement-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes achievement-icon-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.5) rotate(-10deg);
+  }
+
+  65% {
+    transform: scale(1.12) rotate(3deg);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0);
+  }
+}
+
+@keyframes achievement-particle {
+  0% {
+    opacity: 0;
+    transform: rotate(var(--rotation)) translateY(-10px);
+  }
+
+  35% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    transform: rotate(var(--rotation)) translateY(-52px);
+  }
+}
+
+.achievement-unlock-card {
+  animation: achievement-card-in 220ms ease-out;
+}
+
+.achievement-icon {
+  animation: achievement-icon-in 450ms ease-out;
+}
+
+.achievement-particle {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 5px;
+  height: 5px;
+  border-radius: 9999px;
+  background: var(--color-accent);
+  opacity: 0;
+  animation: achievement-particle 700ms ease-out;
+}
+
+@keyframes achievement-toast-in {
+  from {
+    opacity: 0;
+    transform: translateX(20px) translateY(-4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0) translateY(0);
+  }
+}
+
+@keyframes achievement-toast-out {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+}
+
+@keyframes achievement-icon-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.65) rotate(-8deg);
+  }
+
+  60% {
+    transform: scale(1.12) rotate(3deg);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0);
+  }
+}
+
+.achievement-toast {
+  animation: achievement-toast-in 220ms ease-out;
+}
+
+.achievement-toast-out {
+  animation: achievement-toast-out 220ms ease-in forwards;
+}
+
+.achievement-icon {
+  animation: achievement-icon-pop 420ms ease-out 100ms both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .achievement-toast,
+  .achievement-toast-out,
+  .achievement-icon {
+    animation: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .achievement-toast {
+    animation: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .achievement-unlock-card,
+  .achievement-icon,
+  .achievement-particle {
+    animation: none;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .task-checkbox,
   .task-checkmark,
