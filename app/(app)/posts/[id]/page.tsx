@@ -45,29 +45,54 @@ const TYPE_VARIANT: Record<PostType, "default" | "success" | "accent"> = {
   experience: "accent",
 };
 
-function BackToFeed() {
+function PageFrame({ children }: { children: React.ReactNode }) {
   return (
-    <Link
-      href="/feed"
-      className="inline-flex items-center gap-1 text-sm font-semibold text-muted hover:text-ink transition-colors"
-    >
-      <ChevronLeft className="h-4 w-4" />
-      Back to Feed
-    </Link>
+    <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <Link
+        href="/feed"
+        className="inline-flex items-center gap-1 text-sm font-semibold text-muted hover:text-ink transition-colors"
+      >
+        <ChevronLeft className="h-4 w-4" />
+        Back to Feed
+      </Link>
+      {children}
+    </div>
   );
 }
 
-function PostErrorState() {
+function ErrorFrame() {
   return (
-    <div className="max-w-[720px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
-      <BackToFeed />
+    <PageFrame>
       <div className="mt-4">
         <ErrorState
           title="Couldn't load this post"
           description="Please try again shortly."
         />
       </div>
-    </div>
+    </PageFrame>
+  );
+}
+
+function CommentCard({
+  author,
+  body,
+  createdAt,
+}: {
+  author: string;
+  body: string;
+  createdAt: string;
+}) {
+  return (
+    <Card className="flex flex-col gap-1.5">
+      <div className="flex items-center gap-2">
+        <Avatar name={author} size="sm" />
+        <span className="text-sm font-semibold text-ink">{author}</span>
+        <span className="text-xs text-muted">{relativeTime(createdAt)}</span>
+      </div>
+      <p className="text-sm text-muted leading-relaxed whitespace-pre-wrap">
+        {body}
+      </p>
+    </Card>
   );
 }
 
@@ -88,13 +113,8 @@ export default async function PostDetailPage({
     error: { message: string } | null;
   };
 
-  if (postError) {
-    return <PostErrorState />;
-  }
-
-  if (!post) {
-    notFound();
-  }
+  if (postError) return <ErrorFrame />;
+  if (!post) notFound();
 
   const [commentsResult, votesResult, experienceResult] = await Promise.all([
     supabase
@@ -116,33 +136,34 @@ export default async function PostDetailPage({
   ]);
 
   if (commentsResult.error || votesResult.error || experienceResult.error) {
-    return <PostErrorState />;
+    return <ErrorFrame />;
   }
 
   const comments = (commentsResult.data ?? []) as CommentRow[];
   const authorIds = [
-    ...new Set([post.author_id, ...comments.map((comment) => comment.author_id)]),
+    ...new Set([
+      post.author_id,
+      ...comments.map((comment) => comment.author_id),
+    ]),
   ];
-  const profilesResult = await supabase
+  const { data: profilesData, error: profilesError } = await supabase
     .from("profiles")
     .select("id, username")
     .in("id", authorIds);
 
-  if (profilesResult.error) {
-    return <PostErrorState />;
-  }
+  if (profilesError) return <ErrorFrame />;
 
-  const profiles = (profilesResult.data ?? []) as ProfileRow[];
   const authorNames = new Map(
-    profiles.map((profile) => [profile.id, profile.username]),
+    ((profilesData ?? []) as ProfileRow[]).map((profile) => [
+      profile.id,
+      profile.username,
+    ]),
   );
   const author = authorNames.get(post.author_id) ?? "Someone";
   const experience = experienceResult.data as ExperienceRow | null;
 
   return (
-    <div className="max-w-[720px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
-      <BackToFeed />
-
+    <PageFrame>
       <Card className="mt-4 flex flex-col gap-3">
         <div className="flex items-center gap-2">
           <Avatar name={author} size="sm" />
@@ -191,31 +212,17 @@ export default async function PostDetailPage({
         </p>
       ) : (
         <ul className="mt-3 flex flex-col gap-3">
-          {comments.map((comment) => {
-            const commentAuthor =
-              authorNames.get(comment.author_id) ?? "Someone";
-
-            return (
-              <li key={comment.id}>
-                <Card className="flex flex-col gap-1.5">
-                  <div className="flex items-center gap-2">
-                    <Avatar name={commentAuthor} size="sm" />
-                    <span className="text-sm font-semibold text-ink">
-                      {commentAuthor}
-                    </span>
-                    <span className="text-xs text-muted">
-                      {relativeTime(comment.created_at)}
-                    </span>
-                  </div>
-                  <p className="text-sm text-muted leading-relaxed whitespace-pre-wrap">
-                    {comment.body}
-                  </p>
-                </Card>
-              </li>
-            );
-          })}
+          {comments.map((comment) => (
+            <li key={comment.id}>
+              <CommentCard
+                author={authorNames.get(comment.author_id) ?? "Someone"}
+                body={comment.body}
+                createdAt={comment.created_at}
+              />
+            </li>
+          ))}
         </ul>
       )}
-    </div>
+    </PageFrame>
   );
 }
