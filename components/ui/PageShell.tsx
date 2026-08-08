@@ -5,6 +5,7 @@ interface PageShellProps {
   subtitle?: string;
   actions?: ReactNode;
   toolbar?: ReactNode;
+  maxWidth?: string;
   children: ReactNode;
 }
 
@@ -13,10 +14,11 @@ export function PageShell({
   subtitle,
   actions,
   toolbar,
+  maxWidth = "1280px",
   children,
 }: PageShellProps) {
   return (
-    <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="mx-auto px-4 sm:px-6 lg:px-8" style={{ maxWidth }}>
       <div className="flex flex-col gap-4 py-6 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h1 className="text-xl font-extrabold text-ink">{title}</h1>
