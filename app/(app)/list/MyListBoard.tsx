@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import { TaskRow } from "@/app/(app)/browse/components/TaskRow";
 import { setListStatus, removeFromMyList } from "@/app/(app)/browse/actions";
 import type { Experience, ListStatus } from "@/app/(app)/browse/types";
@@ -17,6 +17,12 @@ interface Row {
   status: ListStatus;
 }
 
+function delay(ms: number): Promise<void> {
+  return new Promise((resolve) => {
+    window.setTimeout(resolve, ms);
+  });
+}
+
 export function MyListBoard({
   saved,
   completed,
@@ -25,56 +31,77 @@ export function MyListBoard({
   completed: Experience[];
 }) {
   const [tab, setTab] = useState<ListStatus>("saved");
+
   const [rows, setRows] = useState<Row[]>(() => [
-    ...saved.map((experience) => ({ experience, status: "saved" as const })),
+    ...saved.map((experience) => ({
+      experience,
+      status: "saved" as const,
+    })),
     ...completed.map((experience) => ({
       experience,
       status: "completed" as const,
     })),
   ]);
-  const [pending, setPending] = useState<Set<string>>(new Set());
-  const [, startTransition] = useTransition();
 
-  function toggle(id: string, currentStatus: ListStatus) {
+  const [pending, setPending] = useState<Set<string>>(() => new Set());
+
+  async function toggle(id: string, currentStatus: ListStatus): Promise<void> {
     const nextStatus: ListStatus =
       currentStatus === "saved" ? "completed" : "saved";
 
-    setPending((prev) => new Set(prev).add(id));
-    startTransition(() => {
-      setListStatus(id, nextStatus);
+    setPending((previous) => {
+      const next = new Set(previous);
+      next.add(id);
+      return next;
     });
 
-    setTimeout(() => {
-      setRows((prev) =>
-        prev.map((row) =>
+    try {
+      await setListStatus(id, nextStatus);
+
+      await delay(ANIMATION_DELAY_MS);
+
+      setRows((previous) =>
+        previous.map((row) =>
           row.experience.id === id ? { ...row, status: nextStatus } : row,
         ),
       );
-      setPending((prev) => {
-        const next = new Set(prev);
+    } finally {
+      setPending((previous) => {
+        const next = new Set(previous);
         next.delete(id);
         return next;
       });
-    }, ANIMATION_DELAY_MS);
+    }
   }
 
-  function remove(id: string) {
-    setRows((prev) => prev.filter((row) => row.experience.id !== id));
-    startTransition(() => {
-      removeFromMyList(id);
-    });
+  async function remove(id: string): Promise<void> {
+    const removedRow = rows.find((row) => row.experience.id === id);
+
+    setRows((previous) => previous.filter((row) => row.experience.id !== id));
+
+    try {
+      await removeFromMyList(id);
+    } catch (error) {
+      if (removedRow) {
+        setRows((previous) => [...previous, removedRow]);
+      }
+
+      throw error;
+    }
   }
 
   const visible = rows.filter((row) => row.status === tab);
+
   const savedCount = rows.filter((row) => row.status === "saved").length;
+
   const completedCount = rows.filter(
     (row) => row.status === "completed",
   ).length;
 
   return (
-    <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
-      <div className="sticky top-16 z-10 flex flex-col gap-3 border-b border-border bg-background/95 py-4 backdrop-blur">
-        <h1 className="text-xl font-extrabold text-ink">My List</h1>
+    <div>
+      <div className="flex items-center justify-between">
+        <h1 className="text-xl font-bold text-ink">My List</h1>
 
         <div
           role="tablist"
@@ -83,6 +110,7 @@ export function MyListBoard({
         >
           {TABS.map(({ key, label }) => {
             const count = key === "saved" ? savedCount : completedCount;
+
             const selected = tab === key;
 
             return (
@@ -124,7 +152,7 @@ export function MyListBoard({
                 experience={row.experience}
                 done={done}
                 onToggle={() => toggle(row.experience.id, row.status)}
-                onRemove={() => remove(row.experience.id)}
+                onRemove={() => void remove(row.experience.id)}
               />
             );
           })}

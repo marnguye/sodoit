@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { BrowseToolbar } from "./components/BrowseToolbar";
 import { TaskRow } from "./components/TaskRow";
@@ -18,35 +18,53 @@ export function BrowseBoard({
   signedIn: boolean;
 }) {
   const router = useRouter();
+
   const [completed, setCompleted] = useState(() => new Set(completedIds));
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All");
   const [status, setStatus] = useState<StatusFilter>("all");
-  const [, startTransition] = useTransition();
 
   const categories = useMemo(
     () => [
       "All",
       ...Array.from(
-        new Set(experiences.map((e) => e.category).filter(Boolean) as string[]),
+        new Set(
+          experiences
+            .map((experience) => experience.category)
+            .filter(Boolean) as string[],
+        ),
       ),
     ],
     [experiences],
   );
 
   const filtered = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    return experiences.filter((exp) => {
-      if (q && !exp.title.toLowerCase().includes(q)) return false;
-      if (category !== "All" && exp.category !== category) return false;
-      const isDone = completed.has(exp.id);
-      if (status === "completed" && !isDone) return false;
-      if (status === "uncompleted" && isDone) return false;
+    const query = search.trim().toLowerCase();
+
+    return experiences.filter((experience) => {
+      if (query && !experience.title.toLowerCase().includes(query)) {
+        return false;
+      }
+
+      if (category !== "All" && experience.category !== category) {
+        return false;
+      }
+
+      const isDone = completed.has(experience.id);
+
+      if (status === "completed" && !isDone) {
+        return false;
+      }
+
+      if (status === "uncompleted" && isDone) {
+        return false;
+      }
+
       return true;
     });
   }, [experiences, search, category, status, completed]);
 
-  function toggle(id: string) {
+  async function toggle(id: string): Promise<void> {
     if (!signedIn) {
       router.push("/login");
       return;
@@ -54,21 +72,44 @@ export function BrowseBoard({
 
     const wasDone = completed.has(id);
 
-    setCompleted((prev) => {
-      const next = new Set(prev);
-      if (wasDone) next.delete(id);
-      else next.add(id);
+    setCompleted((previous) => {
+      const next = new Set(previous);
+
+      if (wasDone) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+
       return next;
     });
 
-    startTransition(() => {
-      if (wasDone) removeFromMyList(id);
-      else setListStatus(id, "completed");
-    });
+    try {
+      if (wasDone) {
+        await removeFromMyList(id);
+      } else {
+        await setListStatus(id, "completed");
+      }
+    } catch (error) {
+      // Roll back optimistic state.
+      setCompleted((previous) => {
+        const next = new Set(previous);
+
+        if (wasDone) {
+          next.add(id);
+        } else {
+          next.delete(id);
+        }
+
+        return next;
+      });
+
+      throw error;
+    }
   }
 
   return (
-    <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
+    <div>
       <BrowseToolbar
         search={search}
         onSearchChange={setSearch}
@@ -82,17 +123,17 @@ export function BrowseBoard({
       />
 
       {filtered.length === 0 ? (
-        <p className="text-sm text-muted text-center py-16">
+        <p className="py-16 text-center text-sm text-muted">
           Nothing matches. Try a different search or filter.
         </p>
       ) : (
         <ul className="divide-y divide-border">
-          {filtered.map((exp) => (
+          {filtered.map((experience) => (
             <TaskRow
-              key={exp.id}
-              experience={exp}
-              done={completed.has(exp.id)}
-              onToggle={() => toggle(exp.id)}
+              key={experience.id}
+              experience={experience}
+              done={completed.has(experience.id)}
+              onToggle={() => toggle(experience.id)}
             />
           ))}
         </ul>
