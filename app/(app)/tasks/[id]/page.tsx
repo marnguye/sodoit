@@ -85,7 +85,9 @@ export default async function TaskDetailPage({
         .limit(3)
     : { data: [] as { id: string; title: string; category: string | null }[] };
 
-  const { difficulty, adoption, completions } = getTaskMeta(task.id);
+  const { difficulty, thumbnail, adoption, completions } = getTaskMeta(
+    task.id,
+  );
 
   return (
     <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -99,10 +101,10 @@ export default async function TaskDetailPage({
 
       <div className="mt-4 grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6 items-start">
         <ExperienceImage
-          id={task.id}
           title={task.title}
           imageUrl={task.image_url}
           imageAlt={task.image_alt}
+          fallbackColor={thumbnail}
           className="order-1 lg:order-none lg:col-start-1 lg:row-start-1 h-[320px] sm:h-[360px] rounded-2xl"
           sizes="(min-width: 1024px) 700px, 100vw"
         />

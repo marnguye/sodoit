@@ -3,6 +3,7 @@ import { ChevronRight } from "lucide-react";
 
 import { Card, EmptyState, ExperienceImage } from "@/components/ui";
 import { getCategoryAccent } from "@/app/(app)/achievements/data";
+import { getTaskMeta } from "@/app/(app)/browse/types";
 
 import type { CompletedExperience } from "../types";
 
@@ -36,6 +37,8 @@ export function RecentCompleted({ experiences }: RecentCompletedProps) {
 }
 
 function ExperienceRow({ experience }: { experience: CompletedExperience }) {
+  const { thumbnail } = getTaskMeta(experience.id);
+
   return (
     <li>
       <Link
@@ -43,10 +46,10 @@ function ExperienceRow({ experience }: { experience: CompletedExperience }) {
         className="group flex items-center gap-3 px-4 py-3 transition-colors hover:bg-background"
       >
         <ExperienceImage
-          id={experience.id}
           title={experience.title}
           imageUrl={experience.image_url}
           imageAlt={experience.image_alt}
+          fallbackColor={thumbnail}
           className="h-10 w-10 rounded-lg"
           sizes="40px"
         />

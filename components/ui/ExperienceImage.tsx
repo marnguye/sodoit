@@ -1,42 +1,45 @@
 import Image from "next/image";
-import { getTaskMeta } from "@/app/(app)/browse/types";
 
 interface ExperienceImageProps {
-  id: string;
-  title: string;
   imageUrl: string | null;
   imageAlt: string | null;
+  title: string;
+  fallbackColor: string;
   className?: string;
   sizes?: string;
+  quality?: number;
+  priority?: boolean;
 }
 
 export function ExperienceImage({
-  id,
-  title,
   imageUrl,
   imageAlt,
+  title,
+  fallbackColor,
   className = "",
-  sizes = "128px",
+  sizes = "56px",
+  quality = 90,
+  priority = false,
 }: ExperienceImageProps) {
   if (!imageUrl) {
-    const { thumbnail } = getTaskMeta(id);
-
     return (
       <span
         aria-hidden="true"
-        className={`block shrink-0 ${className}`}
-        style={{ backgroundColor: thumbnail }}
+        className={`block ${className}`}
+        style={{ backgroundColor: fallbackColor }}
       />
     );
   }
 
   return (
-    <span className={`relative block shrink-0 overflow-hidden ${className}`}>
+    <span className={`relative block overflow-hidden ${className}`}>
       <Image
         src={imageUrl}
         alt={imageAlt ?? title}
         fill
         sizes={sizes}
+        quality={quality}
+        priority={priority}
         className="object-cover"
       />
     </span>

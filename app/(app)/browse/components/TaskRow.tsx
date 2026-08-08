@@ -35,7 +35,9 @@ export function TaskRow({
   const [isCelebrating, setIsCelebrating] = useState(false);
   const [isToggling, setIsToggling] = useState(false);
 
-  const { difficulty, adoption, completions } = getTaskMeta(experience.id);
+  const { difficulty, thumbnail, adoption, completions } = getTaskMeta(
+    experience.id,
+  );
 
   useEffect(() => {
     if (previousDone.current === done) {
@@ -103,12 +105,13 @@ export function TaskRow({
 
       <div className="pointer-events-none flex items-center gap-4 rounded-xl p-3">
         <ExperienceImage
-          id={experience.id}
-          title={experience.title}
           imageUrl={experience.image_url}
           imageAlt={experience.image_alt}
-          className="h-14 w-14 rounded-lg"
+          title={experience.title}
+          fallbackColor={thumbnail}
           sizes="56px"
+          quality={90}
+          className="h-14 w-14 shrink-0 rounded-lg"
         />
 
         <div className="min-w-0 flex-1">
