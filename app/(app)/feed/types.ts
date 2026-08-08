@@ -13,8 +13,8 @@ export interface FeedPost {
   body: string;
   createdAt: string;
   authorName: string;
-  experience: { id: string; title: string } | null;
-  upvotes: number;
+  experience: { id: string; title: string; category: string | null } | null;
+  helpfulCount: number;
   commentCount: number;
 }
 

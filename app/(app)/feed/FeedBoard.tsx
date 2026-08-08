@@ -5,7 +5,13 @@ import { FilterGroup } from "@/app/(app)/browse/components/FilterGroup";
 import { PostCard } from "./components/PostCard";
 import type { FeedPost } from "./types";
 
-const FILTERS = ["Latest", "Popular", "Questions", "Tips", "Experiences"] as const;
+const FILTERS = [
+  "Latest",
+  "Popular",
+  "Questions",
+  "Tips",
+  "Experiences",
+] as const;
 type Filter = (typeof FILTERS)[number];
 
 export function FeedBoard({ posts }: { posts: FeedPost[] }) {
@@ -14,7 +20,7 @@ export function FeedBoard({ posts }: { posts: FeedPost[] }) {
   const visible = useMemo(() => {
     switch (filter) {
       case "Popular":
-        return [...posts].sort((a, b) => b.upvotes - a.upvotes);
+        return [...posts].sort((a, b) => b.helpfulCount - a.helpfulCount);
       case "Questions":
         return posts.filter((post) => post.type === "question");
       case "Tips":
@@ -44,7 +50,7 @@ export function FeedBoard({ posts }: { posts: FeedPost[] }) {
           Nothing here yet.
         </p>
       ) : (
-        <ul className="mt-6 flex flex-col gap-3">
+        <ul className="mt-6 flex flex-col gap-4">
           {visible.map((post) => (
             <PostCard key={post.id} post={post} />
           ))}

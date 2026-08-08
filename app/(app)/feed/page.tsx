@@ -22,6 +22,7 @@ interface ProfileRow {
 interface ExperienceRow {
   id: string;
   title: string;
+  category: string | null;
 }
 
 interface PostReferenceRow {
@@ -48,13 +49,15 @@ export default async function FeedPage() {
     </Link>
   );
 
+  const shellProps = {
+    title: "Community Feed",
+    subtitle: "Questions, tips, and real experiences from the community.",
+    actions,
+  } as const;
+
   if (error) {
     return (
-      <PageShell
-        title="Community Feed"
-        subtitle="Questions, tips, and real experiences from the community."
-        actions={actions}
-      >
+      <PageShell {...shellProps}>
         <ErrorState
           title="Couldn't load the Feed"
           description="Please try again shortly."
@@ -65,11 +68,7 @@ export default async function FeedPage() {
 
   if (!rows || rows.length === 0) {
     return (
-      <PageShell
-        title="Community Feed"
-        subtitle="Questions, tips, and real experiences from the community."
-        actions={actions}
-      >
+      <PageShell {...shellProps}>
         <EmptyState
           title="No posts yet"
           description="Be the first to ask a question, share a tip, or post about an experience."
@@ -100,7 +99,7 @@ export default async function FeedPage() {
       experienceIds.length
         ? supabase
             .from("experiences")
-            .select("id, title")
+            .select("id, title, category")
             .in("id", experienceIds)
         : Promise.resolve({ data: [], error: null }),
       supabase.from("post_votes").select("post_id").in("post_id", postIds),
@@ -114,11 +113,7 @@ export default async function FeedPage() {
     commentsResult.error
   ) {
     return (
-      <PageShell
-        title="Community Feed"
-        subtitle="Questions, tips, and real experiences from the community."
-        actions={actions}
-      >
+      <PageShell {...shellProps}>
         <ErrorState
           title="Couldn't load the Feed"
           description="Please try again shortly."
@@ -161,16 +156,12 @@ export default async function FeedPage() {
     experience: row.experience_id
       ? (experienceById.get(row.experience_id) ?? null)
       : null,
-    upvotes: voteCounts.get(row.id) ?? 0,
+    helpfulCount: voteCounts.get(row.id) ?? 0,
     commentCount: commentCounts.get(row.id) ?? 0,
   }));
 
   return (
-    <PageShell
-      title="Community Feed"
-      subtitle="Questions, tips, and real experiences from the community."
-      actions={actions}
-    >
+    <PageShell {...shellProps}>
       <FeedBoard posts={posts} />
     </PageShell>
   );

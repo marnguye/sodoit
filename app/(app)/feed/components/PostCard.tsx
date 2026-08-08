@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { ArrowUp, MessageCircle } from "lucide-react";
-import { Avatar, Badge } from "@/components/ui";
+import { Bookmark, ChevronRight, Heart, MessageCircle } from "lucide-react";
+import { getTaskMeta } from "@/app/(app)/browse/types";
+import { Avatar, Badge, Card } from "@/components/ui";
 import { relativeTime } from "../types";
 import type { FeedPost, PostType } from "../types";
 
@@ -10,66 +11,112 @@ const TYPE_LABEL: Record<PostType, string> = {
   experience: "Experience",
 };
 
-const TYPE_VARIANT: Record<PostType, "default" | "success" | "accent"> = {
-  question: "default",
+const TYPE_VARIANT: Record<PostType, "purple" | "success" | "blue"> = {
+  question: "purple",
   tip: "success",
-  experience: "accent",
+  experience: "blue",
 };
 
-function preview(body: string, max = 140): string {
-  const trimmed = body.trim();
-  if (trimmed.length <= max) return trimmed;
-  return `${trimmed.slice(0, max).trimEnd()}…`;
-}
+const ACTION_CLASS =
+  "pointer-events-auto relative z-10 inline-flex h-8 items-center gap-1.5 rounded-lg bg-background px-2.5 text-xs font-semibold text-ink/80 transition-colors hover:bg-accent-light hover:text-accent-dark focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/30";
 
 export function PostCard({ post }: { post: FeedPost }) {
+  const thumbnail = post.experience
+    ? getTaskMeta(post.experience.id).thumbnail
+    : null;
+
   return (
-    <li className="relative rounded-xl border border-border bg-card p-4 transition-colors hover:border-accent">
-      <Link
-        href={`/posts/${post.id}`}
-        aria-label={post.title}
-        className="absolute inset-0 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/30"
-      />
+    <li>
+      <Card className="group relative rounded-xl p-4 transition-colors hover:border-accent">
+        <Link
+          href={`/posts/${post.id}`}
+          aria-label={`Open post: ${post.title}`}
+          className="absolute inset-0 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/30"
+        />
 
-      <div className="pointer-events-none flex flex-col gap-2">
-        <div className="flex items-center gap-2">
-          <Avatar name={post.authorName} size="sm" />
-          <span className="text-sm font-semibold text-ink">
-            {post.authorName}
-          </span>
-          <span className="text-xs text-muted">
-            {relativeTime(post.createdAt)}
-          </span>
-          <Badge variant={TYPE_VARIANT[post.type]}>
-            {TYPE_LABEL[post.type]}
-          </Badge>
-        </div>
+        <article className="pointer-events-none relative">
+          <header className="flex items-center gap-2">
+            <Avatar name={post.authorName} size="sm" />
+            <span className="truncate text-sm font-semibold text-ink">
+              {post.authorName}
+            </span>
+            <span aria-hidden="true" className="text-xs text-muted">
+              ·
+            </span>
+            <time
+              dateTime={post.createdAt}
+              className="shrink-0 text-xs text-muted"
+            >
+              {relativeTime(post.createdAt)}
+            </time>
+            <Badge variant={TYPE_VARIANT[post.type]} className="shrink-0">
+              {TYPE_LABEL[post.type]}
+            </Badge>
+          </header>
 
-        {post.experience && (
-          <Link
-            href={`/tasks/${post.experience.id}`}
-            className="pointer-events-auto relative z-10 w-fit rounded-md border border-border bg-white px-2 py-0.5 text-[11px] font-semibold text-muted transition-colors hover:text-accent"
-          >
-            {post.experience.title}
-          </Link>
-        )}
+          <div className="mt-3">
+            <h2 className="text-lg font-extrabold leading-snug text-ink transition-colors group-hover:text-accent-dark">
+              {post.title}
+            </h2>
+            <p className="mt-1.5 line-clamp-2 text-sm leading-6 text-muted">
+              {post.body}
+            </p>
+          </div>
 
-        <h2 className="text-base font-bold text-ink">{post.title}</h2>
-        <p className="text-sm text-muted leading-relaxed">
-          {preview(post.body)}
-        </p>
+          {post.experience && thumbnail && (
+            <Link
+              href={`/tasks/${post.experience.id}`}
+              aria-label={`Open experience: ${post.experience.title}`}
+              className="pointer-events-auto relative z-10 mt-3 flex items-center gap-2.5 rounded-xl bg-background p-2.5 transition-colors hover:bg-accent-light"
+            >
+              <span
+                aria-hidden="true"
+                className="h-11 w-11 shrink-0 rounded-lg"
+                style={{ backgroundColor: thumbnail }}
+              />
+              <span className="min-w-0 flex-1">
+                <span className="block truncate text-sm font-bold text-ink">
+                  {post.experience.title}
+                </span>
+                <span className="mt-0.5 block text-xs font-medium text-muted">
+                  {post.experience.category ?? "Experience"}
+                </span>
+              </span>
+              <ChevronRight
+                aria-hidden="true"
+                className="h-4 w-4 shrink-0 text-muted"
+              />
+            </Link>
+          )}
 
-        <div className="mt-1 flex items-center gap-4 text-xs font-semibold text-muted">
-          <span className="flex items-center gap-1">
-            <ArrowUp className="h-3.5 w-3.5" />
-            {post.upvotes}
-          </span>
-          <span className="flex items-center gap-1">
-            <MessageCircle className="h-3.5 w-3.5" />
-            {post.commentCount}
-          </span>
-        </div>
-      </div>
+          <footer className="mt-3 flex flex-wrap items-center gap-1.5">
+            <button
+              type="button"
+              aria-label={`Mark ${post.title} as helpful`}
+              className={ACTION_CLASS}
+            >
+              <Heart aria-hidden="true" className="h-4 w-4" />
+              Helpful · {post.helpfulCount}
+            </button>
+            <button
+              type="button"
+              aria-label={`View comments on ${post.title}`}
+              className={ACTION_CLASS}
+            >
+              <MessageCircle aria-hidden="true" className="h-4 w-4" />
+              Comments · {post.commentCount}
+            </button>
+            <button
+              type="button"
+              aria-label={`Save ${post.title}`}
+              className={`${ACTION_CLASS} ml-auto`}
+            >
+              <Bookmark aria-hidden="true" className="h-4 w-4" />
+              Save
+            </button>
+          </footer>
+        </article>
+      </Card>
     </li>
   );
 }
