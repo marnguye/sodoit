@@ -13,9 +13,21 @@ export default async function AppLayout({
     data: { user },
   } = await supabase.auth.getUser();
 
+  let username: string | null = null;
+
+  if (user) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("username")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    username = profile?.username ?? null;
+  }
+
   return (
     <div>
-      <Header signedIn={Boolean(user)} />
+      <Header signedIn={Boolean(user)} username={username} />
 
       <main className="min-h-screen bg-background px-4 pb-8 pt-16 sm:px-6 lg:px-8">
         <AchievementUnlockProvider>{children}</AchievementUnlockProvider>

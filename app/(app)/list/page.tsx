@@ -1,20 +1,8 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import type { Experience, ListStatus } from "@/app/(app)/browse/types";
+import { loadMyList } from "./data";
 import { MyListBoard } from "./MyListBoard";
-
-interface ListRow {
-  id: string;
-  status: ListStatus;
-  experiences: Experience | Experience[] | null;
-}
-
-function toExperience(
-  value: Experience | Experience[] | null,
-): Experience | null {
-  if (!value) return null;
-  return Array.isArray(value) ? (value[0] ?? null) : value;
-}
 
 export default async function MyListPage() {
   const supabase = await createClient();
@@ -39,21 +27,17 @@ export default async function MyListPage() {
     );
   }
 
-  const { data: rows } = (await supabase
-    .from("user_lists")
-    .select("id, status, experiences(id, title, category)")
-    .eq("user_id", user.id)
-    .order("created_at", { ascending: false })) as { data: ListRow[] | null };
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("username")
+    .eq("id", user.id)
+    .maybeSingle();
 
-  const saved: Experience[] = [];
-  const completed: Experience[] = [];
-
-  for (const row of rows ?? []) {
-    const experience = toExperience(row.experiences);
-    if (!experience) continue;
-    if (row.status === "saved") saved.push(experience);
-    else if (row.status === "completed") completed.push(experience);
+  if (profile?.username) {
+    redirect(`/u/${profile.username}?view=list`);
   }
+
+  const { saved, completed } = await loadMyList(user.id);
 
   return <MyListBoard saved={saved} completed={completed} />;
 }

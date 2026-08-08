@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { PageShell, Card, ErrorState } from "@/components/ui";
 import {
@@ -57,6 +58,16 @@ export default async function AchievementsPage() {
         </Card>
       </PageShell>
     );
+  }
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("username")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (profile?.username) {
+    redirect(`/u/${profile.username}?view=achievements`);
   }
 
   const [experiencesResult, completedResult, earnedAchievementsResult] =
