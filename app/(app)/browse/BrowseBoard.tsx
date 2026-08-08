@@ -14,7 +14,6 @@ export function BrowseBoard({
 }: {
   experiences: Experience[];
   completedIds: string[];
-  profileName: string;
   signedIn: boolean;
 }) {
   const router = useRouter();
