@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { createClient } from "@/utils/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 import { LoginForm } from "./LoginForm";
 
 export default async function LoginPage() {

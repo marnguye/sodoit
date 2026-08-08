@@ -1,4 +1,4 @@
-import { createClient } from "@/utils/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 import { BrowseBoard } from "./BrowseBoard";
 
 export default async function BrowsePage() {

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ChevronLeft, Sparkles, Users, CheckCircle2 } from "lucide-react";
-import { createClient } from "@/utils/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 import { Badge, Avatar, Card } from "@/components/ui";
 import { getTaskMeta } from "@/app/(app)/browse/types";
 import type { ListStatus } from "@/app/(app)/browse/types";

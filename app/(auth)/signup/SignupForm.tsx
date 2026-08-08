@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Logo } from "@/components/ui";
-import { createClient } from "@/utils/supabase/client";
+import { createClient } from "@/lib/supabase/client";
 import { INPUT_CLASS, PasswordField } from "../PasswordField";
 import { passwordStrength } from "@/lib/password";
 

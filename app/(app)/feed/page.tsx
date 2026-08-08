@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { createClient } from "@/utils/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 import { PageShell, ErrorState, EmptyState } from "@/components/ui";
 import type { FeedPost, PostType } from "./types";
 import { FeedBoard } from "./FeedBoard";

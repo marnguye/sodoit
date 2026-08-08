@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { createClient } from "@/utils/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 import type { Experience, ListStatus } from "@/app/(app)/browse/types";
 import { MyListBoard } from "./MyListBoard";
 

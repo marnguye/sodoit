@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ChevronLeft, ArrowUp, MessageCircle } from "lucide-react";
-import { createClient } from "@/utils/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 import { Avatar, Badge, Card, ErrorState } from "@/components/ui";
 import { relativeTime } from "@/app/(app)/feed/types";
 import type { PostType } from "@/app/(app)/feed/types";
