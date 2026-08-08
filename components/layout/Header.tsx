@@ -2,22 +2,16 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Logo } from "../ui";
+import { Avatar, Logo } from "../ui";
 
 interface HeaderProps {
   signedIn: boolean;
+  username?: string | null;
 }
 
-const PUBLIC_NAV = [
+const NAV = [
   { href: "/", label: "Browse" },
   { href: "/feed", label: "Feed" },
-] as const;
-
-const PRIVATE_NAV = [
-  { href: "/", label: "Browse" },
-  { href: "/list", label: "My List" },
-  { href: "/feed", label: "Feed" },
-  { href: "/achievements", label: "Achievements" },
 ] as const;
 
 function isActiveRoute(pathname: string, href: string) {
@@ -28,9 +22,8 @@ function isActiveRoute(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-export function Header({ signedIn }: HeaderProps) {
+export function Header({ signedIn, username }: HeaderProps) {
   const pathname = usePathname();
-  const navItems = signedIn ? PRIVATE_NAV : PUBLIC_NAV;
 
   return (
     <header className="fixed inset-x-0 top-0 z-50 h-16 border-b border-border bg-white">
@@ -43,7 +36,7 @@ export function Header({ signedIn }: HeaderProps) {
           aria-label="Primary navigation"
           className="absolute left-1/2 hidden h-full -translate-x-1/2 items-center gap-8 md:flex"
         >
-          {navItems.map((item) => {
+          {NAV.map((item) => {
             const active = isActiveRoute(pathname, item.href);
 
             return (
@@ -71,7 +64,15 @@ export function Header({ signedIn }: HeaderProps) {
           })}
         </nav>
 
-        {!signedIn && (
+        {signedIn && username ? (
+          <Link
+            href={`/u/${username}`}
+            aria-label="Your profile"
+            className="ml-auto shrink-0 rounded-full transition-opacity hover:opacity-80"
+          >
+            <Avatar name={username} size="sm" />
+          </Link>
+        ) : !signedIn ? (
           <div className="ml-auto flex items-center gap-2">
             <Link
               href="/login"
@@ -87,7 +88,7 @@ export function Header({ signedIn }: HeaderProps) {
               Sign up
             </Link>
           </div>
-        )}
+        ) : null}
       </div>
     </header>
   );
