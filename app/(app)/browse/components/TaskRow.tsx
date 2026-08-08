@@ -5,11 +5,13 @@ import Link from "next/link";
 import { Check, Sparkles, Users, Bookmark } from "lucide-react";
 import type { Experience } from "../types";
 import { getTaskMeta } from "../types";
+import { useAchievementUnlock } from "@/app/(app)/achievements/components/AchievementUnlockProvider";
+import { checkAndUnlockAchievements } from "@/app/(app)/achievements/actions";
 
 interface TaskRowProps {
   experience: Experience;
   done: boolean;
-  onToggle: () => void;
+  onToggle: () => Promise<void>;
   onRemove?: () => void;
 }
 
@@ -21,6 +23,8 @@ export function TaskRow({
 }: TaskRowProps) {
   const [prevDone, setPrevDone] = useState(done);
   const [isCelebrating, setIsCelebrating] = useState(false);
+  const { showAchievements } = useAchievementUnlock();
+  const [isToggling, setIsToggling] = useState(false);
 
   const { difficulty, thumbnail, adoption, completions } = getTaskMeta(
     experience.id,
@@ -37,6 +41,30 @@ export function TaskRow({
     const timeout = setTimeout(() => setIsCelebrating(false), 650);
     return () => clearTimeout(timeout);
   }, [isCelebrating]);
+
+  async function handleToggle() {
+    if (isToggling) {
+      return;
+    }
+
+    const completing = !done;
+
+    setIsToggling(true);
+
+    try {
+      await onToggle();
+
+      if (!completing) {
+        return;
+      }
+
+      const unlockedAchievements = await checkAndUnlockAchievements();
+
+      showAchievements(unlockedAchievements);
+    } finally {
+      setIsToggling(false);
+    }
+  }
 
   return (
     <li
@@ -68,8 +96,9 @@ export function TaskRow({
               aria-label={`${done ? "Mark as incomplete" : "Mark as complete"}: ${
                 experience.title
               }`}
-              onClick={onToggle}
-              className="task-checkbox pointer-events-auto shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/30"
+              onClick={handleToggle}
+              disabled={isToggling}
+              className="task-checkbox pointer-events-auto shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/30 disabled:pointer-events-none disabled:opacity-60"
             >
               <Check className="task-checkmark h-3 w-3" strokeWidth={3} />
             </button>
