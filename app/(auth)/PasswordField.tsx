@@ -3,7 +3,7 @@
 import { useState } from "react";
 
 const INPUT_CLASS =
-  "w-full h-11 border border-border rounded-xl px-3.5 pr-10 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all";
+  "w-full h-11 border border-border rounded-xl px-3.5 pr-10 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent transition-all";
 
 export function PasswordField({
   id,

@@ -90,7 +90,7 @@ export function NewPostForm({ experiences }: NewPostFormProps) {
             placeholder={
               type ? TITLE_PLACEHOLDER[type] : "Give your post a clear title"
             }
-            className="w-full h-14 rounded-lg border-2 border-border bg-white px-4 text-lg font-semibold text-ink placeholder:font-normal placeholder:text-muted transition-all focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
+            className="w-full h-14 rounded-lg border-2 border-border bg-white px-4 text-lg font-semibold text-ink placeholder:font-normal placeholder:text-muted transition-all focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
           />
           {showTitleError && (
             <p className="mt-1.5 text-xs text-red-600">Title is required.</p>
@@ -112,7 +112,7 @@ export function NewPostForm({ experiences }: NewPostFormProps) {
             onChange={(event) => setBody(event.target.value)}
             placeholder="Share the details — what happened, what you learned, or what you need help with."
             style={{ minHeight: 240 }}
-            className="w-full rounded-md border border-border bg-white p-4 text-sm leading-relaxed transition-all focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
+            className="w-full rounded-md border border-border bg-white p-4 text-sm leading-relaxed transition-all focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
           />
           {showBodyError && (
             <p className="mt-1.5 text-xs text-red-600">Body is required.</p>

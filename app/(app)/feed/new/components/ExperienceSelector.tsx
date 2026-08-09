@@ -68,7 +68,7 @@ export function ExperienceSelector({
         onBlur={() => setOpen(false)}
         placeholder="Search for an experience..."
         aria-label="Search for an experience"
-        className="h-11 w-full rounded-md border border-border bg-white pl-10 pr-3.5 text-sm transition-all focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
+        className="h-11 w-full rounded-md border border-border bg-white pl-10 pr-3.5 text-sm transition-all focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
       />
 
       {open && matches.length > 0 && (

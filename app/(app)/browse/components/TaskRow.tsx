@@ -102,7 +102,7 @@ export function TaskRow({
       <Link
         href={`/tasks/${experience.id}`}
         aria-label={experience.title}
-        className="absolute inset-0 z-10 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/30"
+        className="absolute inset-0 z-10 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/30"
       />
 
       <div className="pointer-events-none flex items-center gap-4 rounded-xl p-3">
@@ -128,7 +128,7 @@ export function TaskRow({
                 }: ${experience.title}`}
                 onClick={handleToggle}
                 disabled={isToggling}
-                className="task-checkbox pointer-events-auto relative z-20 shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/30 disabled:pointer-events-none disabled:opacity-60"
+                className="task-checkbox pointer-events-auto relative z-20 shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/30 disabled:pointer-events-none disabled:opacity-60"
               >
                 <Check className="task-checkmark h-3 w-3" strokeWidth={3} />
               </button>
@@ -170,7 +170,7 @@ export function TaskRow({
             type="button"
             onClick={onGuestSave}
             aria-label={`Save ${experience.title}`}
-            className="pointer-events-auto relative z-20 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-muted transition-colors hover:bg-background hover:text-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/30"
+            className="pointer-events-auto relative z-20 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-muted transition-colors hover:bg-background hover:text-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/30"
           >
             <Bookmark className="h-4 w-4" />
           </button>
@@ -181,7 +181,7 @@ export function TaskRow({
             type="button"
             onClick={onRemove}
             aria-label={`Remove ${experience.title} from My List`}
-            className="pointer-events-auto relative z-20 flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-accent transition-colors hover:bg-background focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/30"
+            className="pointer-events-auto relative z-20 flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-accent transition-colors hover:bg-background focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/30"
           >
             <Bookmark className="h-4 w-4" fill="currentColor" />
           </button>

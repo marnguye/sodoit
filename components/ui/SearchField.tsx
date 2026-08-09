@@ -36,7 +36,7 @@ export function SearchField({
         onChange={(event) => onChange(event.target.value)}
         placeholder="Search the marketplace..."
         aria-keyshortcuts="Meta+K Control+K"
-        className="w-full h-11 border border-border rounded-xl pl-10 pr-16 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
+        className="w-full h-11 border border-border rounded-xl pl-10 pr-16 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent transition-all"
       />
       <kbd
         aria-hidden="true"

@@ -60,7 +60,7 @@ export function PostTypeSelector({ value, onChange }: PostTypeSelectorProps) {
             aria-checked={selected}
             autoFocus={index === 0}
             onClick={() => onChange(type)}
-            className={`relative flex flex-col items-start gap-2 rounded-xl border-2 p-4 text-left transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/30 ${
+            className={`relative flex flex-col items-start gap-2 rounded-xl border-2 p-4 text-left transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/30 ${
               selected
                 ? "border-accent bg-accent-light"
                 : "border-border bg-white hover:border-accent/50"

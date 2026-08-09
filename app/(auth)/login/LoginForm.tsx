@@ -35,7 +35,7 @@ export function LoginForm() {
 
   return (
     <div
-      className="w-full max-w-[400px] bg-white border border-border rounded-2xl p-10"
+      className="w-full max-w-[400px] bg-white border border-border rounded-xl p-10"
       style={{ boxShadow: "0 4px 24px rgba(0,0,0,0.06)" }}
     >
       <div className="flex justify-center">
