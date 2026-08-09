@@ -18,6 +18,8 @@ interface ExperienceRow {
   id: string;
   title: string;
   category: string | null;
+  image_url: string | null;
+  image_alt: string | null;
 }
 
 interface CompletedRow {
@@ -60,7 +62,7 @@ export async function loadProfile(
   const [completedResult, achievementsResult, postsResult] = await Promise.all([
     supabase
       .from("user_lists")
-      .select("experiences(id, title, category)")
+      .select("experiences(id, title, category, image_url, image_alt)")
       .eq("user_id", profile.id)
       .eq("status", "completed"),
 
@@ -124,6 +126,8 @@ export async function loadProfile(
       id: experience.id,
       title: experience.title,
       category: experience.category,
+      image_url: experience.image_url,
+      image_alt: experience.image_alt,
     })),
     earnedMilestoneIds,
     stats,

@@ -1,4 +1,10 @@
-export type Experience = { id: string; title: string; category: string | null };
+export interface Experience {
+  id: string;
+  title: string;
+  category: string | null;
+  image_url: string | null;
+  image_alt: string | null;
+}
 export type StatusFilter = "all" | "completed" | "uncompleted";
 export type ListStatus = "saved" | "completed";
 
