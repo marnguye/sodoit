@@ -22,7 +22,7 @@ export async function loadMyList(
   const { data: rows } = (await supabase
     .from("user_lists")
     .select(
-      "id, status, experiences(id, title, category, image_url, image_alt)",
+      "id, status, experiences(id, title, category, description, difficulty, image_url, image_alt)",
     )
     .eq("user_id", userId)
     .order("created_at", { ascending: false })) as { data: ListRow[] | null };

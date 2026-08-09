@@ -2,6 +2,8 @@ export interface Experience {
   id: string;
   title: string;
   category: string | null;
+  description: string | null;
+  difficulty: string | null;
   image_url: string | null;
   image_alt: string | null;
 }
@@ -42,4 +44,21 @@ export function getTaskMeta(id: string): TaskMeta {
   const adoption = 50 + (hash % 950);
   const completions = Math.floor(adoption * (0.2 + (hash % 50) / 100));
   return { difficulty, thumbnail, adoption, completions };
+}
+
+export function getDifficulty(
+  id: string,
+  stored?: string | null,
+): (typeof DIFFICULTIES)[number] {
+  if (stored) {
+    const matched = DIFFICULTIES.find(
+      (difficulty) => difficulty.label.toLowerCase() === stored.toLowerCase(),
+    );
+
+    if (matched) {
+      return matched;
+    }
+  }
+
+  return getTaskMeta(id).difficulty;
 }

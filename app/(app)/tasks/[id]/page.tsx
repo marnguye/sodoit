@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { ChevronLeft, Sparkles, Users, CheckCircle2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { Badge, Avatar, Card, ExperienceImage } from "@/components/ui";
-import { getTaskMeta } from "@/app/(app)/browse/types";
+import { getTaskMeta, getDifficulty } from "@/app/(app)/browse/types";
 import type { ListStatus } from "@/app/(app)/browse/types";
 import { ActionPanel } from "./ActionPanel";
 
@@ -11,8 +11,17 @@ interface TaskRow {
   id: string;
   title: string;
   category: string | null;
+  description: string | null;
+  difficulty: string | null;
   image_url: string | null;
   image_alt: string | null;
+}
+
+interface SimilarExperience {
+  id: string;
+  title: string;
+  category: string | null;
+  difficulty: string | null;
 }
 
 const PRACTICAL_TIPS: readonly string[] = [
@@ -43,7 +52,9 @@ export default async function TaskDetailPage({
 
   const { data: task } = await supabase
     .from("experiences")
-    .select("id, title, category, image_url, image_alt")
+    .select(
+      "id, title, category, description, difficulty, image_url, image_alt",
+    )
     .eq("id", id)
     .single<TaskRow>();
 
@@ -79,15 +90,14 @@ export default async function TaskDetailPage({
   const { data: similar } = task.category
     ? await supabase
         .from("experiences")
-        .select("id, title, category")
+        .select("id, title, category, difficulty")
         .eq("category", task.category)
         .neq("id", task.id)
         .limit(3)
-    : { data: [] as { id: string; title: string; category: string | null }[] };
+    : { data: [] as SimilarExperience[] };
 
-  const { difficulty, thumbnail, adoption, completions } = getTaskMeta(
-    task.id,
-  );
+  const { thumbnail, adoption, completions } = getTaskMeta(task.id);
+  const difficulty = getDifficulty(task.id, task.difficulty);
 
   return (
     <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -142,7 +152,8 @@ export default async function TaskDetailPage({
               About this experience
             </h2>
             <p className="mt-2 text-sm text-muted leading-relaxed">
-              No description yet — just a good idea worth doing.
+              {task.description ||
+                "No description yet — just a good idea worth doing."}
             </p>
           </div>
 
@@ -185,6 +196,7 @@ export default async function TaskDetailPage({
             <div className="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-3">
               {similar.map((item) => {
                 const meta = getTaskMeta(item.id);
+                const itemDifficulty = getDifficulty(item.id, item.difficulty);
                 return (
                   <Link key={item.id} href={`/tasks/${item.id}`}>
                     <Card className="h-full flex flex-col gap-2 hover:border-accent transition-colors">
@@ -198,10 +210,10 @@ export default async function TaskDetailPage({
                       </p>
                       <span
                         className="flex items-center gap-1 text-[11px] font-semibold"
-                        style={{ color: meta.difficulty.color }}
+                        style={{ color: itemDifficulty.color }}
                       >
                         <Sparkles className="h-3 w-3" />
-                        {meta.difficulty.label} · {meta.difficulty.xp} XP
+                        {itemDifficulty.label} · {itemDifficulty.xp} XP
                       </span>
                       <span className="flex items-center gap-1 text-[11px] text-muted">
                         <Users className="h-3 w-3" />
