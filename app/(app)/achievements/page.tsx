@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { loginHrefWithNext } from "@/lib/auth-redirect";
 import { PageShell, Card, ErrorState } from "@/components/ui";
 import {
   MILESTONES,
@@ -49,7 +50,7 @@ export default async function AchievementsPage() {
           <p className="text-sm text-muted">
             Log in to see your achievements.{" "}
             <Link
-              href="/login"
+              href={loginHrefWithNext("/achievements")}
               className="font-semibold text-accent hover:text-accent-dark"
             >
               Log in →

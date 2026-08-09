@@ -1,16 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { Logo } from "@/components/ui";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { getSafeNextPath } from "@/lib/auth-redirect";
 import { INPUT_CLASS, PasswordField } from "../PasswordField";
 import { passwordStrength } from "@/lib/password";
 
-const USERNAME_RE = /^[a-z0-9_-]{3,20}$/;
+const USERNAME_RE = /^[a-z0-9_-]{3,24}$/;
 
 const STRENGTH_COLORS = ["#DC2626", "#F97316", "#EAB308", "#16A34A"];
 
-export function SignupForm() {
+export function SignupForm({ next }: { next: string }) {
   const [displayName, setDisplayName] = useState("");
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -21,15 +22,17 @@ export function SignupForm() {
   const [submittedEmail, setSubmittedEmail] = useState<string | null>(null);
 
   const strength = passwordStrength(password);
+  const safeNext = getSafeNextPath(next);
+  const loginHref = `/login?next=${encodeURIComponent(safeNext)}`;
 
-  async function handleSubmit(e: React.SubmitEvent) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
     setUsernameError(null);
 
     if (!USERNAME_RE.test(username)) {
       setUsernameError(
-        "Username must be 3-20 lowercase letters, numbers, underscores, or dashes.",
+        "Username must be 3-24 lowercase letters, numbers, underscores, or dashes.",
       );
       return;
     }
@@ -52,7 +55,10 @@ export function SignupForm() {
     const { error: signUpError } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: { username, display_name: displayName } },
+      options: {
+        data: { username, display_name: displayName },
+        emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(safeNext)}`,
+      },
     });
 
     if (signUpError) {
@@ -67,18 +73,12 @@ export function SignupForm() {
 
   if (submittedEmail) {
     return (
-      <div
-        className="w-full max-w-[400px] bg-white border border-border rounded-xl p-10 text-center"
-        style={{ boxShadow: "0 4px 24px rgba(0,0,0,0.06)" }}
-      >
-        <div className="flex justify-center">
-          <Logo size="md" />
-        </div>
-        <p className="text-4xl text-accent font-black mt-6">✓</p>
-        <h1 className="text-[22px] font-extrabold text-ink mt-3">
+      <div className="text-center">
+        <p className="text-4xl font-black text-accent">✓</p>
+        <h1 className="mt-3 text-2xl font-extrabold text-ink">
           Check your email
         </h1>
-        <p className="text-sm text-muted mt-2 leading-relaxed">
+        <p className="mt-2 text-sm leading-relaxed text-muted">
           We sent a confirmation link to {submittedEmail}. Click it to activate
           your account.
         </p>
@@ -87,25 +87,15 @@ export function SignupForm() {
   }
 
   return (
-    <div
-      className="w-full max-w-[400px] bg-white border border-border rounded-xl p-10"
-      style={{ boxShadow: "0 4px 24px rgba(0,0,0,0.06)" }}
-    >
-      <div className="flex justify-center">
-        <Logo size="md" />
-      </div>
-      <h1 className="text-[22px] font-extrabold text-ink text-center mt-5">
-        Create your account
-      </h1>
-      <p className="text-sm text-muted text-center mt-1">
-        Join Sodoit and start your list
-      </p>
+    <div>
+      <h1 className="text-2xl font-extrabold text-ink">Create your account</h1>
+      <p className="mt-1.5 text-sm text-muted">Start building your list.</p>
 
-      <form onSubmit={handleSubmit} className="mt-7 flex flex-col gap-4">
+      <form onSubmit={handleSubmit} className="mt-7 flex flex-col gap-3">
         <div>
           <label
             htmlFor="displayName"
-            className="block text-[13px] font-semibold text-ink mb-1.5"
+            className="mb-1.5 block text-[13px] font-semibold text-ink"
           >
             Your name
           </label>
@@ -115,6 +105,7 @@ export function SignupForm() {
             type="text"
             required
             placeholder="Jan Novák"
+            autoComplete="name"
             value={displayName}
             onChange={(e) => setDisplayName(e.target.value)}
             className={INPUT_CLASS}
@@ -124,12 +115,12 @@ export function SignupForm() {
         <div>
           <label
             htmlFor="username"
-            className="block text-[13px] font-semibold text-ink mb-1.5"
+            className="mb-1.5 block text-[13px] font-semibold text-ink"
           >
             Username
           </label>
           <div className="relative">
-            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-muted pointer-events-none">
+            <span className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-muted">
               @
             </span>
             <input
@@ -138,6 +129,7 @@ export function SignupForm() {
               type="text"
               required
               placeholder="jannovak"
+              autoComplete="username"
               value={username}
               onChange={(e) => {
                 setUsername(e.target.value.toLowerCase());
@@ -148,14 +140,14 @@ export function SignupForm() {
             />
           </div>
           {usernameError && (
-            <p className="text-xs text-red-600 mt-1.5">{usernameError}</p>
+            <p className="mt-1.5 text-xs text-red-600">{usernameError}</p>
           )}
         </div>
 
         <div>
           <label
             htmlFor="email"
-            className="block text-[13px] font-semibold text-ink mb-1.5"
+            className="mb-1.5 block text-[13px] font-semibold text-ink"
           >
             Email
           </label>
@@ -164,6 +156,7 @@ export function SignupForm() {
             name="email"
             type="email"
             required
+            autoComplete="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             className={INPUT_CLASS}
@@ -176,8 +169,9 @@ export function SignupForm() {
             label="Password"
             value={password}
             onChange={setPassword}
+            autoComplete="new-password"
           />
-          <div className="flex gap-1.5 mt-2">
+          <div className="mt-2 flex gap-1.5">
             {[0, 1, 2, 3].map((i) => (
               <div
                 key={i}
@@ -194,23 +188,26 @@ export function SignupForm() {
         <button
           type="submit"
           disabled={loading}
-          className="mt-2 h-12 rounded-xl bg-accent hover:bg-accent-dark text-white font-bold text-[15px] transition-colors disabled:opacity-70"
+          className="mt-2 h-11 rounded-md bg-accent text-[15px] font-bold text-white transition-colors hover:bg-accent-dark disabled:opacity-70"
         >
           {loading ? "Creating account..." : "Create account"}
         </button>
 
         {error && (
-          <p className="bg-red-50 border border-red-200 rounded-lg px-3.5 py-2.5 text-[13px] text-red-600">
+          <p
+            role="alert"
+            className="rounded-md border border-red-200 bg-red-50 px-3.5 py-2.5 text-[13px] text-red-600"
+          >
             {error}
           </p>
         )}
       </form>
 
-      <p className="text-center text-[13px] text-muted mt-6">
+      <p className="mt-6 text-center text-[13px] text-muted">
         Already have an account?{" "}
-        <a href="/login" className="text-accent font-semibold">
+        <Link href={loginHref} className="font-semibold text-accent">
           Log in
-        </a>
+        </Link>
       </p>
     </div>
   );

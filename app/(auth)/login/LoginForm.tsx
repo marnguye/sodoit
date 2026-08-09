@@ -1,19 +1,23 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Logo } from "@/components/ui";
 import { createClient } from "@/lib/supabase/client";
+import { getSafeNextPath } from "@/lib/auth-redirect";
 import { INPUT_CLASS, PasswordField } from "../PasswordField";
 
-export function LoginForm() {
+export function LoginForm({ next }: { next: string }) {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  async function handleSubmit(e: React.SubmitEvent) {
+  const safeNext = getSafeNextPath(next);
+  const signupHref = `/signup?next=${encodeURIComponent(safeNext)}`;
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setLoading(true);
     setError(null);
@@ -25,34 +29,29 @@ export function LoginForm() {
     });
 
     if (error) {
-      setError(error.message);
+      setError(
+        error.status === 400 ? "Incorrect email or password." : error.message,
+      );
       setLoading(false);
       return;
     }
 
-    router.push("/app");
+    router.push(safeNext);
+    router.refresh();
   }
 
   return (
-    <div
-      className="w-full max-w-[400px] bg-white border border-border rounded-xl p-10"
-      style={{ boxShadow: "0 4px 24px rgba(0,0,0,0.06)" }}
-    >
-      <div className="flex justify-center">
-        <Logo size="md" />
-      </div>
-      <h1 className="text-[22px] font-extrabold text-ink text-center mt-5">
-        Welcome back
-      </h1>
-      <p className="text-sm text-muted text-center mt-1">
-        Log in to your Sodoit account
+    <div>
+      <h1 className="text-2xl font-extrabold text-ink">Welcome back</h1>
+      <p className="mt-1.5 text-sm text-muted">
+        Log in to continue where you left off.
       </p>
 
       <form onSubmit={handleSubmit} className="mt-7 flex flex-col gap-4">
         <div>
           <label
             htmlFor="email"
-            className="block text-[13px] font-semibold text-ink mb-1.5"
+            className="mb-1.5 block text-[13px] font-semibold text-ink"
           >
             Email
           </label>
@@ -61,6 +60,7 @@ export function LoginForm() {
             name="email"
             type="email"
             required
+            autoComplete="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             className={INPUT_CLASS}
@@ -72,43 +72,33 @@ export function LoginForm() {
           label="Password"
           value={password}
           onChange={setPassword}
+          autoComplete="current-password"
         />
 
         <button
           type="submit"
           disabled={loading}
-          className="mt-2 h-12 rounded-xl bg-accent hover:bg-accent-dark text-white font-bold text-[15px] transition-colors disabled:opacity-70"
+          className="mt-2 h-11 rounded-md bg-accent text-[15px] font-bold text-white transition-colors hover:bg-accent-dark disabled:opacity-70"
         >
           {loading ? "Logging in..." : "Log in"}
         </button>
 
         {error && (
-          <p className="bg-red-50 border border-red-200 rounded-lg px-3.5 py-2.5 text-[13px] text-red-600">
+          <p
+            role="alert"
+            className="rounded-md border border-red-200 bg-red-50 px-3.5 py-2.5 text-[13px] text-red-600"
+          >
             {error}
           </p>
         )}
       </form>
 
-      <div className="flex items-center gap-3 mt-6">
-        <div className="h-px bg-border flex-1" />
-        <span className="text-xs text-muted">or</span>
-        <div className="h-px bg-border flex-1" />
-      </div>
-
-      <button
-        type="button"
-        onClick={() => router.push("/signup")}
-        className="mt-6 w-full h-11 border border-border rounded-xl bg-white text-sm font-semibold text-ink hover:bg-background transition-colors"
-      >
-        Create an account
-      </button>
-
-      <a
-        href="#"
-        className="block text-center text-[13px] text-muted mt-4 hover:text-ink transition-colors"
-      >
-        Forgot your password?
-      </a>
+      <p className="mt-6 text-center text-[13px] text-muted">
+        Don&apos;t have an account?{" "}
+        <Link href={signupHref} className="font-semibold text-accent">
+          Create account
+        </Link>
+      </p>
     </div>
   );
 }

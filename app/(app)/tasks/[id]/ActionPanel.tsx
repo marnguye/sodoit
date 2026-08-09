@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { Check, Share2, ListPlus } from "lucide-react";
 import { Card } from "@/components/ui";
 import { setListStatus, removeFromMyList } from "@/app/(app)/browse/actions";
+import { loginHrefWithNext } from "@/lib/auth-redirect";
 import type { ListStatus } from "@/app/(app)/browse/types";
 
 interface ActionPanelProps {
@@ -23,6 +24,7 @@ export function ActionPanel({
   totalCompleted,
 }: ActionPanelProps) {
   const router = useRouter();
+  const pathname = usePathname();
   const [status, setStatus] = useState<ListStatus | null>(initialStatus);
   const [shared, setShared] = useState(false);
   const [, startTransition] = useTransition();
@@ -37,7 +39,7 @@ export function ActionPanel({
 
   function toggleComplete() {
     if (!signedIn) {
-      router.push("/login");
+      router.push(loginHrefWithNext(pathname));
       return;
     }
     apply(status === "completed" ? null : "completed");
@@ -45,7 +47,7 @@ export function ActionPanel({
 
   function toggleSave() {
     if (!signedIn) {
-      router.push("/login");
+      router.push(loginHrefWithNext(pathname));
       return;
     }
     if (status === "completed") return;

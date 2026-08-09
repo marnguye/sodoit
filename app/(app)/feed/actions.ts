@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { loginHrefWithNext } from "@/lib/auth-redirect";
 import { createClient } from "@/lib/supabase/server";
 
 export async function createPost(formData: FormData) {
@@ -12,7 +13,7 @@ export async function createPost(formData: FormData) {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("/login");
+    redirect(loginHrefWithNext("/feed/new"));
   }
 
   const title = String(formData.get("title") ?? "").trim();

@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { loginHrefWithNext } from "@/lib/auth-redirect";
 import { PageShell } from "@/components/ui";
 import { ProfileForm } from "./components/ProfileForm";
 
@@ -11,7 +12,7 @@ export default async function ProfileSettingsPage() {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("/login");
+    redirect(loginHrefWithNext("/settings/profile"));
   }
 
   const { data: profile } = await supabase

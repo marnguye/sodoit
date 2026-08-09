@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { ReactNode, useState } from "react";
 
 const INPUT_CLASS =
-  "w-full h-11 border border-border rounded-xl px-3.5 pr-10 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent transition-all";
+  "w-full h-11 border border-border rounded-md px-3.5 pr-10 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent transition-all";
 
 export function PasswordField({
   id,
@@ -11,23 +11,27 @@ export function PasswordField({
   value,
   onChange,
   placeholder,
+  autoComplete = "current-password",
+  labelExtra,
 }: {
   id: string;
   label: string;
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
+  autoComplete?: "current-password" | "new-password";
+  labelExtra?: ReactNode;
 }) {
   const [visible, setVisible] = useState(false);
 
   return (
     <div>
-      <label
-        htmlFor={id}
-        className="block text-[13px] font-semibold text-ink mb-1.5"
-      >
-        {label}
-      </label>
+      <div className="mb-1.5 flex items-center justify-between gap-2">
+        <label htmlFor={id} className="text-[13px] font-semibold text-ink">
+          {label}
+        </label>
+        {labelExtra}
+      </div>
       <div className="relative">
         <input
           id={id}
@@ -37,6 +41,7 @@ export function PasswordField({
           placeholder={placeholder}
           value={value}
           onChange={(e) => onChange(e.target.value)}
+          autoComplete={autoComplete}
           className={INPUT_CLASS}
         />
         <button

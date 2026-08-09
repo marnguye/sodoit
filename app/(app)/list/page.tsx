@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { loginHrefWithNext } from "@/lib/auth-redirect";
 import { loadMyList } from "./data";
 import { MyListBoard } from "./MyListBoard";
 
@@ -18,7 +19,7 @@ export default async function MyListPage() {
           Log in to see the experiences you&apos;ve saved and completed.
         </p>
         <Link
-          href="/login"
+          href={loginHrefWithNext("/list")}
           className="mt-4 inline-block text-accent font-semibold text-sm hover:text-accent-dark transition-colors"
         >
           Log in →
