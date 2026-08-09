@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Bookmark, Check, Sparkles, Users } from "lucide-react";
+import { Bookmark, Check, Sparkles } from "lucide-react";
 
 import { useAchievementUnlock } from "@/app/(app)/achievements/components/AchievementUnlockProvider";
 import { checkAndUnlockAchievements } from "@/app/(app)/achievements/actions";
@@ -18,6 +18,7 @@ interface TaskRowProps {
   onRemove?: () => void;
   guest?: boolean;
   onGuestSave?: () => void;
+  className?: string;
 }
 
 export function TaskRow({
@@ -27,6 +28,7 @@ export function TaskRow({
   onRemove,
   guest = false,
   onGuestSave,
+  className = "",
 }: TaskRowProps) {
   const { showAchievements } = useAchievementUnlock();
 
@@ -35,9 +37,7 @@ export function TaskRow({
   const [isCelebrating, setIsCelebrating] = useState(false);
   const [isToggling, setIsToggling] = useState(false);
 
-  const { difficulty, thumbnail, adoption, completions } = getTaskMeta(
-    experience.id,
-  );
+  const { difficulty, thumbnail } = getTaskMeta(experience.id);
 
   useEffect(() => {
     if (previousDone.current === done) {
@@ -95,6 +95,7 @@ export function TaskRow({
         "task-card relative rounded-xl transition-colors duration-200 hover:bg-card",
         done ? "is-done" : "",
         isCelebrating ? "is-celebrating" : "",
+        className,
       ].join(" ")}
     >
       <Link
@@ -158,12 +159,7 @@ export function TaskRow({
               style={{ color: difficulty.color }}
             >
               <Sparkles className="h-3 w-3" />
-              {difficulty.label} · {difficulty.xp} XP
-            </span>
-
-            <span className="flex items-center gap-1 text-[11px] text-muted">
-              <Users className="h-3 w-3" />
-              {adoption} added · {completions} completed
+              {difficulty.label}
             </span>
           </div>
         </div>
