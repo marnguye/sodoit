@@ -60,8 +60,12 @@ export default async function UserProfilePage({
       <div className="grid gap-8 lg:grid-cols-[280px_minmax(0,1fr)]">
         <aside className="lg:sticky lg:top-24 lg:self-start">
           <ProfileHeader
+            userId={profile.id}
             username={profile.username}
+            bio={profile.bio}
+            avatarUrl={profile.avatarUrl}
             joinedAt={profile.joinedAt}
+            isOwner={isOwner}
           />
           <ProfileStats
             completed={profile.completedCount}

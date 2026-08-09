@@ -18,6 +18,8 @@ export interface ProfilePost {
 export interface ProfileViewModel {
   id: string;
   username: string;
+  bio: string | null;
+  avatarUrl: string | null;
   joinedAt: string;
   completedCount: number;
   categoryCount: number;

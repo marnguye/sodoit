@@ -9,6 +9,8 @@ const POSTS_LIMIT = 20;
 interface ProfileRow {
   id: string;
   username: string | null;
+  bio: string | null;
+  avatar_url: string | null;
   created_at: string;
 }
 
@@ -46,7 +48,7 @@ export async function loadProfile(
 
   const { data: profileData, error: profileError } = await supabase
     .from("profiles")
-    .select("id, username, created_at")
+    .select("id, username, bio, avatar_url, created_at")
     .eq("username", username)
     .maybeSingle();
 
@@ -110,6 +112,8 @@ export async function loadProfile(
   return {
     id: profile.id,
     username: profile.username ?? "User",
+    bio: profile.bio,
+    avatarUrl: profile.avatar_url,
     joinedAt: profile.created_at,
     completedCount: completedExperiences.length,
     categoryCount: categoriesCompleted.size,
