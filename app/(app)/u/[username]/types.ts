@@ -5,6 +5,8 @@ export interface CompletedExperience {
   id: string;
   title: string;
   category: string | null;
+  image_url: string | null;
+  image_alt: string | null;
 }
 
 export interface ProfilePost {

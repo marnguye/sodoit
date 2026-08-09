@@ -10,7 +10,7 @@ export default async function HomePage() {
 
   const { data: experiences } = await supabase
     .from("experiences")
-    .select("id, title, category")
+    .select("id, title, category, image_url, image_alt")
     .order("created_at", { ascending: false });
 
   let completedIds: string[] = [];
