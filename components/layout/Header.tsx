@@ -7,6 +7,7 @@ import { Avatar, Logo } from "../ui";
 interface HeaderProps {
   signedIn: boolean;
   username?: string | null;
+  avatarUrl?: string | null;
 }
 
 const NAV = [
@@ -22,7 +23,7 @@ function isActiveRoute(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-export function Header({ signedIn, username }: HeaderProps) {
+export function Header({ signedIn, username, avatarUrl }: HeaderProps) {
   const pathname = usePathname();
 
   return (
@@ -70,7 +71,7 @@ export function Header({ signedIn, username }: HeaderProps) {
             aria-label="Your profile"
             className="ml-auto shrink-0 rounded-full transition-opacity hover:opacity-80"
           >
-            <Avatar name={username} size="sm" />
+            <Avatar name={username} src={avatarUrl} size="sm" />
           </Link>
         ) : !signedIn ? (
           <div className="ml-auto flex items-center gap-2">

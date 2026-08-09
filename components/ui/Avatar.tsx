@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 const colors = [
   "#FED7AA",
   "#FDE68A",
@@ -29,15 +31,29 @@ function initialsForName(name: string) {
 
 export function Avatar({
   name,
+  src,
   size = "md",
 }: {
   name: string;
+  src?: string | null;
   size?: keyof typeof sizes;
 }) {
   const { box, font } = sizes[size];
+
+  if (src) {
+    return (
+      <span
+        className="relative block shrink-0 overflow-hidden rounded-full"
+        style={{ width: box, height: box }}
+      >
+        <Image src={src} alt={name} fill sizes={box} className="object-cover" />
+      </span>
+    );
+  }
+
   return (
     <div
-      className="rounded-full flex items-center justify-center"
+      className="rounded-full flex items-center justify-center shrink-0"
       style={{
         width: box,
         height: box,
