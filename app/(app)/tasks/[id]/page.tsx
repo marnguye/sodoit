@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ChevronLeft, Sparkles, Users, CheckCircle2 } from "lucide-react";
+import { ChevronLeft, Sparkles, CheckCircle2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
-import { Badge, Avatar, Card, ExperienceImage } from "@/components/ui";
+import { Badge, Card, ExperienceImage } from "@/components/ui";
 import { getTaskMeta, getDifficulty } from "@/app/(app)/browse/types";
 import type { ListStatus } from "@/app/(app)/browse/types";
 import { ActionPanel } from "./ActionPanel";
@@ -29,17 +29,6 @@ const PRACTICAL_TIPS: readonly string[] = [
   "Tell a friend you're doing this — accountability makes it stick.",
   "Break it into one small first step you can do today.",
   "Take a photo when you finish. It's optional, but future-you will thank you.",
-];
-
-interface CommunityCompletion {
-  name: string;
-  when: string;
-}
-
-const COMMUNITY_COMPLETIONS: readonly CommunityCompletion[] = [
-  { name: "Mara K.", when: "2 days ago" },
-  { name: "Teo V.", when: "5 days ago" },
-  { name: "Ines M.", when: "1 week ago" },
 ];
 
 export default async function TaskDetailPage({
@@ -96,11 +85,11 @@ export default async function TaskDetailPage({
         .limit(3)
     : { data: [] as SimilarExperience[] };
 
-  const { thumbnail, adoption, completions } = getTaskMeta(task.id);
+  const { thumbnail } = getTaskMeta(task.id);
   const difficulty = getDifficulty(task.id, task.difficulty);
 
   return (
-    <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
       <Link
         href="/browse"
         className="inline-flex items-center gap-1 text-sm font-semibold text-muted hover:text-ink transition-colors"
@@ -109,33 +98,31 @@ export default async function TaskDetailPage({
         Back to Browse
       </Link>
 
-      <div className="mt-4 grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6 items-start">
+      <div className="mt-3 sm:mt-4 grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-4 sm:gap-6 items-start">
         <ExperienceImage
           title={task.title}
           imageUrl={task.image_url}
           imageAlt={task.image_alt}
           fallbackColor={thumbnail}
-          className="order-1 lg:order-none lg:col-start-1 lg:row-start-1 h-[320px] sm:h-[360px] rounded-xl"
+          className="order-1 lg:order-none lg:col-start-1 lg:row-start-1 h-[200px] sm:h-[320px] lg:h-[360px] rounded-xl"
           sizes="(min-width: 1024px) 800px, 100vw"
         />
 
-        <div className="order-2 lg:order-none lg:col-start-2 lg:row-start-1 lg:row-span-4 lg:sticky lg:top-20 flex flex-col gap-4">
-          <div className="flex flex-wrap items-center gap-3">
+        <div className="order-2 lg:order-none lg:col-start-2 lg:row-start-1 lg:row-span-3 lg:sticky lg:top-6 flex flex-col gap-3 sm:gap-4">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
             {task.category && <Badge variant="accent">{task.category}</Badge>}
             <span
               className="flex items-center gap-1 text-[11px] font-semibold"
               style={{ color: difficulty.color }}
             >
               <Sparkles className="h-3 w-3" />
-              {difficulty.label} · {difficulty.xp} XP
-            </span>
-            <span className="flex items-center gap-1 text-[11px] text-muted">
-              <Users className="h-3 w-3" />
-              {adoption} added · {completions} completed
+              {difficulty.label}
             </span>
           </div>
 
-          <h1 className="text-2xl font-extrabold text-ink">{task.title}</h1>
+          <h1 className="text-xl sm:text-2xl font-extrabold text-ink">
+            {task.title}
+          </h1>
 
           <ActionPanel
             taskId={task.id}
@@ -146,7 +133,7 @@ export default async function TaskDetailPage({
           />
         </div>
 
-        <Card className="order-3 lg:order-none lg:col-start-1 lg:row-start-2 flex flex-col gap-6">
+        <Card className="order-3 lg:order-none lg:col-start-1 lg:row-start-2 flex flex-col gap-5 p-4 sm:p-5">
           <div>
             <h2 className="text-sm font-bold text-ink">
               About this experience
@@ -173,33 +160,15 @@ export default async function TaskDetailPage({
           </div>
         </Card>
 
-        <div className="order-4 lg:order-none lg:col-start-1 lg:row-start-3">
-          <h2 className="text-sm font-bold text-ink">Community completions</h2>
-          <div className="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-3">
-            {COMMUNITY_COMPLETIONS.map((entry) => (
-              <Card key={entry.name} className="flex items-center gap-3 p-3">
-                <Avatar name={entry.name} size="sm" />
-                <div className="min-w-0">
-                  <p className="text-sm font-semibold text-ink truncate">
-                    {entry.name}
-                  </p>
-                  <p className="text-xs text-muted">{entry.when}</p>
-                </div>
-              </Card>
-            ))}
-          </div>
-        </div>
-
         {similar && similar.length > 0 && (
-          <div className="order-5 lg:order-none lg:col-start-1 lg:row-start-4">
+          <div className="order-4 lg:order-none lg:col-start-1 lg:row-start-3">
             <h2 className="text-sm font-bold text-ink">Similar tasks</h2>
             <div className="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-3">
               {similar.map((item) => {
-                const meta = getTaskMeta(item.id);
                 const itemDifficulty = getDifficulty(item.id, item.difficulty);
                 return (
                   <Link key={item.id} href={`/tasks/${item.id}`}>
-                    <Card className="h-full flex flex-col gap-2 hover:border-accent transition-colors">
+                    <Card className="h-full flex flex-col gap-2 p-4 hover:border-accent transition-colors">
                       {item.category && (
                         <Badge variant="accent" className="self-start">
                           {item.category}
@@ -213,11 +182,7 @@ export default async function TaskDetailPage({
                         style={{ color: itemDifficulty.color }}
                       >
                         <Sparkles className="h-3 w-3" />
-                        {itemDifficulty.label} · {itemDifficulty.xp} XP
-                      </span>
-                      <span className="flex items-center gap-1 text-[11px] text-muted">
-                        <Users className="h-3 w-3" />
-                        {meta.adoption} added · {meta.completions} completed
+                        {itemDifficulty.label}
                       </span>
                     </Card>
                   </Link>

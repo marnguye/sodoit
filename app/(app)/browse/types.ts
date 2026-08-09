@@ -12,9 +12,6 @@ export type ListStatus = "saved" | "completed";
 
 export const PAGE_SIZE = 30;
 
-// Canonical category set — mirrors CATEGORY_ICONS in achievements/data.ts
-// and the content pipeline's validation list. No categories table exists;
-// this list IS the current data model.
 export const CATEGORIES = [
   "Adventure",
   "Culture",
@@ -35,9 +32,9 @@ export function hashString(value: string): number {
 }
 
 export const DIFFICULTIES = [
-  { label: "Easy", xp: 10, color: "#16A34A" },
-  { label: "Medium", xp: 25, color: "#F97316" },
-  { label: "Hard", xp: 50, color: "#DC2626" },
+  { label: "Easy", color: "#16A34A" },
+  { label: "Medium", color: "#F97316" },
+  { label: "Hard", color: "#DC2626" },
 ] as const;
 
 export const THUMBNAIL_HUES = [
@@ -51,17 +48,13 @@ export const THUMBNAIL_HUES = [
 export interface TaskMeta {
   difficulty: (typeof DIFFICULTIES)[number];
   thumbnail: (typeof THUMBNAIL_HUES)[number];
-  adoption: number;
-  completions: number;
 }
 
 export function getTaskMeta(id: string): TaskMeta {
   const hash = hashString(id);
   const difficulty = DIFFICULTIES[hash % DIFFICULTIES.length];
   const thumbnail = THUMBNAIL_HUES[hash % THUMBNAIL_HUES.length];
-  const adoption = 50 + (hash % 950);
-  const completions = Math.floor(adoption * (0.2 + (hash % 50) / 100));
-  return { difficulty, thumbnail, adoption, completions };
+  return { difficulty, thumbnail };
 }
 
 export function getDifficulty(

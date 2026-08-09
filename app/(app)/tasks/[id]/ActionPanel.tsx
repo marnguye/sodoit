@@ -83,12 +83,12 @@ export function ActionPanel({
         : "Add to My List";
 
   return (
-    <div className="flex flex-col gap-4">
-      <Card className="flex flex-col gap-2">
+    <div className="flex flex-col gap-3">
+      <Card className="flex flex-col gap-2 p-4">
         <button
           type="button"
           onClick={toggleComplete}
-          className={`h-11 rounded-md text-sm font-bold transition-colors flex items-center justify-center gap-2 ${
+          className={`h-10 rounded-md text-sm font-bold transition-colors flex items-center justify-center gap-2 ${
             status === "completed"
               ? "bg-accent-light text-accent-dark"
               : "bg-accent hover:bg-accent-dark text-white"
@@ -103,7 +103,7 @@ export function ActionPanel({
           onClick={toggleSave}
           disabled={saveLocked}
           aria-disabled={saveLocked}
-          className={`h-11 rounded-md border border-border text-sm font-semibold transition-colors flex items-center justify-center gap-2 ${
+          className={`h-10 rounded-md border border-border text-sm font-semibold transition-colors flex items-center justify-center gap-2 ${
             saveLocked
               ? "text-muted cursor-default"
               : "text-ink hover:bg-background"
@@ -116,14 +116,14 @@ export function ActionPanel({
         <button
           type="button"
           onClick={share}
-          className="h-11 rounded-md border border-border text-sm font-semibold text-ink hover:bg-background transition-colors flex items-center justify-center gap-2"
+          className="h-10 rounded-md border border-border text-sm font-semibold text-ink hover:bg-background transition-colors flex items-center justify-center gap-2"
         >
           <Share2 className="h-4 w-4" />
           {shared ? "Link copied" : "Share"}
         </button>
       </Card>
 
-      <Card>
+      <Card className="p-4">
         <p className="text-sm font-bold text-ink">Your progress</p>
         {signedIn ? (
           <p className="mt-1 text-sm text-muted">
