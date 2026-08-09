@@ -1,4 +1,5 @@
 import { Header } from "@/components/layout/Header";
+import { Footer } from "@/components/layout/Footer";
 import { createClient } from "@/lib/supabase/server";
 import { AchievementUnlockProvider } from "./achievements/components/AchievementUnlockProvider";
 
@@ -38,6 +39,8 @@ export default async function AppLayout({
       <main className="min-h-screen bg-background px-4 pb-8 pt-16 sm:px-6 lg:px-8">
         <AchievementUnlockProvider>{children}</AchievementUnlockProvider>
       </main>
+
+      <Footer />
     </div>
   );
 }
