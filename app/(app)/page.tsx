@@ -1,35 +1,69 @@
 import { createClient } from "@/lib/supabase/server";
 import { BrowseBoard } from "./browse/BrowseBoard";
+import {
+  loadExperiencesPage,
+  loadCompletedIds,
+  loadGrandTotal,
+  loadCuratedSections,
+} from "./browse/data";
+import type { StatusFilter } from "./browse/types";
 
-export default async function HomePage() {
+const STATUS_VALUES: StatusFilter[] = ["all", "completed", "uncompleted"];
+
+interface HomePageProps {
+  searchParams: Promise<{
+    q?: string;
+    category?: string;
+    status?: string;
+    page?: string;
+  }>;
+}
+
+export default async function HomePage({ searchParams }: HomePageProps) {
+  const params = await searchParams;
+
   const supabase = await createClient();
-
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const { data: experiences } = await supabase
-    .from("experiences")
-    .select("id, title, category, description, difficulty, image_url, image_alt")
-    .order("created_at", { ascending: false });
+  const q = (params.q ?? "").trim();
+  const category =
+    params.category && params.category !== "All" ? params.category : null;
+  const status: StatusFilter = STATUS_VALUES.includes(
+    params.status as StatusFilter,
+  )
+    ? (params.status as StatusFilter)
+    : "all";
+  const page = Math.max(1, Number.parseInt(params.page ?? "1", 10) || 1);
 
-  let completedIds: string[] = [];
+  const completedIds = user ? await loadCompletedIds(user.id) : [];
+  const effectiveStatus = user ? status : "all";
 
-  if (user) {
-    const { data: completed } = await supabase
-      .from("user_lists")
-      .select("experience_id")
-      .eq("user_id", user.id)
-      .eq("status", "completed");
+  const isDefaultView = !user && !q && !category && page === 1;
 
-    completedIds = (completed ?? []).map((row) => row.experience_id);
-  }
+  const [{ experiences, filteredCount }, grandTotal, curatedSections] =
+    await Promise.all([
+      loadExperiencesPage(
+        { q, category, status: effectiveStatus, page },
+        completedIds,
+      ),
+      loadGrandTotal(),
+      isDefaultView ? loadCuratedSections() : Promise.resolve([]),
+    ]);
 
   return (
     <BrowseBoard
-      experiences={experiences ?? []}
+      experiences={experiences}
       completedIds={completedIds}
       signedIn={Boolean(user)}
+      grandTotal={grandTotal}
+      filteredCount={filteredCount}
+      page={page}
+      q={q}
+      category={category}
+      status={effectiveStatus}
+      curatedSections={curatedSections}
     />
   );
 }
