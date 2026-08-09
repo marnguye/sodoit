@@ -106,7 +106,7 @@ export default async function TaskDetailPage({
           imageAlt={task.image_alt}
           fallbackColor={thumbnail}
           className="order-1 lg:order-none lg:col-start-1 lg:row-start-1 h-[320px] sm:h-[360px] rounded-2xl"
-          sizes="(min-width: 1024px) 700px, 100vw"
+          sizes="(min-width: 1024px) 800px, 100vw"
         />
 
         <div className="order-2 lg:order-none lg:col-start-2 lg:row-start-1 lg:row-span-4 lg:sticky lg:top-20 flex flex-col gap-4">

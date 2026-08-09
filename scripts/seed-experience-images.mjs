@@ -1,4 +1,9 @@
 import { createClient } from "@supabase/supabase-js";
+import {
+  optimizeImage,
+  formatKB,
+  percentSaved,
+} from "./lib/optimize-image.mjs";
 
 const PEXELS_API_URL = "https://api.pexels.com/v1/search";
 const BUCKET = "experience-images";
@@ -69,20 +74,23 @@ async function downloadImage(url) {
     throw new Error(`Image download failed (${response.status})`);
   }
 
-  return response.arrayBuffer();
+  return Buffer.from(await response.arrayBuffer());
 }
 
 async function uploadImage(experienceId, photo) {
-  const path = `experiences/${experienceId}-${photo.id}.jpg`;
+  const path = `experiences/${experienceId}-${photo.id}.webp`;
 
   const imageSrc = photo.src.large2x ?? photo.src.large ?? photo.src.landscape;
-  const image = await downloadImage(imageSrc);
+  const original = await downloadImage(imageSrc);
+  const optimized = await optimizeImage(original);
 
-  const { error } = await supabase.storage.from(BUCKET).upload(path, image, {
-    contentType: "image/jpeg",
-    cacheControl: "31536000",
-    upsert: true,
-  });
+  const { error } = await supabase.storage
+    .from(BUCKET)
+    .upload(path, optimized, {
+      contentType: "image/webp",
+      cacheControl: "31536000",
+      upsert: true,
+    });
 
   if (error) {
     throw error;
@@ -92,7 +100,15 @@ async function uploadImage(experienceId, photo) {
     data: { publicUrl },
   } = supabase.storage.from(BUCKET).getPublicUrl(path);
 
-  return publicUrl;
+  console.log(
+    `  ${formatKB(original.byteLength)} -> ${formatKB(optimized.byteLength)} (-${percentSaved(original.byteLength, optimized.byteLength)}%)`,
+  );
+
+  return {
+    publicUrl,
+    originalSize: original.byteLength,
+    optimizedSize: optimized.byteLength,
+  };
 }
 
 async function updateExperience(experience, photo, imageUrl) {
@@ -109,7 +125,7 @@ async function updateExperience(experience, photo, imageUrl) {
   }
 }
 
-async function seedExperience(experience) {
+async function seedExperience(experience, totals) {
   console.log(`Searching: ${experience.title}`);
 
   const photo = await searchPhoto(experience);
@@ -119,11 +135,32 @@ async function seedExperience(experience) {
     return;
   }
 
-  const imageUrl = await uploadImage(experience.id, photo);
+  const { publicUrl, originalSize, optimizedSize } = await uploadImage(
+    experience.id,
+    photo,
+  );
 
-  await updateExperience(experience, photo, imageUrl);
+  await updateExperience(experience, photo, publicUrl);
+
+  totals.original += originalSize;
+  totals.optimized += optimizedSize;
+  totals.count += 1;
 
   console.log(`Done: ${experience.title}`);
+}
+
+function printSummary(totals) {
+  if (totals.count === 0) {
+    console.log("No images processed.");
+    return;
+  }
+
+  const originalMB = totals.original / (1024 * 1024);
+  const optimizedMB = totals.optimized / (1024 * 1024);
+
+  console.log(
+    `\nProcessed ${totals.count} images. Original: ${originalMB.toFixed(2)} MB, Optimized: ${optimizedMB.toFixed(2)} MB, Saved: ${percentSaved(totals.original, totals.optimized)}%`,
+  );
 }
 
 async function main() {
@@ -131,13 +168,17 @@ async function main() {
 
   console.log(`Found ${experiences.length} experiences without images.`);
 
+  const totals = { original: 0, optimized: 0, count: 0 };
+
   for (const experience of experiences) {
     try {
-      await seedExperience(experience);
+      await seedExperience(experience, totals);
     } catch (error) {
       console.error(`Failed: ${experience.title}`, error);
     }
   }
+
+  printSummary(totals);
 
   console.log("Image seeding finished.");
 }

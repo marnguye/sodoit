@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "seed:images": "node --env-file=.env.local scripts/seed-experience-images.mjs"
+    "seed:images": "node --env-file=.env.local scripts/seed-experience-images.mjs",
+    "optimize:images": "node --env-file=.env.local scripts/optimize-experience-images.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.4",
@@ -25,6 +26,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.3.0",
+    "sharp": "^0.35.3",
     "tailwindcss": "^4.3.3",
     "typescript": "^5"
   }
