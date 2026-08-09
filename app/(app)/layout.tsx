@@ -1,7 +1,7 @@
 import { Header } from "@/components/layout/Header";
-import { Footer } from "@/components/layout/Footer";
 import { createClient } from "@/lib/supabase/server";
 import { AchievementUnlockProvider } from "./achievements/components/AchievementUnlockProvider";
+import { Footer } from "../(marketing)/_sections/Footer";
 
 export default async function AppLayout({
   children,
@@ -29,14 +29,14 @@ export default async function AppLayout({
   }
 
   return (
-    <div>
+    <div className="pb-[calc(4rem+env(safe-area-inset-bottom))] md:pb-0">
       <Header
         signedIn={Boolean(user)}
         username={username}
         avatarUrl={avatarUrl}
       />
 
-      <main className="min-h-screen bg-background px-4 pb-8 pt-16 sm:px-6 lg:px-8">
+      <main className="min-h-screen bg-background pb-8">
         <AchievementUnlockProvider>{children}</AchievementUnlockProvider>
       </main>
 

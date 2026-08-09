@@ -37,7 +37,7 @@ export function LegalLayout({
       <div className="grid gap-8 lg:grid-cols-[190px_minmax(0,1fr)]">
         <nav
           aria-label="Legal pages"
-          className="flex gap-1 overflow-x-auto pb-2 lg:sticky lg:top-24 lg:flex-col lg:gap-0.5 lg:self-start lg:overflow-visible lg:pb-0"
+          className="flex gap-1 overflow-x-auto pb-2 lg:sticky lg:top-6 lg:flex-col lg:gap-0.5 lg:self-start lg:overflow-visible lg:pb-0"
         >
           {NAV_ITEMS.map((item) => {
             const isActive = item.href === active;

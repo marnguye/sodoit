@@ -67,17 +67,20 @@
 .task-title-wrap {
   position: relative;
   display: block;
-  width: fit-content;
+  width: 100%;
   max-width: 100%;
   min-width: 0;
+}
+
+@media (min-width: 640px) {
+  .task-title-wrap {
+    width: fit-content;
+  }
 }
 
 .task-title {
   position: relative;
   display: block;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
   transition: color 180ms ease;
 }
 

@@ -58,7 +58,7 @@ export default async function UserProfilePage({
   return (
     <div className="mx-auto max-w-[1280px] px-4 py-8 sm:px-6 lg:px-8">
       <div className="grid gap-8 lg:grid-cols-[280px_minmax(0,1fr)]">
-        <aside className="lg:sticky lg:top-24 lg:self-start">
+        <aside className="lg:sticky lg:top-6 lg:self-start">
           <ProfileHeader
             userId={profile.id}
             username={profile.username}
