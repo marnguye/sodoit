@@ -26,14 +26,13 @@ function isActiveRoute(pathname: string, href: string) {
 export function Header({ signedIn, username, avatarUrl }: HeaderProps) {
   const pathname = usePathname();
 
+  const isAuthRoute = pathname === "/login" || pathname === "/signup";
+
   return (
-    <header className="fixed inset-x-0 top-0 z-50 h-16 border-b border-border bg-white">
-      <div className="relative flex h-full items-center px-6 lg:px-10">
-        <Link
-          href="/"
-          className="relative block h-8 w-32 shrink-0 sm:h-9 sm:w-36"
-        >
-          <Logo size="lg" />
+    <header className="h-16 border-b border-border bg-surface">
+      <div className="relative flex h-full w-full items-center px-4 sm:px-6">
+        <Link href="/" aria-label="Sodoit home" className="shrink-0">
+          <Logo size="md" />
         </Link>
 
         <nav
@@ -68,31 +67,32 @@ export function Header({ signedIn, username, avatarUrl }: HeaderProps) {
           })}
         </nav>
 
-        {signedIn && username ? (
-          <Link
-            href={`/u/${username}`}
-            aria-label="Your profile"
-            className="ml-auto shrink-0 rounded-full transition-opacity hover:opacity-80"
-          >
-            <Avatar name={username} src={avatarUrl} size="sm" />
-          </Link>
-        ) : !signedIn ? (
-          <div className="ml-auto flex items-center gap-2">
+        {!isAuthRoute &&
+          (signedIn && username ? (
             <Link
-              href="/login"
-              className="rounded-lg px-4 py-2 text-sm font-semibold text-muted transition-colors hover:text-ink"
+              href={`/u/${username}`}
+              aria-label="Your profile"
+              className="ml-auto shrink-0 rounded-full transition-opacity hover:opacity-80"
             >
-              Log in
+              <Avatar name={username} src={avatarUrl} size="sm" />
             </Link>
+          ) : !signedIn ? (
+            <div className="ml-auto flex items-center gap-2">
+              <Link
+                href="/login"
+                className="rounded-md px-4 py-2 text-sm font-semibold text-muted transition-colors hover:text-ink"
+              >
+                Log in
+              </Link>
 
-            <Link
-              href="/signup"
-              className="rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-accent-dark"
-            >
-              Sign up
-            </Link>
-          </div>
-        ) : null}
+              <Link
+                href="/signup"
+                className="rounded-md bg-accent px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-accent-dark"
+              >
+                Sign up
+              </Link>
+            </div>
+          ) : null)}
       </div>
     </header>
   );

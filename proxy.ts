@@ -42,7 +42,10 @@ export async function proxy(request: NextRequest) {
 
   if (!isAuthenticated && isProtectedRoute(request.nextUrl.pathname)) {
     const loginUrl = request.nextUrl.clone();
+    const next = request.nextUrl.pathname + request.nextUrl.search;
+
     loginUrl.pathname = "/login";
+    loginUrl.search = `?next=${encodeURIComponent(next)}`;
 
     return NextResponse.redirect(loginUrl);
   }
