@@ -8,7 +8,7 @@ import { useAchievementUnlock } from "@/app/(app)/achievements/components/Achiev
 import { checkAndUnlockAchievements } from "@/app/(app)/achievements/actions";
 
 import type { Experience } from "../types";
-import { getTaskMeta } from "../types";
+import { getTaskMeta, getDifficulty } from "../types";
 import { ExperienceImage } from "@/components/ui";
 
 interface TaskRowProps {
@@ -37,7 +37,8 @@ export function TaskRow({
   const [isCelebrating, setIsCelebrating] = useState(false);
   const [isToggling, setIsToggling] = useState(false);
 
-  const { difficulty, thumbnail } = getTaskMeta(experience.id);
+  const { thumbnail } = getTaskMeta(experience.id);
+  const difficulty = getDifficulty(experience.id, experience.difficulty);
 
   useEffect(() => {
     if (previousDone.current === done) {

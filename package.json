@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "eslint",
     "seed:images": "node --env-file=.env.local scripts/seed-experience-images.mjs",
-    "optimize:images": "node --env-file=.env.local scripts/optimize-experience-images.mjs"
+    "optimize:images": "node --env-file=.env.local scripts/optimize-experience-images.mjs",
+    "content:validate": "node --env-file=.env.local scripts/content/validate-experiences.mjs",
+    "content:import": "node --env-file=.env.local scripts/content/import-experiences.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.4",
@@ -24,6 +26,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "csv-parse": "^7.0.2",
     "eslint": "^9",
     "eslint-config-next": "16.3.0",
     "sharp": "^0.35.3",

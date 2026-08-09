@@ -7,6 +7,8 @@ import {
 
 const PEXELS_API_URL = "https://api.pexels.com/v1/search";
 const BUCKET = "experience-images";
+const SEARCH_DELAY_MS = 350;
+const PAGE_SIZE = 1000;
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -25,24 +27,63 @@ const supabase = createClient(supabaseUrl, serviceRoleKey, {
   },
 });
 
-async function loadExperiences() {
-  const { data, error } = await supabase
-    .from("experiences")
-    .select("id, title, category, image_url")
-    .is("image_url", null)
-    .order("created_at", { ascending: true });
+class PexelsRateLimitError extends Error {
+  constructor(retryAfter) {
+    super("Pexels rate limit reached");
+    this.retryAfter = retryAfter;
+  }
+}
 
-  if (error) {
-    throw error;
+function parseLimitArg() {
+  const arg = process.argv.find((value) => value.startsWith("--limit="));
+
+  if (!arg) {
+    return null;
   }
 
-  return data ?? [];
+  const limit = Number(arg.split("=")[1]);
+
+  return Number.isFinite(limit) && limit > 0 ? limit : null;
+}
+
+function delay(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+// Paginated so this stays correct past PostgREST's default row cap —
+// both for actual processing and for an accurate total count.
+async function loadExperiences() {
+  const all = [];
+  let from = 0;
+
+  for (;;) {
+    const { data, error } = await supabase
+      .from("experiences")
+      .select("id, title, category, image_query, image_url")
+      .is("image_url", null)
+      .order("created_at", { ascending: true })
+      .range(from, from + PAGE_SIZE - 1);
+
+    if (error) {
+      throw error;
+    }
+
+    all.push(...(data ?? []));
+
+    if (!data || data.length < PAGE_SIZE) {
+      break;
+    }
+
+    from += PAGE_SIZE;
+  }
+
+  return all;
 }
 
 async function searchPhoto(experience) {
-  const query = [experience.title, experience.category]
-    .filter(Boolean)
-    .join(" ");
+  const query = experience.image_query?.trim()
+    ? experience.image_query.trim()
+    : [experience.title, experience.category].filter(Boolean).join(" ");
 
   const url = new URL(PEXELS_API_URL);
 
@@ -55,6 +96,10 @@ async function searchPhoto(experience) {
       Authorization: pexelsApiKey,
     },
   });
+
+  if (response.status === 429) {
+    throw new PexelsRateLimitError(response.headers.get("retry-after"));
+  }
 
   if (!response.ok) {
     throw new Error(
@@ -149,38 +194,66 @@ async function seedExperience(experience, totals) {
   console.log(`Done: ${experience.title}`);
 }
 
-function printSummary(totals) {
-  if (totals.count === 0) {
-    console.log("No images processed.");
-    return;
+function printSummary(totals, totalFound, stoppedReason) {
+  const remaining = totalFound - totals.count;
+
+  console.log("");
+  console.log(`Processed: ${totals.count}`);
+  console.log(`Remaining: ${remaining}`);
+
+  if (totals.count > 0) {
+    const originalMB = totals.original / (1024 * 1024);
+    const optimizedMB = totals.optimized / (1024 * 1024);
+
+    console.log(
+      `Size saved: ${originalMB.toFixed(2)} MB -> ${optimizedMB.toFixed(2)} MB (-${percentSaved(totals.original, totals.optimized)}%)`,
+    );
   }
 
-  const originalMB = totals.original / (1024 * 1024);
-  const optimizedMB = totals.optimized / (1024 * 1024);
+  console.log(`Stopped: ${stoppedReason ?? "finished normally"}`);
 
-  console.log(
-    `\nProcessed ${totals.count} images. Original: ${originalMB.toFixed(2)} MB, Optimized: ${optimizedMB.toFixed(2)} MB, Saved: ${percentSaved(totals.original, totals.optimized)}%`,
-  );
+  if (remaining > 0) {
+    console.log("");
+    console.log("Run `npm run seed:images` later to continue.");
+  }
 }
 
 async function main() {
-  const experiences = await loadExperiences();
+  const limit = parseLimitArg();
 
-  console.log(`Found ${experiences.length} experiences without images.`);
+  const found = await loadExperiences();
+  const experiences = limit ? found.slice(0, limit) : found;
+
+  console.log(
+    `Found ${found.length} experiences without images.` +
+      (limit ? ` Processing up to ${limit} this run.` : ""),
+  );
 
   const totals = { original: 0, optimized: 0, count: 0 };
+  let stoppedReason = null;
 
   for (const experience of experiences) {
     try {
       await seedExperience(experience, totals);
     } catch (error) {
+      if (error instanceof PexelsRateLimitError) {
+        const wait = error.retryAfter
+          ? ` (retry after ${error.retryAfter}s)`
+          : "";
+
+        console.warn(`\nPexels rate limit reached${wait}. Stopping run.`);
+
+        stoppedReason = "Pexels rate limit reached";
+        break;
+      }
+
       console.error(`Failed: ${experience.title}`, error);
     }
+
+    await delay(SEARCH_DELAY_MS);
   }
 
-  printSummary(totals);
-
-  console.log("Image seeding finished.");
+  printSummary(totals, found.length, stoppedReason);
 }
 
 await main();
