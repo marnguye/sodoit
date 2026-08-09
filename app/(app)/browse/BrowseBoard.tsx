@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
 import { BrowseToolbar } from "./components/BrowseToolbar";
 import { BrowseHero } from "./components/BrowseHero";
@@ -10,6 +10,7 @@ import { ExperienceSection } from "./components/ExperienceSection";
 import { Pagination } from "./components/Pagination";
 import { TaskRow } from "./components/TaskRow";
 import { setListStatus, removeFromMyList } from "./actions";
+import { loginHrefWithNext } from "@/lib/auth-redirect";
 import { CATEGORIES, PAGE_SIZE } from "./types";
 import type { Experience, StatusFilter } from "./types";
 import type { CuratedSection } from "./data";
@@ -66,6 +67,7 @@ export function BrowseBoard({
   curatedSections,
 }: BrowseBoardProps) {
   const router = useRouter();
+  const pathname = usePathname();
 
   const [completed, setCompleted] = useState(() => new Set(completedIds));
   const [searchText, setSearchText] = useState(q);
@@ -101,7 +103,7 @@ export function BrowseBoard({
 
   async function toggle(id: string): Promise<void> {
     if (!signedIn) {
-      router.push("/login");
+      router.push(loginHrefWithNext(pathname));
       return;
     }
 
@@ -143,7 +145,7 @@ export function BrowseBoard({
   }
 
   function requireLogin() {
-    router.push("/login");
+    router.push(loginHrefWithNext(pathname));
   }
 
   const pageCount = Math.max(1, Math.ceil(filteredCount / PAGE_SIZE));
@@ -166,7 +168,9 @@ export function BrowseBoard({
       }
       status={status}
       onStatusChange={(next) =>
-        router.push(buildHref({ q: searchText, category, status: next, page: 1 }))
+        router.push(
+          buildHref({ q: searchText, category, status: next, page: 1 }),
+        )
       }
       completedCount={completedIds.length}
       totalCount={grandTotal}

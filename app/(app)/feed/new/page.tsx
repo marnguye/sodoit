@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import { loginHrefWithNext } from "@/lib/auth-redirect";
 import { PageShell } from "@/components/ui";
 import { NewPostForm } from "./components/NewPostForm";
 
@@ -12,7 +13,7 @@ export default async function NewPostPage() {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("/login");
+    redirect(loginHrefWithNext("/feed/new"));
   }
 
   const { data: experiences } = await supabase
