@@ -208,7 +208,7 @@ export function BrowseBoard({
 
   if (signedIn) {
     return (
-      <div className="mx-auto w-full max-w-[1200px]">
+      <div className="mx-auto w-full max-w-[1200px] px-4 sm:px-6 lg:px-8">
         {toolbar}
         {list}
       </div>
@@ -216,7 +216,7 @@ export function BrowseBoard({
   }
 
   return (
-    <div className="mx-auto w-full max-w-[1200px] py-6">
+    <div className="mx-auto w-full max-w-[1200px] px-4 py-5 sm:px-6 lg:px-8">
       <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_280px]">
         <div className="min-w-0">
           <BrowseHero />

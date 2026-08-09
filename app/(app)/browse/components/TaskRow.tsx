@@ -39,9 +39,6 @@ export function TaskRow({
   const { thumbnail } = getTaskMeta(experience.id);
   const difficulty = getDifficulty(experience.id, experience.difficulty);
 
-  // Detect a done-state flip during render (React's documented pattern for
-  // adjusting state from a prop change) instead of setState inside an
-  // effect, which would trigger an avoidable extra render/paint.
   if (prevDone !== done) {
     const justCompleted = done && !prevDone;
 
@@ -105,7 +102,7 @@ export function TaskRow({
         className="absolute inset-0 z-10 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/30"
       />
 
-      <div className="pointer-events-none flex items-center gap-4 rounded-xl p-3">
+      <div className="pointer-events-none flex items-center gap-3 rounded-xl p-3">
         <ExperienceImage
           imageUrl={experience.image_url}
           imageAlt={experience.image_alt}
@@ -128,25 +125,34 @@ export function TaskRow({
                 }: ${experience.title}`}
                 onClick={handleToggle}
                 disabled={isToggling}
-                className="task-checkbox pointer-events-auto relative z-20 shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/30 disabled:pointer-events-none disabled:opacity-60"
+                className="pointer-events-auto relative z-20 flex h-9 w-9 shrink-0 items-center justify-center rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/30 disabled:pointer-events-none disabled:opacity-60"
               >
-                <Check className="task-checkmark h-3 w-3" strokeWidth={3} />
+                <span className="task-checkbox" aria-hidden="true">
+                  <Check className="task-checkmark h-3 w-3" strokeWidth={3} />
+                </span>
               </button>
             )}
 
             <span className="task-title-wrap">
-              <span className="task-title text-sm font-semibold text-ink">
+              <span
+                className={`task-title line-clamp-2 sm:truncate text-sm font-semibold text-ink ${
+                  done ? "line-through sm:no-underline" : ""
+                }`}
+              >
                 {experience.title}
               </span>
 
-              <span aria-hidden="true" className="task-strike-line" />
+              <span
+                aria-hidden="true"
+                className="task-strike-line hidden sm:block"
+              />
             </span>
           </div>
 
           <div
             className={[
               "mt-1 flex flex-wrap items-center gap-x-3 gap-y-1",
-              guest ? "" : "pl-8",
+              guest ? "" : "pl-12",
             ].join(" ")}
           >
             {experience.category && (

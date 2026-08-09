@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Jomhuria, Inter } from "next/font/google";
 import "./globals.css";
 
@@ -19,6 +19,10 @@ export const metadata: Metadata = {
   icons: {
     icon: "/sodoit_favicon.png",
   },
+};
+
+export const viewport: Viewport = {
+  viewportFit: "cover",
 };
 
 export default function RootLayout({

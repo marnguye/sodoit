@@ -42,7 +42,7 @@ export function BrowseSidebar() {
   const router = useRouter();
 
   return (
-    <div className="flex flex-col gap-5 lg:sticky lg:top-24">
+    <div className="flex flex-col gap-5 lg:sticky lg:top-20">
       <section className="rounded-lg border border-border bg-white p-5">
         <h2 className="text-base font-bold text-ink">How it works</h2>
 
