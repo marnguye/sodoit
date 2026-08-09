@@ -18,7 +18,7 @@ const TYPE_VARIANT: Record<PostType, "purple" | "success" | "blue"> = {
 };
 
 const ACTION_CLASS =
-  "pointer-events-auto relative z-10 inline-flex h-8 items-center gap-1.5 rounded-lg bg-background px-2.5 text-xs font-semibold text-ink/80 transition-colors hover:bg-accent-light hover:text-accent-dark focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/30";
+  "pointer-events-auto relative z-10 inline-flex h-8 items-center gap-1.5 rounded-lg bg-background px-2.5 text-xs font-semibold text-ink/80 transition-colors hover:bg-accent-light hover:text-accent-dark focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/30";
 
 export function PostCard({ post }: { post: FeedPost }) {
   const thumbnail = post.experience
@@ -31,7 +31,7 @@ export function PostCard({ post }: { post: FeedPost }) {
         <Link
           href={`/posts/${post.id}`}
           aria-label={`Open post: ${post.title}`}
-          className="absolute inset-0 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/30"
+          className="absolute inset-0 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/30"
         />
 
         <article className="pointer-events-none relative">

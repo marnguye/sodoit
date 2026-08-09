@@ -40,7 +40,7 @@ export default async function AppLayout({
         <AchievementUnlockProvider>{children}</AchievementUnlockProvider>
       </main>
 
-      <Footer />
+      {!user && <Footer />}
     </div>
   );
 }

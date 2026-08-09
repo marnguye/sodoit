@@ -14,8 +14,11 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Sodoit.",
+  title: "Sodoit",
   description: "Your life. Your list. Your proof.",
+  icons: {
+    icon: "/sodoit_favicon.png",
+  },
 };
 
 export default function RootLayout({

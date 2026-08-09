@@ -41,8 +41,6 @@ export function FeedBoard({ posts }: { posts: FeedPost[] }) {
         value={filter}
         onChange={setFilter}
         className="flex flex-wrap gap-2"
-        buttonClassName="h-8"
-        inactiveClassName="bg-white border border-border text-muted hover:text-ink"
       />
 
       {visible.length === 0 ? (

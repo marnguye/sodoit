@@ -10,6 +10,24 @@ export interface Experience {
 export type StatusFilter = "all" | "completed" | "uncompleted";
 export type ListStatus = "saved" | "completed";
 
+export const PAGE_SIZE = 30;
+
+// Canonical category set — mirrors CATEGORY_ICONS in achievements/data.ts
+// and the content pipeline's validation list. No categories table exists;
+// this list IS the current data model.
+export const CATEGORIES = [
+  "Adventure",
+  "Culture",
+  "Fitness",
+  "Food",
+  "Lifestyle",
+  "Mind",
+  "Nature",
+  "Skills",
+  "Social",
+  "Travel",
+] as const;
+
 export function hashString(value: string): number {
   let hash = 0;
   for (const char of value) hash = (hash * 31 + char.charCodeAt(0)) >>> 0;

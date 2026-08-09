@@ -44,7 +44,7 @@ export function ProfileEditModal({
     >
       <div
         onClick={(event) => event.stopPropagation()}
-        className="relative max-h-[90vh] w-full max-w-[480px] overflow-y-auto rounded-2xl bg-white p-6 shadow-xl"
+        className="relative max-h-[90vh] w-full max-w-[480px] overflow-y-auto rounded-xl bg-white p-6 shadow-xl"
       >
         <button
           type="button"

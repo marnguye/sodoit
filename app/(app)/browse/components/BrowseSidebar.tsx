@@ -43,7 +43,7 @@ export function BrowseSidebar() {
 
   return (
     <div className="flex flex-col gap-5 lg:sticky lg:top-24">
-      <section className="rounded-2xl border border-border bg-white p-5">
+      <section className="rounded-lg border border-border bg-white p-5">
         <h2 className="text-base font-bold text-ink">How it works</h2>
 
         <div className="mt-5 flex flex-col gap-5">
@@ -64,7 +64,7 @@ export function BrowseSidebar() {
         </div>
       </section>
 
-      <section className="rounded-2xl border border-border bg-accent/[0.04] p-5">
+      <section className="rounded-lg border border-border bg-accent-wash p-5">
         <p className="text-lg font-bold leading-6 text-ink">
           Your life.
           <br />

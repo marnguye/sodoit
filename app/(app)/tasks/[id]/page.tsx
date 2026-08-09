@@ -115,7 +115,7 @@ export default async function TaskDetailPage({
           imageUrl={task.image_url}
           imageAlt={task.image_alt}
           fallbackColor={thumbnail}
-          className="order-1 lg:order-none lg:col-start-1 lg:row-start-1 h-[320px] sm:h-[360px] rounded-2xl"
+          className="order-1 lg:order-none lg:col-start-1 lg:row-start-1 h-[320px] sm:h-[360px] rounded-xl"
           sizes="(min-width: 1024px) 800px, 100vw"
         />
 

@@ -9,7 +9,7 @@ import { AvatarUpload } from "./AvatarUpload";
 const BIO_MAX_LENGTH = 160;
 
 const INPUT_CLASS =
-  "w-full rounded-md border border-border bg-white px-3.5 py-2.5 text-sm transition-all focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20";
+  "w-full rounded-md border border-border bg-white px-3.5 py-2.5 text-sm transition-all focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20";
 
 interface ProfileFormProps {
   userId: string;

@@ -13,7 +13,7 @@ const STATUS_FILTERS = [
 interface BrowseToolbarProps {
   search: string;
   onSearchChange: (value: string) => void;
-  categories: string[];
+  categories: readonly string[];
   category: string;
   onCategoryChange: (value: string) => void;
   status: StatusFilter;
@@ -36,7 +36,7 @@ export function BrowseToolbar({
   signedIn,
 }: BrowseToolbarProps) {
   return (
-    <header className="sticky top-16 z-10 bg-background/95 backdrop-blur border-b border-border py-4 flex flex-col gap-3">
+    <header className="sticky top-16 z-30 bg-background border-b border-border py-4 flex flex-col gap-3">
       <div className="flex items-center gap-4">
         <SearchField value={search} onChange={onSearchChange} />
         {signedIn && (
@@ -59,9 +59,7 @@ export function BrowseToolbar({
           options={categories}
           value={category}
           onChange={onCategoryChange}
-          className="flex min-w-0 gap-2 overflow-x-auto"
-          buttonClassName="h-8 shrink-0"
-          inactiveClassName="bg-white border border-border text-muted hover:text-ink"
+          className="flex min-w-0 gap-2 overflow-x-auto pb-1"
         />
         {signedIn && (
           <FilterGroup
@@ -69,9 +67,7 @@ export function BrowseToolbar({
             options={STATUS_FILTERS}
             value={status}
             onChange={onStatusChange}
-            className="flex shrink-0 gap-1 bg-white border border-border rounded-full p-1 capitalize"
-            buttonClassName="h-7"
-            inactiveClassName="text-muted hover:text-ink"
+            className="flex shrink-0 gap-2"
           />
         )}
       </nav>

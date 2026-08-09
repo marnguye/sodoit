@@ -1,15 +1,15 @@
-const FILTER_BUTTON_CLASS =
-  "px-3 rounded-full text-xs font-semibold transition-colors";
-const ACTIVE_FILTER_CLASS = "bg-accent text-white";
+const BASE_CLASS =
+  "flex h-8 shrink-0 items-center rounded-md border px-3 text-xs font-semibold capitalize transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/30";
+const ACTIVE_CLASS = "border-accent bg-accent text-white";
+const INACTIVE_CLASS =
+  "border-border bg-white text-muted hover:border-ink/20 hover:text-ink";
 
 interface FilterGroupProps<T extends string> {
   label: string;
   options: readonly T[];
   value: T;
   onChange: (value: T) => void;
-  className: string;
-  buttonClassName: string;
-  inactiveClassName: string;
+  className?: string;
 }
 
 export function FilterGroup<T extends string>({
@@ -17,9 +17,7 @@ export function FilterGroup<T extends string>({
   options,
   value,
   onChange,
-  className,
-  buttonClassName,
-  inactiveClassName,
+  className = "flex flex-wrap gap-2",
 }: FilterGroupProps<T>) {
   return (
     <div role="group" aria-label={label} className={className}>
@@ -32,8 +30,7 @@ export function FilterGroup<T extends string>({
             type="button"
             onClick={() => onChange(option)}
             aria-pressed={selected}
-            aria-current={selected ? "true" : undefined}
-            className={`${FILTER_BUTTON_CLASS} ${buttonClassName} ${selected ? ACTIVE_FILTER_CLASS : inactiveClassName}`}
+            className={`${BASE_CLASS} ${selected ? ACTIVE_CLASS : INACTIVE_CLASS}`}
           >
             {option}
           </button>

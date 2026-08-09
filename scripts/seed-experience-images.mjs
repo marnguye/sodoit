@@ -50,8 +50,6 @@ function delay(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-// Paginated so this stays correct past PostgREST's default row cap —
-// both for actual processing and for an accurate total count.
 async function loadExperiences() {
   const all = [];
   let from = 0;
