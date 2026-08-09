@@ -194,7 +194,7 @@ export function BrowseBoard({
       </ul>
     );
 
-  const pagination = (
+  const pagination = signedIn ? null : (
     <Pagination
       page={page}
       pageCount={pageCount}
@@ -207,7 +207,6 @@ export function BrowseBoard({
       <div className="mx-auto w-full max-w-[1200px]">
         {toolbar}
         {list}
-        {pagination}
       </div>
     );
   }

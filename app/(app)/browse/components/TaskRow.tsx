@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Bookmark, Check, Sparkles } from "lucide-react";
 
@@ -32,25 +32,25 @@ export function TaskRow({
 }: TaskRowProps) {
   const { showAchievements } = useAchievementUnlock();
 
-  const previousDone = useRef(done);
-
+  const [prevDone, setPrevDone] = useState(done);
   const [isCelebrating, setIsCelebrating] = useState(false);
   const [isToggling, setIsToggling] = useState(false);
 
   const { thumbnail } = getTaskMeta(experience.id);
   const difficulty = getDifficulty(experience.id, experience.difficulty);
 
-  useEffect(() => {
-    if (previousDone.current === done) {
-      return;
-    }
+  // Detect a done-state flip during render (React's documented pattern for
+  // adjusting state from a prop change) instead of setState inside an
+  // effect, which would trigger an avoidable extra render/paint.
+  if (prevDone !== done) {
+    const justCompleted = done && !prevDone;
 
-    if (done) {
+    setPrevDone(done);
+
+    if (justCompleted) {
       setIsCelebrating(true);
     }
-
-    previousDone.current = done;
-  }, [done]);
+  }
 
   useEffect(() => {
     if (!isCelebrating) {

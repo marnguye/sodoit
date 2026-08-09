@@ -5,8 +5,6 @@ import type { Experience, StatusFilter } from "./types";
 const EXPERIENCE_COLUMNS =
   "id, title, category, description, difficulty, image_url, image_alt";
 
-// experience_id never legitimately equals this — used to force an empty
-// result set without a special-cased empty-array query branch.
 const NONE_ID = "00000000-0000-0000-0000-000000000000";
 
 export async function loadCompletedIds(userId: string): Promise<string[]> {
@@ -77,6 +75,67 @@ export async function loadExperiencesPage(
     experiences: (data ?? []) as Experience[],
     filteredCount: count ?? 0,
   };
+}
+
+const INTERNAL_FETCH_PAGE_SIZE = 1000;
+
+interface UnpaginatedQuery {
+  q: string;
+  category: string | null;
+  status: StatusFilter;
+}
+
+export async function loadAllExperiences(
+  { q, category, status }: UnpaginatedQuery,
+  completedIds: string[],
+): Promise<Experience[]> {
+  const supabase = await createClient();
+
+  const all: Experience[] = [];
+  let from = 0;
+
+  for (;;) {
+    let query = supabase
+      .from("experiences")
+      .select(EXPERIENCE_COLUMNS)
+      .order("created_at", { ascending: false });
+
+    if (q) {
+      query = query.ilike("title", `%${q}%`);
+    }
+
+    if (category) {
+      query = query.eq("category", category);
+    }
+
+    if (status === "completed") {
+      query = query.in(
+        "id",
+        completedIds.length > 0 ? completedIds : [NONE_ID],
+      );
+    } else if (status === "uncompleted" && completedIds.length > 0) {
+      query = query.not("id", "in", `(${completedIds.join(",")})`);
+    }
+
+    const { data, error } = await query.range(
+      from,
+      from + INTERNAL_FETCH_PAGE_SIZE - 1,
+    );
+
+    if (error) {
+      throw error;
+    }
+
+    all.push(...((data ?? []) as Experience[]));
+
+    if (!data || data.length < INTERNAL_FETCH_PAGE_SIZE) {
+      break;
+    }
+
+    from += INTERNAL_FETCH_PAGE_SIZE;
+  }
+
+  return all;
 }
 
 const CURATED_SECTIONS_DEF: { title: string; categories: string[] }[] = [

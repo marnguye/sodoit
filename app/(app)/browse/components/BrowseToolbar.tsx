@@ -36,7 +36,7 @@ export function BrowseToolbar({
   signedIn,
 }: BrowseToolbarProps) {
   return (
-    <header className="sticky top-16 z-10 bg-background/95 backdrop-blur border-b border-border py-4 flex flex-col gap-3">
+    <header className="sticky top-16 z-30 bg-background border-b border-border py-4 flex flex-col gap-3">
       <div className="flex items-center gap-4">
         <SearchField value={search} onChange={onSearchChange} />
         {signedIn && (
