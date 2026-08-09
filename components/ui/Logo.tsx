@@ -1,38 +1,34 @@
+import Image from "next/image";
+
 const sizes = {
-  sm: "20px",
-  md: "28px",
-  lg: "40px",
+  sm: { width: 64, height: 22 },
+  md: { width: 88, height: 30 },
+  lg: { width: 112, height: 38 },
 } as const;
 
-export function Logo({
-  size = "md",
-  showDot = true,
-}: {
+interface LogoProps {
   size?: keyof typeof sizes;
-  showDot?: boolean;
-}) {
+}
+
+export function Logo({ size = "md" }: LogoProps) {
+  const dimensions = sizes[size];
+
   return (
     <span
+      className="relative block shrink-0"
       style={{
-        fontFamily: "var(--font-jomhuria)",
-        fontSize: sizes[size],
-        lineHeight: 1,
+        width: dimensions.width,
+        height: dimensions.height,
       }}
     >
-      SODOIT
-      {showDot && (
-        <span
-          style={{
-            display: "inline-block",
-            width: "6px",
-            height: "6px",
-            marginLeft: "2px",
-            background: "#F97316",
-            borderRadius: "50%",
-            verticalAlign: "baseline",
-          }}
-        />
-      )}
+      <Image
+        src="/sodoit_logo.png"
+        alt="Sodoit"
+        fill
+        priority
+        sizes={`${dimensions.width}px`}
+        className="object-contain object-left"
+      />
     </span>
   );
 }

@@ -29,7 +29,10 @@ export function Header({ signedIn, username, avatarUrl }: HeaderProps) {
   return (
     <header className="fixed inset-x-0 top-0 z-50 h-16 border-b border-border bg-white">
       <div className="relative flex h-full items-center px-6 lg:px-10">
-        <Link href="/" className="shrink-0">
+        <Link
+          href="/"
+          className="relative block h-8 w-32 shrink-0 sm:h-9 sm:w-36"
+        >
           <Logo size="lg" />
         </Link>
 
