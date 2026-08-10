@@ -52,3 +52,6 @@ sql_schema_*.sql
 /test-results/
 /playwright-report/
 /blob-report/
+
+# sentry config file
+.env.sentry-build-plugin

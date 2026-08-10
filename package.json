@@ -1,6 +1,6 @@
 {
   "name": "sodoit",
-  "version": "0.1.26",
+  "version": "0.1.27",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -17,6 +17,7 @@
     "content:import": "node --env-file=.env.local scripts/content/import-experiences.mjs"
   },
   "dependencies": {
+    "@sentry/nextjs": "^10.70.0",
     "@supabase/ssr": "^0.12.4",
     "@supabase/supabase-js": "^2.109.0",
     "framer-motion": "^13.0.0",
