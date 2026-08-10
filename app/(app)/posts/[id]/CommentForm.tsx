@@ -3,8 +3,7 @@
 import { useRef, useState, useTransition } from "react";
 import { Send } from "lucide-react";
 import { createComment } from "./actions";
-
-const MAX_LENGTH = 2000;
+import { COMMENT_MAX_LENGTH } from "@/lib/validation";
 
 interface CommentFormProps {
   postId: string;
@@ -20,7 +19,10 @@ export function CommentForm({ postId, signedIn }: CommentFormProps) {
 
   const content = body.trim();
   const canSubmit =
-    signedIn && content.length > 0 && body.length <= MAX_LENGTH && !isPending;
+    signedIn &&
+    content.length > 0 &&
+    body.length <= COMMENT_MAX_LENGTH &&
+    !isPending;
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -61,7 +63,7 @@ export function CommentForm({ postId, signedIn }: CommentFormProps) {
       <textarea
         value={body}
         onChange={(event) => setBody(event.target.value)}
-        maxLength={MAX_LENGTH}
+        maxLength={COMMENT_MAX_LENGTH}
         rows={3}
         placeholder="Write a comment..."
         aria-label="Write a comment"
@@ -76,7 +78,7 @@ export function CommentForm({ postId, signedIn }: CommentFormProps) {
 
       <div className="mt-3 flex items-center justify-between border-t border-border pt-3">
         <span className="text-xs text-muted">
-          {body.length} / {MAX_LENGTH}
+          {body.length} / {COMMENT_MAX_LENGTH}
         </span>
 
         <button

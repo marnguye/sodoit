@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import type { ListStatus } from "./types";
+import { UUID_RE } from "@/lib/validation";
 
 function revalidateListPaths(experienceId: string) {
   revalidatePath("/browse");
@@ -11,6 +12,13 @@ function revalidateListPaths(experienceId: string) {
 }
 
 export async function setListStatus(experienceId: string, status: ListStatus) {
+  if (
+    !UUID_RE.test(experienceId) ||
+    (status !== "saved" && status !== "completed")
+  ) {
+    return;
+  }
+
   const supabase = await createClient();
 
   const {
@@ -30,6 +38,8 @@ export async function setListStatus(experienceId: string, status: ListStatus) {
 }
 
 export async function removeFromMyList(experienceId: string) {
+  if (!UUID_RE.test(experienceId)) return;
+
   const supabase = await createClient();
 
   const {

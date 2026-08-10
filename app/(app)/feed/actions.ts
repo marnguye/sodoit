@@ -3,9 +3,22 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { loginHrefWithNext } from "@/lib/auth-redirect";
+import { consumeRateLimit } from "@/lib/rate-limit";
 import { createClient } from "@/lib/supabase/server";
+import {
+  POST_BODY_MAX_LENGTH,
+  POST_TITLE_MAX_LENGTH,
+  UUID_RE,
+} from "@/lib/validation";
 
-export async function createPost(formData: FormData) {
+export interface CreatePostState {
+  error?: string;
+}
+
+export async function createPost(
+  _prevState: CreatePostState,
+  formData: FormData,
+): Promise<CreatePostState> {
   const supabase = await createClient();
 
   const {
@@ -23,10 +36,25 @@ export async function createPost(formData: FormData) {
 
   if (
     !title ||
+    title.length > POST_TITLE_MAX_LENGTH ||
     !body ||
+    body.length > POST_BODY_MAX_LENGTH ||
+    (experienceId && !UUID_RE.test(experienceId)) ||
     (type !== "question" && type !== "tip" && type !== "experience")
   ) {
-    throw new Error("Invalid post data.");
+    return { error: "Invalid post data." };
+  }
+
+  let rateLimit;
+
+  try {
+    rateLimit = await consumeRateLimit(supabase, "create_post");
+  } catch {
+    return { error: "Could not create post." };
+  }
+
+  if (!rateLimit.allowed) {
+    return { error: "You're posting too quickly. Try again shortly." };
   }
 
   const { data: post, error } = await supabase
@@ -42,7 +70,7 @@ export async function createPost(formData: FormData) {
     .single<{ id: string }>();
 
   if (error || !post) {
-    throw new Error("Could not create post.");
+    return { error: "Could not create post." };
   }
 
   revalidatePath("/feed");

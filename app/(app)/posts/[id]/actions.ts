@@ -1,7 +1,9 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { consumeRateLimit } from "@/lib/rate-limit";
 import { createClient } from "@/lib/supabase/server";
+import { COMMENT_MAX_LENGTH, UUID_RE } from "@/lib/validation";
 
 interface CreateCommentResult {
   success: boolean;
@@ -14,6 +16,13 @@ export async function createComment(
 ): Promise<CreateCommentResult> {
   const content = body.trim();
 
+  if (!UUID_RE.test(postId)) {
+    return {
+      success: false,
+      error: "Could not post your comment.",
+    };
+  }
+
   if (!content) {
     return {
       success: false,
@@ -21,7 +30,7 @@ export async function createComment(
     };
   }
 
-  if (content.length > 2000) {
+  if (content.length > COMMENT_MAX_LENGTH) {
     return {
       success: false,
       error: "Comment is too long.",
@@ -39,6 +48,24 @@ export async function createComment(
     return {
       success: false,
       error: "You need to log in to comment.",
+    };
+  }
+
+  let rateLimit;
+
+  try {
+    rateLimit = await consumeRateLimit(supabase, "create_comment");
+  } catch {
+    return {
+      success: false,
+      error: "Could not post your comment.",
+    };
+  }
+
+  if (!rateLimit.allowed) {
+    return {
+      success: false,
+      error: "You're commenting too quickly. Try again shortly.",
     };
   }
 
