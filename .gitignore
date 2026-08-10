@@ -46,3 +46,9 @@ sql_schema_*.sql
 
 # aider
 .aider*
+
+# playwright
+/playwright/.auth/
+/test-results/
+/playwright-report/
+/blob-report/
