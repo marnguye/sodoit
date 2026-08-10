@@ -1,10 +1,19 @@
 export function getSafeNextPath(value: string | null | undefined): string {
   if (!value) return "/";
+
+  let decoded: string;
+  try {
+    decoded = decodeURIComponent(value);
+  } catch {
+    return "/";
+  }
+
   if (
     !value.startsWith("/") ||
-    value.startsWith("//") ||
-    value.includes("\\") ||
-    /^\/app(?:[/?#]|$)/.test(value)
+    decoded.startsWith("//") ||
+    decoded.includes("\\") ||
+    /[\u0000-\u001f\u007f]/.test(decoded) ||
+    /^\/app(?:[/?#]|$)/.test(decoded)
   ) {
     return "/";
   }
