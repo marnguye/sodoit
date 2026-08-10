@@ -5,8 +5,7 @@ import { Button, Card } from "@/components/ui";
 
 import { updateProfile } from "../actions";
 import { AvatarUpload } from "./AvatarUpload";
-
-const BIO_MAX_LENGTH = 160;
+import { BIO_MAX_LENGTH } from "@/lib/validation";
 
 const INPUT_CLASS =
   "w-full rounded-md border border-border bg-white px-3.5 py-2.5 text-sm transition-all focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20";

@@ -1,16 +1,60 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-
-const USERNAME_RE = /^[a-z0-9_-]{3,24}$/;
-const BIO_MAX_LENGTH = 160;
+import { createAdminClient } from "@/lib/supabase/admin";
+import { deleteAccountData } from "@/lib/account/delete-account";
+import { BIO_MAX_LENGTH, USERNAME_RE } from "@/lib/validation";
 
 const AVATAR_PATHS = ["avatar.jpg", "avatar.png", "avatar.webp"] as const;
 
 export interface ProfileActionResult {
   success: boolean;
   error?: string;
+  url?: string;
+}
+
+export async function signOut() {
+  const supabase = await createClient();
+  await supabase.auth.signOut();
+  redirect("/");
+}
+
+export async function deleteAccount(
+  confirmation: string,
+): Promise<ProfileActionResult> {
+  if (confirmation !== "DELETE") {
+    return {
+      success: false,
+      error: "Type DELETE to confirm account deletion.",
+    };
+  }
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    return {
+      success: false,
+      error: "You must be logged in.",
+    };
+  }
+
+  try {
+    await deleteAccountData(createAdminClient(), user.id);
+  } catch {
+    return {
+      success: false,
+      error: "Could not delete your account. Please try again.",
+    };
+  }
+
+  await supabase.auth.signOut({ scope: "local" });
+  redirect("/");
 }
 
 async function getAuthenticatedProfile() {
@@ -133,7 +177,7 @@ export async function updateProfile(input: {
 }
 
 export async function updateAvatarUrl(
-  avatarUrl: string,
+  avatarPath: string,
 ): Promise<ProfileActionResult> {
   const context = await getAuthenticatedProfile();
 
@@ -145,6 +189,20 @@ export async function updateAvatarUrl(
   }
 
   const { supabase, user, username } = context;
+
+  if (
+    !AVATAR_PATHS.some((filename) => avatarPath === `${user.id}/${filename}`)
+  ) {
+    return {
+      success: false,
+      error: "Could not update avatar.",
+    };
+  }
+
+  const {
+    data: { publicUrl },
+  } = supabase.storage.from("avatars").getPublicUrl(avatarPath);
+  const avatarUrl = `${publicUrl}?v=${Date.now()}`;
 
   const { error } = await supabase
     .from("profiles")
@@ -160,7 +218,7 @@ export async function updateAvatarUrl(
 
   revalidateProfilePaths(username);
 
-  return { success: true };
+  return { success: true, url: avatarUrl };
 }
 
 export async function removeAvatar(): Promise<ProfileActionResult> {
