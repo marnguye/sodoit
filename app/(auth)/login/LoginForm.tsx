@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
@@ -14,6 +14,12 @@ export function LoginForm({ next }: { next: string }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const hydrated = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
+
   const safeNext = getSafeNextPath(next);
   const signupHref = `/signup?next=${encodeURIComponent(safeNext)}`;
 
@@ -22,20 +28,26 @@ export function LoginForm({ next }: { next: string }) {
     setLoading(true);
     setError(null);
 
-    const supabase = createClient();
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    try {
+      const supabase = createClient();
 
-    if (error) {
-      setError("Incorrect email or password.");
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        setError("Incorrect email or password.");
+        return;
+      }
+
+      router.push(safeNext);
+      router.refresh();
+    } catch {
+      setError("Unable to log in. Please try again.");
+    } finally {
       setLoading(false);
-      return;
     }
-
-    router.push(safeNext);
-    router.refresh();
   }
 
   return (
@@ -45,7 +57,11 @@ export function LoginForm({ next }: { next: string }) {
         Log in to continue where you left off.
       </p>
 
-      <form onSubmit={handleSubmit} className="mt-7 flex flex-col gap-4">
+      <form
+        onSubmit={handleSubmit}
+        method="post"
+        className="mt-7 flex flex-col gap-4"
+      >
         <div>
           <label
             htmlFor="email"
@@ -75,7 +91,7 @@ export function LoginForm({ next }: { next: string }) {
 
         <button
           type="submit"
-          disabled={loading}
+          disabled={loading || !hydrated}
           className="mt-2 h-11 rounded-md bg-accent text-[15px] font-bold text-white transition-colors hover:bg-accent-dark disabled:opacity-70"
         >
           {loading ? "Logging in..." : "Log in"}

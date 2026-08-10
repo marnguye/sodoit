@@ -10,6 +10,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run tests/unit",
     "test:security": "node --env-file=.env.local node_modules/vitest/vitest.mjs run tests/security",
+    "test:e2e": "node --env-file=.env.local node_modules/@playwright/test/cli.js test",
     "seed:images": "node --env-file=.env.local scripts/seed-experience-images.mjs",
     "optimize:images": "node --env-file=.env.local scripts/optimize-experience-images.mjs",
     "content:validate": "node --env-file=.env.local scripts/content/validate-experiences.mjs",
@@ -25,6 +26,7 @@
     "react-dom": "19.2.8"
   },
   "devDependencies": {
+    "@playwright/test": "^1.62.1",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",

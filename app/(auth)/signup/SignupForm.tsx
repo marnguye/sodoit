@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { getSafeNextPath } from "@/lib/auth-redirect";
@@ -9,24 +9,37 @@ import { passwordStrength } from "@/lib/password";
 import { PASSWORD_MIN_LENGTH, USERNAME_RE } from "@/lib/validation";
 
 const STRENGTH_COLORS = ["#DC2626", "#F97316", "#EAB308", "#16A34A"];
+
 const DISPLAY_NAME_MAX_LENGTH = 80;
+
+const subscribe = () => () => {};
+const getClientSnapshot = () => true;
+const getServerSnapshot = () => false;
 
 export function SignupForm({ next }: { next: string }) {
   const [displayName, setDisplayName] = useState("");
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
   const [usernameError, setUsernameError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [submittedEmail, setSubmittedEmail] = useState<string | null>(null);
 
+  const hydrated = useSyncExternalStore(
+    subscribe,
+    getClientSnapshot,
+    getServerSnapshot,
+  );
+
   const strength = passwordStrength(password);
   const safeNext = getSafeNextPath(next);
   const loginHref = `/login?next=${encodeURIComponent(safeNext)}`;
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
     setError(null);
     setUsernameError(null);
 
@@ -57,52 +70,67 @@ export function SignupForm({ next }: { next: string }) {
     }
 
     setLoading(true);
-    const supabase = createClient();
 
-    const { data: existing, error: lookupError } = await supabase
-      .from("profiles")
-      .select("id")
-      .eq("username", normalizedUsername)
-      .maybeSingle();
+    try {
+      const supabase = createClient();
 
-    if (!lookupError && existing) {
-      setUsernameError("This username is already taken");
-      setLoading(false);
-      return;
-    }
+      const { data: existing, error: lookupError } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("username", normalizedUsername)
+        .maybeSingle();
 
-    const { error: signUpError } = await supabase.auth.signUp({
-      email: normalizedEmail,
-      password,
-      options: {
-        data: {
-          username: normalizedUsername,
-          display_name: normalizedDisplayName,
+      if (lookupError) {
+        setError(
+          "Could not create your account. Please check your details and try again.",
+        );
+        return;
+      }
+
+      if (existing) {
+        setUsernameError("This username is already taken");
+        return;
+      }
+
+      const { error: signUpError } = await supabase.auth.signUp({
+        email: normalizedEmail,
+        password,
+        options: {
+          data: {
+            username: normalizedUsername,
+            display_name: normalizedDisplayName,
+          },
+          emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(
+            safeNext,
+          )}`,
         },
-        emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(safeNext)}`,
-      },
-    });
+      });
 
-    if (signUpError) {
+      if (signUpError) {
+        setError(
+          "Could not create your account. Please check your details and try again.",
+        );
+        return;
+      }
+
+      setSubmittedEmail(normalizedEmail);
+    } catch {
       setError(
         "Could not create your account. Please check your details and try again.",
       );
+    } finally {
       setLoading(false);
-      return;
     }
-
-    setSubmittedEmail(email);
-    setLoading(false);
   }
 
   if (submittedEmail) {
     return (
-      <div className="text-center">
-        <p className="text-4xl font-black text-accent">✓</p>
-        <h1 className="mt-3 text-2xl font-extrabold text-ink">
-          Check your email
-        </h1>
-        <p className="mt-2 text-sm leading-relaxed text-muted">
+      <div>
+        <div className="mb-4 text-3xl">✓</div>
+
+        <h1 className="text-2xl font-bold text-ink">Check your email</h1>
+
+        <p className="mt-2 text-sm text-muted">
           We sent a confirmation link to {submittedEmail}. Click it to activate
           your account.
         </p>
@@ -112,10 +140,15 @@ export function SignupForm({ next }: { next: string }) {
 
   return (
     <div>
-      <h1 className="text-2xl font-extrabold text-ink">Create your account</h1>
-      <p className="mt-1.5 text-sm text-muted">Start building your list.</p>
+      <h1 className="text-2xl font-bold text-ink">Create your account</h1>
 
-      <form onSubmit={handleSubmit} className="mt-7 flex flex-col gap-3">
+      <p className="mt-2 text-sm text-muted">Start building your list.</p>
+
+      <form
+        method="post"
+        onSubmit={handleSubmit}
+        className="mt-7 flex flex-col gap-3"
+      >
         <div>
           <label
             htmlFor="displayName"
@@ -123,6 +156,7 @@ export function SignupForm({ next }: { next: string }) {
           >
             Your name
           </label>
+
           <input
             id="displayName"
             name="displayName"
@@ -132,7 +166,7 @@ export function SignupForm({ next }: { next: string }) {
             placeholder="Jan Novák"
             autoComplete="name"
             value={displayName}
-            onChange={(e) => setDisplayName(e.target.value)}
+            onChange={(event) => setDisplayName(event.target.value)}
             className={INPUT_CLASS}
           />
         </div>
@@ -144,10 +178,12 @@ export function SignupForm({ next }: { next: string }) {
           >
             Username
           </label>
+
           <div className="relative">
             <span className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-muted">
               @
             </span>
+
             <input
               id="username"
               name="username"
@@ -156,14 +192,15 @@ export function SignupForm({ next }: { next: string }) {
               placeholder="jannovak"
               autoComplete="username"
               value={username}
-              onChange={(e) => {
-                setUsername(e.target.value.toLowerCase());
+              onChange={(event) => {
+                setUsername(event.target.value.toLowerCase());
                 setUsernameError(null);
               }}
               className={INPUT_CLASS}
               style={{ paddingLeft: 26 }}
             />
           </div>
+
           {usernameError && (
             <p className="mt-1.5 text-xs text-red-600">{usernameError}</p>
           )}
@@ -176,6 +213,7 @@ export function SignupForm({ next }: { next: string }) {
           >
             Email
           </label>
+
           <input
             id="email"
             name="email"
@@ -183,7 +221,7 @@ export function SignupForm({ next }: { next: string }) {
             required
             autoComplete="email"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(event) => setEmail(event.target.value)}
             className={INPUT_CLASS}
           />
         </div>
@@ -197,14 +235,17 @@ export function SignupForm({ next }: { next: string }) {
             autoComplete="new-password"
             minLength={PASSWORD_MIN_LENGTH}
           />
+
           <div className="mt-2 flex gap-1.5">
-            {[0, 1, 2, 3].map((i) => (
+            {[0, 1, 2, 3].map((index) => (
               <div
-                key={i}
+                key={index}
                 className="h-[3px] flex-1 rounded-full"
                 style={{
                   background:
-                    i < strength ? STRENGTH_COLORS[strength - 1] : "#E7E5E4",
+                    index < strength
+                      ? STRENGTH_COLORS[strength - 1]
+                      : "#E7E5E4",
                 }}
               />
             ))}
@@ -213,7 +254,7 @@ export function SignupForm({ next }: { next: string }) {
 
         <button
           type="submit"
-          disabled={loading}
+          disabled={loading || !hydrated}
           className="mt-2 h-11 rounded-md bg-accent text-[15px] font-bold text-white transition-colors hover:bg-accent-dark disabled:opacity-70"
         >
           {loading ? "Creating account..." : "Create account"}
