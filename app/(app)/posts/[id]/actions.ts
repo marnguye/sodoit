@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { consumeRateLimit } from "@/lib/rate-limit";
 import { createClient } from "@/lib/supabase/server";
 import { COMMENT_MAX_LENGTH, UUID_RE } from "@/lib/validation";
+import { logger } from "@/lib/logger";
 
 interface CreateCommentResult {
   success: boolean;
@@ -56,6 +57,8 @@ export async function createComment(
   try {
     rateLimit = await consumeRateLimit(supabase, "create_comment");
   } catch {
+    logger.error("comment.rate_limit.failed", { reason: "rpc_error" });
+
     return {
       success: false,
       error: "Could not post your comment.",
@@ -76,7 +79,9 @@ export async function createComment(
   });
 
   if (error) {
-    console.error("Failed to create comment:", error);
+    logger.error("comment.create.failed", {
+      reason: "database_error",
+    });
 
     return {
       success: false,

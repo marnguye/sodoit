@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { loginHrefWithNext } from "@/lib/auth-redirect";
+import { logger } from "@/lib/logger";
 import { consumeRateLimit } from "@/lib/rate-limit";
 import { createClient } from "@/lib/supabase/server";
 import {
@@ -50,6 +51,7 @@ export async function createPost(
   try {
     rateLimit = await consumeRateLimit(supabase, "create_post");
   } catch {
+    logger.error("post.rate_limit.failed", { reason: "rpc_error" });
     return { error: "Could not create post." };
   }
 
