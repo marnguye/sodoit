@@ -40,3 +40,9 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 tsconfig.tsbuildinfo
+
+# supabase schema
+sql_schema_*.sql
+
+# aider
+.aider*
