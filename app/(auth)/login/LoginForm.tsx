@@ -29,9 +29,7 @@ export function LoginForm({ next }: { next: string }) {
     });
 
     if (error) {
-      setError(
-        error.status === 400 ? "Incorrect email or password." : error.message,
-      );
+      setError("Incorrect email or password.");
       setLoading(false);
       return;
     }

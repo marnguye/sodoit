@@ -81,17 +81,13 @@ export function AvatarUpload({
         throw uploadError;
       }
 
-      const {
-        data: { publicUrl },
-      } = supabase.storage.from("avatars").getPublicUrl(path);
+      const result = await updateAvatarUrl(path);
 
-      const url = `${publicUrl}?v=${Date.now()}`;
-
-      const result = await updateAvatarUrl(url);
-
-      if (!result.success) {
+      if (!result.success || !result.url) {
         throw new Error(result.error);
       }
+
+      const url = result.url;
 
       const obsoletePaths = Object.values(ALLOWED_TYPES)
         .filter((extension) => extension !== ext)

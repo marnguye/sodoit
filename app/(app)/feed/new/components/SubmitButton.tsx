@@ -13,6 +13,7 @@ export function SubmitButton({ isValid, onInvalidClick }: SubmitButtonProps) {
   return (
     <button
       type="submit"
+      disabled={pending}
       aria-disabled={!isValid || pending}
       onClick={(event) => {
         if (!isValid) {

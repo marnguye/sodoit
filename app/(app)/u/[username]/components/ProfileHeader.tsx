@@ -1,6 +1,7 @@
 import { CalendarDays } from "lucide-react";
 import { Avatar } from "@/components/ui";
 import { EditProfileButton } from "./EditProfileButton";
+import { signOut } from "@/app/(app)/settings/profile/actions";
 
 function formatJoinedDate(value: string) {
   return new Intl.DateTimeFormat("en", {
@@ -39,12 +40,23 @@ export function ProfileHeader({
       </div>
 
       {isOwner && (
-        <EditProfileButton
-          userId={userId}
-          username={username}
-          bio={bio ?? ""}
-          avatarUrl={avatarUrl}
-        />
+        <div className="mt-4 flex items-center gap-2">
+          <EditProfileButton
+            userId={userId}
+            username={username}
+            bio={bio ?? ""}
+            avatarUrl={avatarUrl}
+          />
+
+          <form action={signOut}>
+            <button
+              type="submit"
+              className="rounded-md px-3 py-1.5 text-sm font-semibold text-muted transition-colors hover:text-ink"
+            >
+              Log out
+            </button>
+          </form>
+        </div>
       )}
     </div>
   );

@@ -6,10 +6,10 @@ import { createClient } from "@/lib/supabase/client";
 import { getSafeNextPath } from "@/lib/auth-redirect";
 import { INPUT_CLASS, PasswordField } from "../PasswordField";
 import { passwordStrength } from "@/lib/password";
-
-const USERNAME_RE = /^[a-z0-9_-]{3,24}$/;
+import { PASSWORD_MIN_LENGTH, USERNAME_RE } from "@/lib/validation";
 
 const STRENGTH_COLORS = ["#DC2626", "#F97316", "#EAB308", "#16A34A"];
+const DISPLAY_NAME_MAX_LENGTH = 80;
 
 export function SignupForm({ next }: { next: string }) {
   const [displayName, setDisplayName] = useState("");
@@ -30,10 +30,29 @@ export function SignupForm({ next }: { next: string }) {
     setError(null);
     setUsernameError(null);
 
-    if (!USERNAME_RE.test(username)) {
+    const normalizedUsername = username.trim().toLowerCase();
+    const normalizedDisplayName = displayName.trim();
+    const normalizedEmail = email.trim().toLowerCase();
+
+    if (!USERNAME_RE.test(normalizedUsername)) {
       setUsernameError(
         "Username must be 3-24 lowercase letters, numbers, underscores, or dashes.",
       );
+      return;
+    }
+
+    if (
+      !normalizedDisplayName ||
+      normalizedDisplayName.length > DISPLAY_NAME_MAX_LENGTH
+    ) {
+      setError(
+        `Your name must be ${DISPLAY_NAME_MAX_LENGTH} characters or fewer.`,
+      );
+      return;
+    }
+
+    if (password.length < PASSWORD_MIN_LENGTH) {
+      setError(`Password must be at least ${PASSWORD_MIN_LENGTH} characters.`);
       return;
     }
 
@@ -43,7 +62,7 @@ export function SignupForm({ next }: { next: string }) {
     const { data: existing, error: lookupError } = await supabase
       .from("profiles")
       .select("id")
-      .eq("username", username)
+      .eq("username", normalizedUsername)
       .maybeSingle();
 
     if (!lookupError && existing) {
@@ -53,16 +72,21 @@ export function SignupForm({ next }: { next: string }) {
     }
 
     const { error: signUpError } = await supabase.auth.signUp({
-      email,
+      email: normalizedEmail,
       password,
       options: {
-        data: { username, display_name: displayName },
+        data: {
+          username: normalizedUsername,
+          display_name: normalizedDisplayName,
+        },
         emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(safeNext)}`,
       },
     });
 
     if (signUpError) {
-      setError(signUpError.message);
+      setError(
+        "Could not create your account. Please check your details and try again.",
+      );
       setLoading(false);
       return;
     }
@@ -104,6 +128,7 @@ export function SignupForm({ next }: { next: string }) {
             name="displayName"
             type="text"
             required
+            maxLength={DISPLAY_NAME_MAX_LENGTH}
             placeholder="Jan Novák"
             autoComplete="name"
             value={displayName}
@@ -170,6 +195,7 @@ export function SignupForm({ next }: { next: string }) {
             value={password}
             onChange={setPassword}
             autoComplete="new-password"
+            minLength={PASSWORD_MIN_LENGTH}
           />
           <div className="mt-2 flex gap-1.5">
             {[0, 1, 2, 3].map((i) => (

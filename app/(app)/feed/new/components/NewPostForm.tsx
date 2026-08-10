@@ -1,15 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useActionState, useState } from "react";
 import Link from "next/link";
 import { Card } from "@/components/ui";
-import { createPost } from "../../actions";
+import { createPost, type CreatePostState } from "../../actions";
 import type { PostType } from "../../types";
 import { PostTypeSelector } from "./PostTypeSelector";
 import { ExperienceSelector, ExperienceOption } from "./ExperienceSelector";
 import { SubmitButton } from "./SubmitButton";
-
-const TITLE_MAX = 140;
+import { POST_BODY_MAX_LENGTH, POST_TITLE_MAX_LENGTH } from "@/lib/validation";
 
 const TITLE_PLACEHOLDER: Record<PostType, string> = {
   question: "What do you want to ask?",
@@ -21,12 +20,18 @@ interface NewPostFormProps {
   experiences: ExperienceOption[];
 }
 
+const initialCreatePostState: CreatePostState = {};
+
 export function NewPostForm({ experiences }: NewPostFormProps) {
   const [type, setType] = useState<PostType | null>(null);
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [experience, setExperience] = useState<ExperienceOption | null>(null);
   const [attempted, setAttempted] = useState(false);
+  const [state, formAction] = useActionState(
+    createPost,
+    initialCreatePostState,
+  );
 
   const isValid =
     Boolean(type) && title.trim().length > 0 && body.trim().length > 0;
@@ -37,7 +42,7 @@ export function NewPostForm({ experiences }: NewPostFormProps) {
 
   return (
     <Card className="flex flex-col gap-6">
-      <form action={createPost} className="flex flex-col gap-6">
+      <form action={formAction} className="flex flex-col gap-6">
         <input type="hidden" name="type" value={type ?? ""} />
         <input type="hidden" name="experienceId" value={experience?.id ?? ""} />
 
@@ -76,7 +81,7 @@ export function NewPostForm({ experiences }: NewPostFormProps) {
               Title
             </label>
             <span className="text-xs text-muted">
-              {title.length}/{TITLE_MAX}
+              {title.length}/{POST_TITLE_MAX_LENGTH}
             </span>
           </div>
           <input
@@ -84,7 +89,7 @@ export function NewPostForm({ experiences }: NewPostFormProps) {
             name="title"
             type="text"
             required
-            maxLength={TITLE_MAX}
+            maxLength={POST_TITLE_MAX_LENGTH}
             value={title}
             onChange={(event) => setTitle(event.target.value)}
             placeholder={
@@ -108,6 +113,7 @@ export function NewPostForm({ experiences }: NewPostFormProps) {
             id="body"
             name="body"
             required
+            maxLength={POST_BODY_MAX_LENGTH}
             value={body}
             onChange={(event) => setBody(event.target.value)}
             placeholder="Share the details — what happened, what you learned, or what you need help with."
@@ -118,6 +124,12 @@ export function NewPostForm({ experiences }: NewPostFormProps) {
             <p className="mt-1.5 text-xs text-red-600">Body is required.</p>
           )}
         </div>
+
+        {state.error && (
+          <p className="text-sm text-red-600" role="alert">
+            {state.error}
+          </p>
+        )}
 
         <div className="flex items-center justify-end gap-3 border-t border-border pt-6">
           <Link

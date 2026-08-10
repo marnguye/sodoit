@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { loginHrefWithNext } from "@/lib/auth-redirect";
 import { PageShell } from "@/components/ui";
 import { ProfileForm } from "./components/ProfileForm";
+import { DeleteAccount } from "./components/DeleteAccount";
 
 export default async function ProfileSettingsPage() {
   const supabase = await createClient();
@@ -27,12 +28,15 @@ export default async function ProfileSettingsPage() {
       subtitle="Update how you appear to others."
       maxWidth="560px"
     >
-      <ProfileForm
-        userId={user.id}
-        initialUsername={profile?.username ?? ""}
-        initialBio={profile?.bio ?? ""}
-        initialAvatarUrl={profile?.avatar_url ?? null}
-      />
+      <div className="flex flex-col gap-6">
+        <ProfileForm
+          userId={user.id}
+          initialUsername={profile?.username ?? ""}
+          initialBio={profile?.bio ?? ""}
+          initialAvatarUrl={profile?.avatar_url ?? null}
+        />
+        <DeleteAccount />
+      </div>
     </PageShell>
   );
 }

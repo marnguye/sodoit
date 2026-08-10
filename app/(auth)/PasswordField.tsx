@@ -13,6 +13,7 @@ export function PasswordField({
   placeholder,
   autoComplete = "current-password",
   labelExtra,
+  minLength,
 }: {
   id: string;
   label: string;
@@ -21,6 +22,7 @@ export function PasswordField({
   placeholder?: string;
   autoComplete?: "current-password" | "new-password";
   labelExtra?: ReactNode;
+  minLength?: number;
 }) {
   const [visible, setVisible] = useState(false);
 
@@ -38,6 +40,7 @@ export function PasswordField({
           name={id}
           type={visible ? "text" : "password"}
           required
+          minLength={minLength}
           placeholder={placeholder}
           value={value}
           onChange={(e) => onChange(e.target.value)}
