@@ -78,6 +78,18 @@ export interface SecurityFixture {
     forgedAuthenticated: string;
     forgedAnon: string;
   };
+  guideIds: {
+    public: string;
+    private: string;
+    forgedAuthenticated: string;
+    forgedAnon: string;
+  };
+  guideItemIds: {
+    public: string;
+    private: string;
+    forgedAuthenticated: string;
+    forgedAnon: string;
+  };
   postIds: {
     a: string;
     b: string;
@@ -134,6 +146,18 @@ export async function createSecurityFixture(): Promise<SecurityFixture> {
     publicList: crypto.randomUUID(),
     achievement: crypto.randomUUID(),
     deletion: crypto.randomUUID(),
+    forgedAuthenticated: crypto.randomUUID(),
+    forgedAnon: crypto.randomUUID(),
+  };
+  const guideIds = {
+    public: crypto.randomUUID(),
+    private: crypto.randomUUID(),
+    forgedAuthenticated: crypto.randomUUID(),
+    forgedAnon: crypto.randomUUID(),
+  };
+  const guideItemIds = {
+    public: crypto.randomUUID(),
+    private: crypto.randomUUID(),
     forgedAuthenticated: crypto.randomUUID(),
     forgedAnon: crypto.randomUUID(),
   };
@@ -197,6 +221,46 @@ export async function createSecurityFixture(): Promise<SecurityFixture> {
         })),
       ),
       "Prepare experiences",
+    );
+
+    requireSuccess(
+      await admin.from("guides").insert([
+        {
+          id: guideIds.public,
+          slug: `security-public-${runId}`,
+          title: `Security public guide ${runId}`,
+          city: "Prague",
+          country_code: "CZ",
+          is_public: true,
+        },
+        {
+          id: guideIds.private,
+          slug: `security-private-${runId}`,
+          title: `Security private guide ${runId}`,
+          city: "Prague",
+          country_code: "CZ",
+          is_public: false,
+        },
+      ]),
+      "Prepare guides",
+    );
+
+    requireSuccess(
+      await admin.from("guide_items").insert([
+        {
+          id: guideItemIds.public,
+          guide_id: guideIds.public,
+          position: 0,
+          title: `Security public item ${runId}`,
+        },
+        {
+          id: guideItemIds.private,
+          guide_id: guideIds.private,
+          position: 0,
+          title: `Security private item ${runId}`,
+        },
+      ]),
+      "Prepare guide items",
     );
 
     requireSuccess(
@@ -298,6 +362,8 @@ export async function createSecurityFixture(): Promise<SecurityFixture> {
       bId,
       runId,
       experienceIds,
+      guideIds,
+      guideItemIds,
       postIds,
       bCommentId,
       bVoteId,
@@ -311,6 +377,8 @@ export async function createSecurityFixture(): Promise<SecurityFixture> {
       aId,
       bId,
       experienceIds,
+      guideIds,
+      guideItemIds,
       runId,
     });
     throw error;
@@ -322,14 +390,19 @@ interface PartialFixture {
   aId: string;
   bId: string;
   experienceIds: SecurityFixture["experienceIds"];
+  guideIds: SecurityFixture["guideIds"];
+  guideItemIds: SecurityFixture["guideItemIds"];
   runId: string;
 }
 
 export async function cleanupSecurityFixture(fixture: PartialFixture) {
-  const { admin, aId, bId, experienceIds, runId } = fixture;
+  const { admin, aId, bId, experienceIds, guideIds, guideItemIds, runId } =
+    fixture;
   const errors: string[] = [];
   const ids = [aId, bId].filter(Boolean);
   const experienceIdList = Object.values(experienceIds);
+  const guideIdList = Object.values(guideIds);
+  const guideItemIdList = Object.values(guideItemIds);
   const clean = async (
     operation: string,
     work: () => PromiseLike<{ error: { message: string } | null }>,
@@ -389,6 +462,9 @@ export async function cleanupSecurityFixture(fixture: PartialFixture) {
       admin.from("experiences").delete().in("id", experienceIdList),
     );
   }
+  await clean("Clean guides", () =>
+    admin.from("guides").delete().in("id", guideIdList),
+  );
 
   for (const id of ids) {
     const existing = await admin.auth.admin.getUserById(id);
@@ -456,6 +532,18 @@ export async function cleanupSecurityFixture(fixture: PartialFixture) {
     errors.push(`Verify experience cleanup: ${experiences.error.message}`);
   if (experiences.data?.length)
     errors.push("Experience cleanup left test rows behind.");
+  const guides = await admin.from("guides").select("id").in("id", guideIdList);
+  if (guides.error)
+    errors.push(`Verify guide cleanup: ${guides.error.message}`);
+  if (guides.data?.length) errors.push("Guide cleanup left test rows behind.");
+  const guideItems = await admin
+    .from("guide_items")
+    .select("id")
+    .in("id", guideItemIdList);
+  if (guideItems.error)
+    errors.push(`Verify guide-item cleanup: ${guideItems.error.message}`);
+  if (guideItems.data?.length)
+    errors.push("Guide-item cleanup left test rows behind.");
   const images = await admin.storage
     .from("experience-images")
     .list("security-tests", {
