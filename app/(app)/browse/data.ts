@@ -24,7 +24,8 @@ export async function loadGrandTotal(): Promise<number> {
 
   const { count } = await supabase
     .from("experiences")
-    .select("id", { count: "exact", head: true });
+    .select("id", { count: "exact", head: true })
+    .eq("is_public", true);
 
   return count ?? 0;
 }
@@ -50,6 +51,7 @@ export async function loadExperiencesPage(
   let query = supabase
     .from("experiences")
     .select(EXPERIENCE_COLUMNS, { count: "exact" })
+    .eq("is_public", true)
     .order("created_at", { ascending: false });
 
   if (q) {
@@ -98,6 +100,7 @@ export async function loadAllExperiences(
     let query = supabase
       .from("experiences")
       .select(EXPERIENCE_COLUMNS)
+      .eq("is_public", true)
       .order("created_at", { ascending: false });
 
     if (q) {
@@ -159,6 +162,7 @@ export async function loadCuratedSections(): Promise<CuratedSection[]> {
       const { data } = await supabase
         .from("experiences")
         .select(EXPERIENCE_COLUMNS)
+        .eq("is_public", true)
         .in("category", categories)
         .order("created_at", { ascending: false })
         .limit(CURATED_SECTION_LIMIT);

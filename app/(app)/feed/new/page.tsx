@@ -19,6 +19,7 @@ export default async function NewPostPage() {
   const { data: experiences } = await supabase
     .from("experiences")
     .select("id, title")
+    .eq("is_public", true)
     .order("title", { ascending: true });
 
   return (

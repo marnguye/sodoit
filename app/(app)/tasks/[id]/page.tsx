@@ -80,6 +80,7 @@ export default async function TaskDetailPage({
     ? await supabase
         .from("experiences")
         .select("id, title, category, difficulty")
+        .eq("is_public", true)
         .eq("category", task.category)
         .neq("id", task.id)
         .limit(3)
