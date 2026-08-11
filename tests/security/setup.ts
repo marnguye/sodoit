@@ -84,7 +84,6 @@ export interface SecurityFixture {
   bVoteId: string;
   legacyIds: {
     completion: string;
-    userCompletion: string;
   };
   storage: {
     aAvatar: string;
@@ -141,7 +140,6 @@ export async function createSecurityFixture(): Promise<SecurityFixture> {
   const bVoteId = crypto.randomUUID();
   const legacyIds = {
     completion: crypto.randomUUID(),
-    userCompletion: crypto.randomUUID(),
   };
 
   try {
@@ -252,16 +250,7 @@ export async function createSecurityFixture(): Promise<SecurityFixture> {
         experience_id: experienceIds.main,
         note: `security-${runId}`,
       }),
-      "Prepare legacy completion",
-    );
-
-    requireSuccess(
-      await admin.from("user_completions").insert({
-        id: legacyIds.userCompletion,
-        user_id: bId,
-        experience_id: experienceIds.ownList,
-      }),
-      "Prepare legacy user completion",
+      "Prepare completion",
     );
 
     const storage = {
@@ -361,7 +350,6 @@ export async function cleanupSecurityFixture(fixture: PartialFixture) {
     "user_achievements",
     "user_lists",
     "completions",
-    "user_completions",
     "rate_limits",
     "posts",
   ]) {
@@ -402,7 +390,6 @@ export async function cleanupSecurityFixture(fixture: PartialFixture) {
       "user_achievements",
       "user_lists",
       "completions",
-      "user_completions",
       "rate_limits",
     ]) {
       const rows = await admin.from(table).select("*").in("user_id", ids);

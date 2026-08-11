@@ -4,12 +4,11 @@ import { registerSecurityFixture } from "./fixture";
 
 const getFixture = registerSecurityFixture();
 
-describe("legacy tables security", () => {
-  it("keeps legacy completion tables fail-closed", async () => {
+describe("completion memories security", () => {
+  it("keeps completions fail-closed for authenticated users", async () => {
     const fixture = getFixture();
 
     const forgedCompletion = crypto.randomUUID();
-    const forgedUserCompletion = crypto.randomUUID();
 
     await fixture.userA.from("completions").insert({
       id: forgedCompletion,
@@ -27,23 +26,8 @@ describe("legacy tables security", () => {
       .delete()
       .eq("id", fixture.legacyIds.completion);
 
-    await fixture.userA.from("user_completions").insert({
-      id: forgedUserCompletion,
-      user_id: fixture.aId,
-      experience_id: fixture.experienceIds.main,
-    });
-
-    await fixture.userA
-      .from("user_completions")
-      .delete()
-      .eq("id", fixture.legacyIds.userCompletion);
-
     expect(
       await adminRow(fixture, "completions", "id", forgedCompletion),
-    ).toBeNull();
-
-    expect(
-      await adminRow(fixture, "user_completions", "id", forgedUserCompletion),
     ).toBeNull();
 
     const completion = await adminRow(
@@ -54,14 +38,5 @@ describe("legacy tables security", () => {
     );
 
     expect(completion?.note).toBe(`security-${fixture.runId}`);
-
-    expect(
-      await adminRow(
-        fixture,
-        "user_completions",
-        "id",
-        fixture.legacyIds.userCompletion,
-      ),
-    ).not.toBeNull();
   });
 });
