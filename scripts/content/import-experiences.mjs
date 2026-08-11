@@ -28,6 +28,7 @@ async function insertBatches(supabase, rows) {
     const { error } = await supabase.from("experiences").insert(
       batch.map((row) => ({
         title: row.title,
+        slug: row.slug,
         description: row.description,
         category: row.category,
         difficulty: row.difficulty,
