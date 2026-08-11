@@ -1,0 +1,227 @@
+{
+  "experiences": [
+    {
+      "slug": "complete-a-difficult-jigsaw-puzzle",
+      "public": true,
+      "featured": true,
+      "title": "Complete a challenging jigsaw puzzle",
+      "description": "Clear the table, put away your phone, and lose yourself in a puzzle that takes real patience to finish.",
+      "image_alt": "Colorful jigsaw puzzle pieces scattered across a table."
+    },
+    {
+      "slug": "create-a-reading-corner-at-home",
+      "public": true,
+      "featured": false,
+      "description": "Turn a quiet corner into a place you genuinely want to read, with a comfortable seat, good light, and a book within reach.",
+      "image_alt": "A bright reading corner with a lounge chair, rug, lamp, and plants."
+    },
+    {
+      "slug": "finish-a-half-marathon",
+      "public": true,
+      "featured": true,
+      "description": "Train for 13.1 miles and experience the hard-earned thrill of crossing the finish line.",
+      "image_alt": "Half-marathon runners approaching the finish line."
+    },
+    {
+      "slug": "go-snorkeling-in-clear-water",
+      "public": true,
+      "featured": false,
+      "description": "Slip beneath clear water and discover the fish, reefs, and quiet world just below the surface.",
+      "image_alt": "Two people snorkeling in clear turquoise water."
+    },
+    {
+      "slug": "host-a-themed-dinner-night",
+      "public": true,
+      "featured": false,
+      "description": "Choose a theme, invite a few favorite people, and build an evening around food, music, and playful details.",
+      "image_alt": "Friends in period costumes sharing a candlelit dinner."
+    },
+    {
+      "slug": "listen-to-live-jazz",
+      "public": true,
+      "featured": true,
+      "description": "Find a small venue, settle in, and hear musicians improvise a performance that will never happen the same way again.",
+      "image_alt": "A jazz musician performing on saxophone."
+    },
+    {
+      "slug": "make-fresh-pasta-from-scratch",
+      "public": true,
+      "featured": true,
+      "description": "Turn flour and eggs into silky pasta by hand, then sit down to a meal you made from the very beginning.",
+      "image_alt": "Fresh pasta being cut into long strands by hand."
+    },
+    {
+      "slug": "organize-a-group-hike",
+      "public": true,
+      "featured": true,
+      "description": "Pick a beautiful trail, gather some friends, and spend a day walking and talking away from the usual routine.",
+      "image_alt": "Friends navigating together on a forest hike."
+    },
+    {
+      "slug": "ride-one-of-the-world-s-scenic-train-routes",
+      "public": true,
+      "featured": false,
+      "title": "Ride a scenic train route",
+      "description": "Take the slow route through a remarkable landscape and let the view—not the destination—be the point of the journey.",
+      "image_alt": "A traveler looking at a map beside a train window."
+    },
+    {
+      "slug": "roll-your-own-sushi",
+      "public": true,
+      "featured": false,
+      "description": "Learn to season rice, prepare fillings, and roll a tray of sushi to share at home.",
+      "image_alt": "A cook carefully preparing fresh sushi rolls."
+    },
+    {
+      "slug": "see-bioluminescent-water",
+      "public": true,
+      "featured": true,
+      "description": "Watch the shoreline glow blue at night as tiny organisms light up the moving water.",
+      "image_alt": "Blue bioluminescent waves glowing along a rocky shore at night."
+    },
+    {
+      "slug": "start-a-small-herb-garden",
+      "public": true,
+      "featured": true,
+      "description": "Plant a few herbs you love to cook with and enjoy picking them fresh from a windowsill, balcony, or garden.",
+      "image_alt": "Small terracotta pots prepared for a home herb garden."
+    },
+    {
+      "slug": "take-a-hot-air-balloon-flight",
+      "public": true,
+      "featured": true,
+      "title": "Take a hot air balloon flight",
+      "description": "Rise quietly above the landscape at dawn and see familiar terrain from an unforgettable new perspective.",
+      "image_alt": "A hot air balloon floating above mountains at twilight."
+    },
+    {
+      "slug": "take-a-yoga-class",
+      "public": true,
+      "featured": false,
+      "description": "Join a welcoming class and spend an hour moving, breathing, and giving your attention to one thing at a time.",
+      "image_alt": "A group practicing yoga together in a studio."
+    },
+    {
+      "slug": "try-a-pottery-class",
+      "public": true,
+      "featured": true,
+      "description": "Sit at a pottery wheel, get your hands in the clay, and shape something that is entirely your own.",
+      "image_alt": "Hands shaping wet clay on a pottery wheel."
+    },
+    {
+      "slug": "try-glassblowing-with-an-instructor",
+      "public": true,
+      "featured": false,
+      "title": "Try glassblowing",
+      "description": "Work with an experienced instructor to shape glowing molten glass into a small piece you can take home.",
+      "image_alt": "Two people shaping molten glass in a glassblowing workshop."
+    },
+    {
+      "slug": "visit-a-black-sand-beach",
+      "public": true,
+      "featured": true,
+      "description": "Walk a shoreline of dark volcanic sand and take in the dramatic contrast of black coast, green cliffs, and open sea.",
+      "image_alt": "A black-sand beach beneath green cliffs and a blue sky."
+    },
+    {
+      "slug": "visit-a-historic-castle",
+      "public": true,
+      "featured": false,
+      "description": "Explore old stone halls, towers, and fortifications while discovering the people and stories that shaped them.",
+      "image_alt": "Stone towers of a medieval castle."
+    },
+    {
+      "slug": "watch-a-meteor-shower",
+      "public": true,
+      "featured": false,
+      "description": "Find a dark sky, bring something warm, and watch bright streaks appear overhead after midnight.",
+      "image_alt": "Meteors streaking across a starry sky above a rocky landscape."
+    }
+  ],
+  "exact_duplicate_decisions": [
+    {
+      "canonical": "read-50-books-in-a-single-year",
+      "hidden": ["read-50-books-in-a-single-year-5e921625"]
+    },
+    {
+      "canonical": "visit-a-country-you-have-never-been-to",
+      "hidden": ["visit-a-country-you-have-never-been-to-c87cfa1b"]
+    },
+    {
+      "canonical": "watch-the-sunrise-from-a-mountain-peak",
+      "hidden": ["watch-the-sunrise-from-a-mountain-peak-a79cb759"]
+    }
+  ],
+  "near_duplicate_decisions": [
+    {
+      "canonical": "bake-a-loaf-of-sourdough-bread",
+      "hidden": [
+        "bake-sourdough-bread-from-a-wild-yeast-starter",
+        "bake-sourdough-bread-from-scratch"
+      ]
+    },
+    {
+      "canonical": "see-the-northern-lights",
+      "hidden": [
+        "camp-under-the-northern-lights",
+        "experience-the-northern-lights-in-person"
+      ]
+    },
+    {
+      "canonical": "learn-ten-phrases-in-a-new-language",
+      "hidden": [
+        "learn-conversational-basics-of-a-new-foreign-language",
+        "learn-the-basics-of-a-new-spoken-language"
+      ]
+    },
+    {
+      "canonical": "learn-to-cook-authentic-pad-thai",
+      "hidden": ["learn-to-cook-authentic-pad-thai-from-scratch"]
+    },
+    {
+      "canonical": "learn-to-make-espresso-properly",
+      "hidden": [
+        "dial-in-and-master-making-classic-espresso-and-latte-art",
+        "master-making-classic-espresso-coffee"
+      ]
+    },
+    {
+      "canonical": "plant-a-tree-and-watch-it-grow",
+      "hidden": ["plant-a-tree-and-track-its-growth-over-a-year"]
+    },
+    {
+      "canonical": "finish-a-half-marathon",
+      "hidden": ["run-a-full-or-half-marathon", "run-a-half-marathon"]
+    },
+    {
+      "canonical": "swim-in-the-open-ocean",
+      "hidden": ["swim-in-the-open-ocean-or-deep-sea"]
+    },
+    {
+      "canonical": "take-a-spontaneous-road-trip",
+      "hidden": [
+        "take-a-spontaneous-weekend-road-trip",
+        "take-a-spontaneous-weekend-road-trip-without-a-fixed-plan"
+      ]
+    },
+    {
+      "canonical": "try-indoor-rock-climbing",
+      "hidden": [
+        "complete-an-indoor-bouldering-or-rock-climbing-session",
+        "try-rock-climbing-at-an-indoor-gym"
+      ]
+    },
+    {
+      "canonical": "visit-a-local-museum-or-art-gallery",
+      "hidden": ["spend-a-day-exploring-a-local-history-museum-or-art-gallery"]
+    },
+    {
+      "canonical": "volunteer-for-a-local-community-project",
+      "hidden": ["volunteer-for-a-local-community-clean-up-or-shelter"]
+    },
+    {
+      "canonical": "write-a-handwritten-letter-to-a-friend",
+      "hidden": ["write-a-physical-handwritten-letter-to-an-old-friend"]
+    }
+  ]
+}
