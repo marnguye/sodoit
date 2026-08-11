@@ -1,5 +1,6 @@
 "use server";
 
+import { logger } from "@/lib/logger";
 import { createClient } from "@/lib/supabase/server";
 
 interface ClaimedAchievement {
@@ -19,7 +20,9 @@ export async function checkAndUnlockAchievements(): Promise<string[]> {
   const { data, error } = await supabase.rpc("claim_achievements");
 
   if (error) {
-    console.error("Failed to unlock achievements:", error);
+    logger.error("achievements.claim.failed", {
+      reason: "rpc_error",
+    });
     return [];
   }
 

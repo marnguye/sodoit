@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { deleteAccountData } from "@/lib/account/delete-account";
 import { BIO_MAX_LENGTH, USERNAME_RE } from "@/lib/validation";
+import { logger } from "@/lib/logger";
 
 const AVATAR_PATHS = ["avatar.jpg", "avatar.png", "avatar.webp"] as const;
 
@@ -252,7 +253,9 @@ export async function removeAvatar(): Promise<ProfileActionResult> {
     .remove(paths);
 
   if (storageError) {
-    console.error("Failed to remove avatar files:", storageError);
+    logger.error("profile.avatar.cleanup_failed", {
+      reason: "storage_delete_failed",
+    });
   }
 
   revalidateProfilePaths(username);
