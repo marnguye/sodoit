@@ -23,7 +23,9 @@ function env(name: (typeof REQUIRED_ENV)[number]) {
   const value = process.env[name];
 
   if (!value) {
-    throw new Error(`Missing required security test environment variable: ${name}`);
+    throw new Error(
+      `Missing required security test environment variable: ${name}`,
+    );
   }
 
   return value;
@@ -84,7 +86,6 @@ export interface SecurityFixture {
   bVoteId: string;
   legacyIds: {
     completion: string;
-    userCompletion: string;
   };
   storage: {
     aAvatar: string;
@@ -141,7 +142,6 @@ export async function createSecurityFixture(): Promise<SecurityFixture> {
   const bVoteId = crypto.randomUUID();
   const legacyIds = {
     completion: crypto.randomUUID(),
-    userCompletion: crypto.randomUUID(),
   };
 
   try {
@@ -163,7 +163,8 @@ export async function createSecurityFixture(): Promise<SecurityFixture> {
     requireSuccess(createdB, "Create User B");
     bId = createdB.data.user?.id ?? "";
 
-    if (!aId || !bId) throw new Error("Supabase did not return both test user IDs.");
+    if (!aId || !bId)
+      throw new Error("Supabase did not return both test user IDs.");
 
     requireSuccess(
       await admin.from("profiles").upsert([
@@ -175,17 +176,25 @@ export async function createSecurityFixture(): Promise<SecurityFixture> {
 
     requireSuccess(
       await admin.from("experiences").insert(
-        (["main", "ownList", "privateList", "publicList", "achievement"] as const)
-          .map((name) => ({
-            id: experienceIds[name],
-            title: `Security ${name} ${runId}`,
-            category: "Adventure",
-            description: `Temporary security fixture ${runId}`,
-            difficulty: "Easy",
-            is_public: true,
-            saved_count: 0,
-            completed_count: 0,
-          })),
+        (
+          [
+            "main",
+            "ownList",
+            "privateList",
+            "publicList",
+            "achievement",
+          ] as const
+        ).map((name) => ({
+          id: experienceIds[name],
+          title: `Security ${name} ${runId}`,
+          slug: `security-${name}-${runId}`,
+          category: "Adventure",
+          description: `Temporary security fixture ${runId}`,
+          difficulty: "Easy",
+          is_public: true,
+          saved_count: 0,
+          completed_count: 0,
+        })),
       ),
       "Prepare experiences",
     );
@@ -252,16 +261,7 @@ export async function createSecurityFixture(): Promise<SecurityFixture> {
         experience_id: experienceIds.main,
         note: `security-${runId}`,
       }),
-      "Prepare legacy completion",
-    );
-
-    requireSuccess(
-      await admin.from("user_completions").insert({
-        id: legacyIds.userCompletion,
-        user_id: bId,
-        experience_id: experienceIds.ownList,
-      }),
-      "Prepare legacy user completion",
+      "Prepare completion",
     );
 
     const storage = {
@@ -338,7 +338,9 @@ export async function cleanupSecurityFixture(fixture: PartialFixture) {
       const result = await work();
       if (result.error) errors.push(`${operation}: ${result.error.message}`);
     } catch (error) {
-      errors.push(`${operation}: ${error instanceof Error ? error.message : "unknown error"}`);
+      errors.push(
+        `${operation}: ${error instanceof Error ? error.message : "unknown error"}`,
+      );
     }
   };
 
@@ -346,13 +348,22 @@ export async function cleanupSecurityFixture(fixture: PartialFixture) {
     await clean("Remove avatar objects", () =>
       admin.storage
         .from("avatars")
-        .remove(ids.flatMap((id) => [`${id}/avatar.jpg`, `${id}/avatar.png`, `${id}/avatar.webp`])),
+        .remove(
+          ids.flatMap((id) => [
+            `${id}/avatar.jpg`,
+            `${id}/avatar.png`,
+            `${id}/avatar.webp`,
+          ]),
+        ),
     );
   }
   await clean("Remove experience image objects", () =>
     admin.storage
       .from("experience-images")
-      .remove([`security-tests/${runId}.png`, `security-tests/${runId}-forged.png`]),
+      .remove([
+        `security-tests/${runId}.png`,
+        `security-tests/${runId}-forged.png`,
+      ]),
   );
 
   for (const table of [
@@ -361,13 +372,15 @@ export async function cleanupSecurityFixture(fixture: PartialFixture) {
     "user_achievements",
     "user_lists",
     "completions",
-    "user_completions",
     "rate_limits",
     "posts",
   ]) {
     if (ids.length) {
-      const ownerColumn = table === "posts" || table === "comments" ? "author_id" : "user_id";
-      await clean(`Clean ${table}`, () => admin.from(table).delete().in(ownerColumn, ids));
+      const ownerColumn =
+        table === "posts" || table === "comments" ? "author_id" : "user_id";
+      await clean(`Clean ${table}`, () =>
+        admin.from(table).delete().in(ownerColumn, ids),
+      );
     }
   }
 
@@ -381,7 +394,9 @@ export async function cleanupSecurityFixture(fixture: PartialFixture) {
     const existing = await admin.auth.admin.getUserById(id);
 
     if (existing.error && existing.error.status !== 404) {
-      errors.push(`Find Auth user ${id.slice(0, 8)}: ${existing.error.message}`);
+      errors.push(
+        `Find Auth user ${id.slice(0, 8)}: ${existing.error.message}`,
+      );
     }
 
     if (existing.data.user) {
@@ -394,48 +409,62 @@ export async function cleanupSecurityFixture(fixture: PartialFixture) {
 
   if (ids.length) {
     const profiles = await admin.from("profiles").select("id").in("id", ids);
-    if (profiles.error) errors.push(`Verify profile cleanup: ${profiles.error.message}`);
-    if (profiles.data?.length) errors.push("Profile cleanup left test rows behind.");
+    if (profiles.error)
+      errors.push(`Verify profile cleanup: ${profiles.error.message}`);
+    if (profiles.data?.length)
+      errors.push("Profile cleanup left test rows behind.");
 
     for (const table of [
       "post_votes",
       "user_achievements",
       "user_lists",
       "completions",
-      "user_completions",
       "rate_limits",
     ]) {
       const rows = await admin.from(table).select("*").in("user_id", ids);
-      if (rows.error) errors.push(`Verify ${table} cleanup: ${rows.error.message}`);
-      if (rows.data?.length) errors.push(`${table} cleanup left test rows behind.`);
+      if (rows.error)
+        errors.push(`Verify ${table} cleanup: ${rows.error.message}`);
+      if (rows.data?.length)
+        errors.push(`${table} cleanup left test rows behind.`);
     }
     for (const table of ["posts", "comments"]) {
       const rows = await admin.from(table).select("*").in("author_id", ids);
-      if (rows.error) errors.push(`Verify ${table} cleanup: ${rows.error.message}`);
-      if (rows.data?.length) errors.push(`${table} cleanup left test rows behind.`);
+      if (rows.error)
+        errors.push(`Verify ${table} cleanup: ${rows.error.message}`);
+      if (rows.data?.length)
+        errors.push(`${table} cleanup left test rows behind.`);
     }
     for (const id of ids) {
       const authUser = await admin.auth.admin.getUserById(id);
-      if (authUser.data.user) errors.push("Auth cleanup left a test user behind.");
+      if (authUser.data.user)
+        errors.push("Auth cleanup left a test user behind.");
       if (authUser.error && authUser.error.status !== 404) {
         errors.push(`Verify Auth cleanup: ${authUser.error.message}`);
       }
       const avatars = await admin.storage.from("avatars").list(id);
-      if (avatars.error) errors.push(`Verify avatar cleanup: ${avatars.error.message}`);
-      if (avatars.data?.length) errors.push("Avatar cleanup left test objects behind.");
+      if (avatars.error)
+        errors.push(`Verify avatar cleanup: ${avatars.error.message}`);
+      if (avatars.data?.length)
+        errors.push("Avatar cleanup left test objects behind.");
     }
   }
   const experiences = await admin
     .from("experiences")
     .select("id")
     .in("id", experienceIdList);
-  if (experiences.error) errors.push(`Verify experience cleanup: ${experiences.error.message}`);
-  if (experiences.data?.length) errors.push("Experience cleanup left test rows behind.");
-  const images = await admin.storage.from("experience-images").list("security-tests", {
-    search: runId,
-  });
-  if (images.error) errors.push(`Verify image cleanup: ${images.error.message}`);
-  if (images.data?.length) errors.push("Experience-image cleanup left test objects behind.");
+  if (experiences.error)
+    errors.push(`Verify experience cleanup: ${experiences.error.message}`);
+  if (experiences.data?.length)
+    errors.push("Experience cleanup left test rows behind.");
+  const images = await admin.storage
+    .from("experience-images")
+    .list("security-tests", {
+      search: runId,
+    });
+  if (images.error)
+    errors.push(`Verify image cleanup: ${images.error.message}`);
+  if (images.data?.length)
+    errors.push("Experience-image cleanup left test objects behind.");
 
   if (errors.length) {
     throw new Error(`Security test cleanup failed:\n${errors.join("\n")}`);
@@ -464,7 +493,8 @@ export async function storageBytes(
 ) {
   const result = await fixture.admin.storage.from(bucket).download(path);
   requireSuccess(result, `Download ${bucket}/${path}`);
-  if (!result.data) throw new Error(`Missing Storage object: ${bucket}/${path}`);
+  if (!result.data)
+    throw new Error(`Missing Storage object: ${bucket}/${path}`);
   return new Uint8Array(await result.data.arrayBuffer());
 }
 

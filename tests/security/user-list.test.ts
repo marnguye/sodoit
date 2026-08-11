@@ -109,4 +109,39 @@ describe("user lists security", () => {
       },
     ]);
   });
+
+  it("lets a user resolve their own hidden Experience without exposing it anonymously", async () => {
+    const fixture = getFixture();
+    const experienceId = fixture.experienceIds.ownList;
+
+    expect(
+      (
+        await fixture.admin
+          .from("experiences")
+          .update({ is_public: false })
+          .eq("id", experienceId)
+      ).error,
+    ).toBeNull();
+    expect(
+      (
+        await fixture.userA.from("user_lists").insert({
+          user_id: fixture.aId,
+          experience_id: experienceId,
+          status: "saved",
+        })
+      ).error,
+    ).toBeNull();
+
+    const own = await fixture.userA
+      .from("experiences")
+      .select("id")
+      .eq("id", experienceId);
+    const anonymous = await fixture.anon
+      .from("experiences")
+      .select("id")
+      .eq("id", experienceId);
+
+    expect(own.data).toEqual([{ id: experienceId }]);
+    expect(anonymous.data).toEqual([]);
+  });
 });

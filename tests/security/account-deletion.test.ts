@@ -13,7 +13,6 @@ describe("account deletion security", () => {
     const aCommentId = crypto.randomUUID();
     const aVoteId = crypto.randomUUID();
     const aCompletionId = crypto.randomUUID();
-    const aUserCompletionId = crypto.randomUUID();
 
     const bProfileBefore = await adminRow(
       fixture,
@@ -61,6 +60,7 @@ describe("account deletion security", () => {
     const experience = await fixture.admin.from("experiences").insert({
       id: fixture.experienceIds.deletion,
       title: `Account deletion experience ${fixture.runId}`,
+      slug: `account-deletion-experience-${fixture.runId}`,
       category: "Adventure",
       description: "This catalog entry must survive its creator.",
       difficulty: "Easy",
@@ -95,12 +95,6 @@ describe("account deletion security", () => {
         id: aVoteId,
         post_id: fixture.postIds.a,
         user_id: fixture.aId,
-      }),
-
-      fixture.admin.from("user_completions").insert({
-        id: aUserCompletionId,
-        user_id: fixture.aId,
-        experience_id: fixture.experienceIds.deletion,
       }),
 
       fixture.admin.from("completions").insert({
@@ -162,7 +156,6 @@ describe("account deletion security", () => {
       ["profiles", "id"],
       ["user_lists", "user_id"],
       ["completions", "user_id"],
-      ["user_completions", "user_id"],
       ["user_achievements", "user_id"],
       ["posts", "author_id"],
       ["comments", "author_id"],

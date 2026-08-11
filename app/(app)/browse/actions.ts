@@ -27,12 +27,15 @@ export async function setListStatus(experienceId: string, status: ListStatus) {
 
   if (!user) return;
 
-  await supabase
-    .from("user_lists")
-    .upsert(
-      { user_id: user.id, experience_id: experienceId, status },
-      { onConflict: "user_id,experience_id" },
-    );
+  await supabase.from("user_lists").upsert(
+    {
+      user_id: user.id,
+      experience_id: experienceId,
+      status,
+      completed_at: status === "completed" ? new Date().toISOString() : null,
+    },
+    { onConflict: "user_id,experience_id" },
+  );
 
   revalidateListPaths(experienceId);
 }

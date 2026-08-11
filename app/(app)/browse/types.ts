@@ -1,12 +1,4 @@
-export interface Experience {
-  id: string;
-  title: string;
-  category: string | null;
-  description: string | null;
-  difficulty: string | null;
-  image_url: string | null;
-  image_alt: string | null;
-}
+export type { Experience } from "@/lib/experiences/types";
 export type StatusFilter = "all" | "completed" | "uncompleted";
 export type ListStatus = "saved" | "completed";
 
