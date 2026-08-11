@@ -15,7 +15,8 @@
     "optimize:images": "node --env-file=.env.local scripts/optimize-experience-images.mjs",
     "content:validate": "node --env-file=.env.local scripts/content/validate-experiences.mjs",
     "content:import": "node --env-file=.env.local scripts/content/import-experiences.mjs",
-    "content:backfill-slugs": "node --env-file=.env.local scripts/backfill-experience-slugs.mjs"
+    "content:backfill-slugs": "node --env-file=.env.local scripts/backfill-experience-slugs.mjs",
+    "content:classify": "node --env-file=.env.local scripts/classify-experiences.mjs"
   },
   "dependencies": {
     "@sentry/nextjs": "^10.70.0",

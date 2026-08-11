@@ -1,0 +1,24 @@
+{
+  "country_codes": [],
+  "experiences": [
+    { "slug": "complete-a-difficult-jigsaw-puzzle", "featured": true },
+    { "slug": "create-a-reading-corner-at-home", "featured": true },
+    { "slug": "finish-a-half-marathon", "featured": true },
+    { "slug": "go-snorkeling-in-clear-water", "featured": true },
+    { "slug": "host-a-themed-dinner-night", "featured": true },
+    { "slug": "listen-to-live-jazz", "featured": true },
+    { "slug": "make-fresh-pasta-from-scratch", "featured": true },
+    { "slug": "organize-a-group-hike", "featured": true },
+    { "slug": "ride-one-of-the-world-s-scenic-train-routes", "featured": true },
+    { "slug": "roll-your-own-sushi", "featured": true },
+    { "slug": "see-bioluminescent-water", "featured": true },
+    { "slug": "start-a-small-herb-garden", "featured": true },
+    { "slug": "take-a-hot-air-balloon-flight", "featured": true },
+    { "slug": "take-a-yoga-class", "featured": true },
+    { "slug": "try-a-pottery-class", "featured": true },
+    { "slug": "try-glassblowing-with-an-instructor", "featured": true },
+    { "slug": "visit-a-black-sand-beach", "featured": true },
+    { "slug": "visit-a-historic-castle", "featured": true },
+    { "slug": "watch-a-meteor-shower", "featured": true }
+  ]
+}
