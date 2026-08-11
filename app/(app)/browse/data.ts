@@ -3,7 +3,7 @@ import { PAGE_SIZE } from "./types";
 import type { Experience, StatusFilter } from "./types";
 
 const EXPERIENCE_COLUMNS =
-  "id, title, category, description, difficulty, image_url, image_alt";
+  "id, title, slug, description, category, difficulty, location_type, country_code, city, featured, is_public, image_url, image_alt, saved_count, completed_count";
 
 const NONE_ID = "00000000-0000-0000-0000-000000000000";
 

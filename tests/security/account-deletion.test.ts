@@ -60,6 +60,7 @@ describe("account deletion security", () => {
     const experience = await fixture.admin.from("experiences").insert({
       id: fixture.experienceIds.deletion,
       title: `Account deletion experience ${fixture.runId}`,
+      slug: `account-deletion-experience-${fixture.runId}`,
       category: "Adventure",
       description: "This catalog entry must survive its creator.",
       difficulty: "Easy",
