@@ -1,4 +1,4 @@
-import { HTMLAttributes } from "react";
+import type { HTMLAttributes } from "react";
 
 export function Card({
   className = "",
@@ -6,7 +6,10 @@ export function Card({
 }: HTMLAttributes<HTMLDivElement>) {
   return (
     <div
-      className={`bg-card border border-border rounded-lg p-5 ${className}`}
+      className={[
+        "rounded-card border border-border bg-surface p-5",
+        className,
+      ].join(" ")}
       {...props}
     />
   );

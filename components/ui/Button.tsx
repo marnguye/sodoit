@@ -1,29 +1,41 @@
-import { ButtonHTMLAttributes } from "react";
+import type { ButtonHTMLAttributes } from "react";
 
 const variants = {
-  primary: "bg-accent text-white hover:bg-accent-dark",
-  ghost: "bg-transparent text-muted hover:bg-border/50",
-  outline: "border border-border bg-transparent text-ink hover:bg-border/30",
+  primary: "bg-accent text-white hover:bg-accent-hover disabled:bg-accent/50",
+  ghost: "bg-transparent text-secondary hover:bg-surface-subtle hover:text-ink",
+  outline:
+    "border border-border bg-surface text-ink hover:border-border-strong hover:bg-surface-subtle",
 } as const;
 
 const sizes = {
-  sm: "text-sm px-3 py-1.5",
-  md: "text-sm px-4 py-2",
-  lg: "text-base px-5 py-2.5",
+  sm: "h-8 px-3 text-xs",
+  md: "h-10 px-4 text-sm",
+  lg: "h-11 px-5 text-base",
 } as const;
+
+interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: keyof typeof variants;
+  size?: keyof typeof sizes;
+}
 
 export function Button({
   variant = "primary",
   size = "md",
   className = "",
   ...props
-}: ButtonHTMLAttributes<HTMLButtonElement> & {
-  variant?: keyof typeof variants;
-  size?: keyof typeof sizes;
-}) {
+}: ButtonProps) {
   return (
     <button
-      className={`rounded-md font-semibold cursor-pointer transition-colors ${variants[variant]} ${sizes[size]} ${className}`}
+      className={[
+        "inline-flex cursor-pointer items-center justify-center gap-2",
+        "rounded-control font-semibold",
+        "transition-colors",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/30",
+        "disabled:cursor-not-allowed disabled:opacity-60",
+        variants[variant],
+        sizes[size],
+        className,
+      ].join(" ")}
       {...props}
     />
   );

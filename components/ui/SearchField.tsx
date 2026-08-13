@@ -1,15 +1,19 @@
+"use client";
+
 import { Search } from "lucide-react";
 import { useEffect, useRef } from "react";
+
+interface SearchFieldProps {
+  value: string;
+  onChange: (value: string) => void;
+  className?: string;
+}
 
 export function SearchField({
   value,
   onChange,
   className = "",
-}: {
-  value: string;
-  onChange: (value: string) => void;
-  className?: string;
-}) {
+}: SearchFieldProps) {
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -21,31 +25,53 @@ export function SearchField({
     }
 
     window.addEventListener("keydown", focusSearch);
-    return () => window.removeEventListener("keydown", focusSearch);
+
+    return () => {
+      window.removeEventListener("keydown", focusSearch);
+    };
   }, []);
 
   return (
-    <label className={`relative flex-1 ${className}`}>
-      <span className="sr-only">Search marketplace</span>
+    <label className={`relative block w-full ${className}`}>
+      <span className="sr-only">Search experiences</span>
+
       <Search
         aria-hidden="true"
-        className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted pointer-events-none"
+        className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted"
       />
+
       <input
         ref={inputRef}
-        type="text"
+        type="search"
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        placeholder="Search the marketplace..."
+        placeholder="Search experiences..."
         aria-keyshortcuts="Meta+K Control+K"
-        className="w-full h-10 border border-border rounded-md pl-9 pr-3.5 sm:pr-16 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent transition-all"
+        className={[
+          "h-10 w-full rounded-control border border-border bg-surface",
+          "pl-10 pr-3.5 text-sm text-ink",
+          "placeholder:text-muted",
+          "transition-colors",
+          "hover:border-border-strong",
+          "focus:border-accent/50 focus:outline-none focus:ring-2 focus:ring-accent/10",
+          "sm:pr-16",
+        ].join(" ")}
       />
-      <kbd
-        aria-hidden="true"
-        className="hidden sm:block absolute right-3 top-1/2 -translate-y-1/2 text-[11px] font-semibold text-muted bg-background border border-border rounded px-1.5 py-0.5"
-      >
-        ⌘ K
-      </kbd>
+
+      <div className="pointer-events-none absolute inset-y-0 right-3 hidden items-center gap-0.5 sm:flex">
+        <kbd
+          aria-hidden="true"
+          className="rounded border border-border bg-surface-subtle px-1.5 py-0.5 text-[10px] font-semibold text-muted"
+        >
+          ⌘
+        </kbd>
+        <kbd
+          aria-hidden="true"
+          className="rounded border border-border bg-surface-subtle px-1.5 py-0.5 text-[10px] font-semibold text-muted"
+        >
+          K
+        </kbd>
+      </div>
     </label>
   );
 }

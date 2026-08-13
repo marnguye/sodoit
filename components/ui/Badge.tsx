@@ -1,24 +1,31 @@
-import { HTMLAttributes } from "react";
+import type { HTMLAttributes } from "react";
 
 const variants = {
-  default: "bg-border text-ink",
-  accent: "bg-accent-light text-accent-dark",
+  default: "bg-surface-subtle text-secondary",
+  accent: "bg-accent-wash text-accent-dark",
   success: "bg-success-light text-success",
   purple: "bg-purple-100 text-purple-700",
   blue: "bg-blue-100 text-blue-700",
-  muted: "bg-border text-muted",
+  muted: "bg-surface-subtle text-muted",
 } as const;
+
+interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
+  variant?: keyof typeof variants;
+}
 
 export function Badge({
   variant = "default",
   className = "",
   ...props
-}: HTMLAttributes<HTMLSpanElement> & {
-  variant?: keyof typeof variants;
-}) {
+}: BadgeProps) {
   return (
     <span
-      className={`inline-block rounded-full text-[11px] font-semibold px-[10px] py-[2px] ${variants[variant]} ${className}`}
+      className={[
+        "inline-flex items-center rounded-pill px-2.5 py-0.5",
+        "text-[11px] font-semibold leading-5",
+        variants[variant],
+        className,
+      ].join(" ")}
       {...props}
     />
   );
