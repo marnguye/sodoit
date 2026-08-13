@@ -57,6 +57,7 @@ supabase/*
 # sentry config file
 .env.sentry-build-plugin
 
-# guides content
+# guide content
 /scripts/content/guides/
 /scripts/content/guide-cities/
+/scripts/content/reports/
