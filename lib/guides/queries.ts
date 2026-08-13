@@ -31,6 +31,25 @@ export function getFeaturedGuides(): Promise<Guide[]> {
   return loadGuides(true);
 }
 
+export async function getGuideItemCounts(
+  guideIds: string[],
+): Promise<Record<string, number>> {
+  if (guideIds.length === 0) return {};
+
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("guide_items")
+    .select("guide_id")
+    .in("guide_id", guideIds);
+  if (error) throw error;
+
+  const counts: Record<string, number> = {};
+  for (const row of data ?? []) {
+    counts[row.guide_id] = (counts[row.guide_id] ?? 0) + 1;
+  }
+  return counts;
+}
+
 export async function getGuideBySlug(
   slug: string,
 ): Promise<GuideWithItems | null> {

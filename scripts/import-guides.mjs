@@ -75,7 +75,6 @@ async function createGuide(supabase, action) {
 }
 
 async function replaceItems(supabase, action) {
-  // ponytail: REST calls are not atomic; use a transactional RPC before concurrent editorial imports.
   const removed = await supabase
     .from("guide_items")
     .delete()
