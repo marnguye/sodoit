@@ -217,7 +217,7 @@ export function BrowseBoard({
 
   return (
     <div className="mx-auto w-full max-w-[1200px] px-4 py-5 sm:px-6 lg:px-8">
-      <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_280px]">
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_270px]">
         <div className="min-w-0">
           <BrowseHero />
           {toolbar}

@@ -43,7 +43,11 @@ export function ExperienceSection({
             onToggle={() => onToggle(experience.id)}
             guest={guest}
             onGuestSave={onGuestSave}
-            className={layout === "grid" ? "border border-border" : ""}
+            className={
+              layout === "grid"
+                ? "rounded-card border border-border bg-surface"
+                : ""
+            }
           />
         ))}
       </ul>
