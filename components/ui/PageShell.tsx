@@ -1,66 +1,43 @@
-import Image from "next/image";
+import { ReactNode } from "react";
 
-const colors = [
-  "#FED7AA",
-  "#FDE68A",
-  "#BBF7D0",
-  "#BAE6FD",
-  "#E9D5FF",
-  "#FECACA",
-] as const;
-
-const sizes = {
-  sm: { box: "24px", font: "10px" },
-  md: { box: "36px", font: "14px" },
-  lg: { box: "48px", font: "18px" },
-} as const;
-
-function colorForName(name: string) {
-  const hash = [...name].reduce((sum, char) => sum + char.charCodeAt(0), 0);
-
-  return colors[hash % colors.length];
+interface PageShellProps {
+  title: string;
+  subtitle?: string;
+  actions?: ReactNode;
+  toolbar?: ReactNode;
+  maxWidth?: string;
+  children: ReactNode;
 }
 
-function initialsForName(name: string) {
-  return name
-    .trim()
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase())
-    .join("");
-}
-
-interface AvatarProps {
-  name: string;
-  src?: string | null;
-  size?: keyof typeof sizes;
-}
-
-export function Avatar({ name, src, size = "md" }: AvatarProps) {
-  const { box, font } = sizes[size];
-
-  if (src) {
-    return (
-      <span
-        className="relative block shrink-0 overflow-hidden rounded-full"
-        style={{ width: box, height: box }}
-      >
-        <Image src={src} alt={name} fill sizes={box} className="object-cover" />
-      </span>
-    );
-  }
-
+export function PageShell({
+  title,
+  subtitle,
+  actions,
+  toolbar,
+  maxWidth = "1280px",
+  children,
+}: PageShellProps) {
   return (
-    <span
-      className="flex shrink-0 items-center justify-center rounded-full font-bold text-ink"
-      style={{
-        width: box,
-        height: box,
-        backgroundColor: colorForName(name),
-        fontSize: font,
-      }}
-    >
-      {initialsForName(name)}
-    </span>
+    <div className="mx-auto px-4 sm:px-6 lg:px-8" style={{ maxWidth }}>
+      <div className="flex flex-col gap-4 py-6 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <h1 className="text-xl font-extrabold text-ink">{title}</h1>
+          {subtitle && (
+            <p className="mt-1 text-sm text-secondary">{subtitle}</p>
+          )}
+        </div>
+        {actions && (
+          <div className="flex shrink-0 items-center gap-2">{actions}</div>
+        )}
+      </div>
+
+      {toolbar && (
+        <div className="sticky top-16 z-10 border-b border-border bg-background/95 py-4 backdrop-blur">
+          {toolbar}
+        </div>
+      )}
+
+      <div className="py-6">{children}</div>
+    </div>
   );
 }
