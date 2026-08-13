@@ -157,7 +157,7 @@ export default async function GuidesPage({ searchParams }: GuidesPageProps) {
                 We’re putting the good stuff together.
               </h2>
 
-              <p className="mt-3 text-sm leading-6 text-muted sm:text-base">
+              <p className="mt-3 text-sm leading-6 text-secondary sm:text-base">
                 New local guides are on the way. We’d rather share a few great
                 ones than fill the page with things that aren’t worth your time.
               </p>
@@ -192,11 +192,11 @@ export default async function GuidesPage({ searchParams }: GuidesPageProps) {
                     stopCounts={itemCounts}
                   />
                 ) : (
-                  <div className="rounded-2xl border border-dashed border-border px-6 py-10 text-center">
+                  <div className="rounded-panel border border-dashed border-border px-6 py-10 text-center">
                     <p className="text-sm font-semibold text-ink">
                       No plans found
                     </p>
-                    <p className="mt-1 text-sm text-muted">
+                    <p className="mt-1 text-sm text-secondary">
                       Try another search or filter.
                     </p>
                   </div>

@@ -37,11 +37,11 @@ export function GuideSearch({ q, city, duration, featured }: GuideSearchProps) {
         placeholder="Search plans or places..."
         autoComplete="off"
         className={[
-          "h-10 w-full rounded-full border border-border bg-white",
+          "h-10 w-full rounded-control border border-border bg-surface",
           "pl-10 pr-4 text-sm text-ink",
           "placeholder:text-muted/80",
           "transition-colors",
-          "hover:border-ink/15",
+          "hover:border-border-strong",
           "focus:border-accent/50 focus:outline-none focus:ring-2 focus:ring-accent/10",
         ].join(" ")}
       />

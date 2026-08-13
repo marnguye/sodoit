@@ -24,7 +24,7 @@ export function GuideItineraryItem({ item, isLast }: GuideItineraryItemProps) {
 
       <span
         aria-hidden="true"
-        className="relative z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent text-xs font-bold text-white"
+        className="relative z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-pill bg-accent text-xs font-bold text-white"
       >
         {String(item.position + 1).padStart(2, "0")}
       </span>
@@ -40,7 +40,7 @@ export function GuideItineraryItem({ item, isLast }: GuideItineraryItemProps) {
             imageAlt={item.image_alt}
             title={item.title}
             sizes="(min-width: 768px) 160px, calc(100vw - 68px)"
-            className="order-2 h-40 w-full rounded-xl md:order-1 md:h-[120px] md:w-40"
+            className="order-2 h-40 w-full rounded-media md:order-1 md:h-[120px] md:w-40"
           />
         )}
 
@@ -56,7 +56,7 @@ export function GuideItineraryItem({ item, isLast }: GuideItineraryItemProps) {
           )}
 
           {item.description && (
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-muted sm:text-base">
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-secondary sm:text-base">
               {item.description}
             </p>
           )}

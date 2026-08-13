@@ -48,7 +48,7 @@ export function GuidesCityHeader({
             : "Guides for real life"}
         </h2>
 
-        <p className="mt-1.5 max-w-xl text-sm leading-6 text-muted">
+        <p className="mt-1.5 max-w-xl text-sm leading-6 text-secondary">
           {selectedCity
             ? "Pick a ready-made route and make the most of your time."
             : "Pick a city and find a plan worth going out for."}

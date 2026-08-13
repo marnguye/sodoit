@@ -67,7 +67,7 @@ export default async function GuideDetailPage({ params }: GuidePageProps) {
         </h1>
 
         {guide.description && (
-          <p className="mt-3 text-base leading-relaxed text-muted sm:text-lg">
+          <p className="mt-3 text-base leading-relaxed text-secondary sm:text-lg">
             {guide.description}
           </p>
         )}
@@ -81,7 +81,7 @@ export default async function GuideDetailPage({ params }: GuidePageProps) {
             title={guide.title}
             priority
             sizes="(min-width: 1200px) 828px, (min-width: 1024px) calc(100vw - 372px), 100vw"
-            className="aspect-[16/9] w-full rounded-2xl sm:max-h-[300px]"
+            className="aspect-[16/9] w-full rounded-media sm:max-h-[300px]"
           />
 
           <div className="mt-8 sm:mt-9">
@@ -90,7 +90,7 @@ export default async function GuideDetailPage({ params }: GuidePageProps) {
         </div>
 
         <aside className="lg:sticky lg:top-20 lg:self-start">
-          <div className="rounded-2xl border border-border bg-card p-5">
+          <div className="rounded-panel border border-border bg-surface p-5">
             <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
               Guide summary
             </p>

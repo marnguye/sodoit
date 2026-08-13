@@ -18,7 +18,7 @@ export function FeaturedGuideCard({
     <Link
       href={`/guides/${guide.slug}`}
       className={[
-        "group block overflow-hidden rounded-3xl bg-white",
+        "group block overflow-hidden rounded-panel bg-surface",
         "outline-none ring-1 ring-border",
         "transition-colors hover:ring-ink/15",
         "focus-visible:ring-2 focus-visible:ring-accent",
@@ -61,7 +61,7 @@ export function FeaturedGuideCard({
           </h3>
 
           {guide.description && (
-            <p className="mt-4 line-clamp-3 max-w-md text-sm leading-6 text-muted sm:text-base">
+            <p className="mt-4 line-clamp-3 max-w-md text-sm leading-6 text-secondary sm:text-base">
               {guide.description}
             </p>
           )}
@@ -72,7 +72,7 @@ export function FeaturedGuideCard({
 
           <span
             aria-hidden="true"
-            className="flex h-9 w-9 items-center justify-center rounded-full bg-accent-wash text-accent-dark transition-transform duration-200 group-hover:translate-x-1"
+            className="flex h-9 w-9 items-center justify-center rounded-pill bg-accent-wash text-accent-dark transition-transform duration-200 group-hover:translate-x-1"
           >
             <ArrowRight className="h-4 w-4" />
           </span>

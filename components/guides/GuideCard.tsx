@@ -19,7 +19,7 @@ export function GuideCard({
   return (
     <Link
       href={`/guides/${guide.slug}`}
-      className="group block h-full rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-4"
+      className="group block h-full rounded-card outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-4"
     >
       <article className="flex h-full flex-col">
         <GuideCover
@@ -28,7 +28,7 @@ export function GuideCard({
           title={guide.title}
           priority={priority}
           sizes="(min-width: 1024px) 380px, (min-width: 640px) 50vw, 100vw"
-          className="aspect-[4/3] w-full overflow-hidden rounded-2xl"
+          className="aspect-[4/3] w-full overflow-hidden rounded-media"
         />
 
         <div className="flex flex-1 flex-col pt-4">
@@ -57,7 +57,7 @@ export function GuideCard({
           </h3>
 
           {guide.description && (
-            <p className="mt-2 line-clamp-2 text-sm leading-6 text-muted">
+            <p className="mt-2 line-clamp-2 text-sm leading-6 text-secondary">
               {guide.description}
             </p>
           )}
@@ -69,7 +69,7 @@ export function GuideCard({
 
             <span
               aria-hidden="true"
-              className="flex h-8 w-8 items-center justify-center rounded-full bg-accent-wash text-accent-dark transition-transform duration-200 group-hover:translate-x-1"
+              className="flex h-8 w-8 items-center justify-center rounded-pill bg-accent-wash text-accent-dark transition-transform duration-200 group-hover:translate-x-1"
             >
               <ArrowRight className="h-4 w-4" />
             </span>

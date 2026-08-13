@@ -13,11 +13,11 @@ interface GuideFiltersProps {
 
 function pillClass(active: boolean) {
   return [
-    "shrink-0 rounded-full border px-3.5 py-2 text-xs font-semibold",
+    "shrink-0 rounded-control border px-3.5 py-2 text-xs font-semibold",
     "transition-colors sm:text-sm",
     active
       ? "border-accent/30 bg-accent-wash text-accent-dark"
-      : "border-border bg-white text-muted hover:border-ink/15 hover:text-ink",
+      : "border-border bg-surface text-muted hover:border-border-strong hover:text-ink",
   ].join(" ");
 }
 

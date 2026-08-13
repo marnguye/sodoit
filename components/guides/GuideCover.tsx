@@ -40,8 +40,8 @@ export function GuideCover({
         aria-hidden="true"
         className={`relative block overflow-hidden bg-accent-wash ${className}`}
       >
-        <span className="absolute -right-1/4 -top-1/3 h-3/4 w-3/4 rounded-full bg-accent-light/40 blur-2xl" />
-        <span className="absolute -bottom-1/3 -left-1/4 h-2/3 w-2/3 rounded-full bg-accent/10 blur-2xl" />
+        <span className="absolute -right-1/4 -top-1/3 h-3/4 w-3/4 rounded-pill bg-accent-light/40 blur-2xl" />
+        <span className="absolute -bottom-1/3 -left-1/4 h-2/3 w-2/3 rounded-pill bg-accent/10 blur-2xl" />
       </span>
     );
   }

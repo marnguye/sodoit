@@ -33,7 +33,7 @@ export function ShareGuideButton({
     <button
       type="button"
       onClick={handleShare}
-      className={`inline-flex items-center justify-center gap-2 rounded-full border border-border bg-white px-4 py-2.5 text-sm font-semibold text-ink transition-colors hover:border-ink/30 ${className}`}
+      className={`inline-flex items-center justify-center gap-2 rounded-control border border-border bg-surface px-4 py-2.5 text-sm font-semibold text-ink transition-colors hover:border-border-strong ${className}`}
     >
       <Share2 aria-hidden="true" className="h-4 w-4" />
       {copied ? "Link copied" : "Share guide"}

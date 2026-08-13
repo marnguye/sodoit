@@ -25,7 +25,7 @@ function SidebarGuideRow({ guide }: { guide: Guide }) {
         imageAlt={guide.cover_image_alt}
         title={guide.title}
         sizes="48px"
-        className="aspect-square w-12 shrink-0 overflow-hidden rounded-lg"
+        className="aspect-square w-12 shrink-0 overflow-hidden rounded-media"
       />
 
       <span className="min-w-0">
@@ -80,7 +80,7 @@ export function GuidesSidebar({
               <Link
                 key={city}
                 href={guidesUrl({ city })}
-                className="flex items-center justify-between rounded-lg px-2.5 py-1.5 text-sm font-semibold text-ink transition-colors hover:bg-accent-wash"
+                className="flex items-center justify-between rounded-control px-2.5 py-1.5 text-sm font-semibold text-ink transition-colors hover:bg-accent-wash"
               >
                 <span>{city}</span>
                 <span className="text-xs font-normal text-muted">{count}</span>
