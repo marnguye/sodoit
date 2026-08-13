@@ -157,7 +157,7 @@ export function BrowseToolbar({
             </p>
           )}
 
-          <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+          <div className="-mx-4 overflow-x-auto mt-1 px-4 sm:mx-0 sm:px-0">
             <FilterGroup
               label="Categories"
               options={categories}

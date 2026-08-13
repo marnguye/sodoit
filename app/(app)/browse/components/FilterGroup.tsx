@@ -25,7 +25,11 @@ export function FilterGroup<T extends string>({
       <div
         role="group"
         aria-label={label}
-        className={`grid w-full min-w-0 grid-cols-3 gap-1 overflow-hidden rounded-md border border-border bg-white p-1 ${className}`}
+        className={[
+          "grid w-full min-w-0 grid-cols-3 gap-1",
+          "rounded-control border border-border bg-surface p-1",
+          className,
+        ].join(" ")}
       >
         {options.map((option) => {
           const selected = option === value;
@@ -38,10 +42,11 @@ export function FilterGroup<T extends string>({
               aria-pressed={selected}
               className={[
                 BASE_CLASS,
-                "flex w-full min-w-0 items-center justify-center overflow-hidden whitespace-nowrap rounded-sm px-1.5 text-center",
+                "flex w-full min-w-0 items-center justify-center",
+                "overflow-hidden whitespace-nowrap rounded-control px-2 text-center",
                 selected
-                  ? "bg-accent text-white"
-                  : "text-muted hover:bg-background hover:text-ink",
+                  ? "bg-ink text-white"
+                  : "text-secondary hover:bg-surface-subtle hover:text-ink",
               ].join(" ")}
             >
               {getLabel(option)}
@@ -56,7 +61,7 @@ export function FilterGroup<T extends string>({
     <div
       role="group"
       aria-label={label}
-      className={`flex items-center gap-2 ${className}`}
+      className={`flex items-center gap-1 ${className}`}
     >
       {options.map((option) => {
         const selected = option === value;
@@ -69,10 +74,10 @@ export function FilterGroup<T extends string>({
             aria-pressed={selected}
             className={[
               BASE_CLASS,
-              "shrink-0 rounded-md border px-3",
+              "shrink-0 rounded-control border px-3.5",
               selected
-                ? "border-accent bg-accent text-white"
-                : "border-border bg-white text-muted hover:border-ink/20 hover:text-ink",
+                ? "border-accent/40 bg-accent-wash text-accent-dark"
+                : "border-border bg-surface text-secondary hover:border-border-strong hover:text-ink",
             ].join(" ")}
           >
             {getLabel(option)}

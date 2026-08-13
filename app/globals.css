@@ -2,16 +2,22 @@
 
 @theme {
   --color-background: #fafaf9;
-  --color-card: #ffffff;
   --color-surface: #ffffff;
+  --color-surface-subtle: #f7f7f5;
+  --color-card: #ffffff;
+
   --color-ink: #1c1917;
+  --color-secondary: #57534e;
   --color-muted: #78716c;
+  --color-subtle: #a8a29e;
+
   --color-border: #e7e5e4;
+  --color-border-strong: #d6d3d1;
 
   --color-accent: #f97316;
   --color-accent-dark: #ea580c;
   --color-accent-hover: #ea580c;
-  --color-accent-light: #fed7aa;
+  --color-accent-light: #ffedd5;
   --color-accent-wash: #fff7ed;
 
   --color-success: #16a34a;
@@ -19,10 +25,18 @@
   --color-danger: #dc2626;
   --color-danger-light: #fef2f2;
 
+  --radius-control: 10px;
+  --radius-card: 16px;
+  --radius-panel: 20px;
+  --radius-media: 16px;
+  --radius-pill: 9999px;
+
   --radius-sm: 6px;
   --radius-md: 8px;
   --radius-lg: 12px;
   --radius-xl: 16px;
+
+  --shadow-popover: 0 12px 40px rgb(28 25 23 / 10%);
 
   --animate-checkbox-pop: checkbox-pop 200ms cubic-bezier(0.34, 1.56, 0.64, 1);
 }
@@ -35,9 +49,9 @@
   height: 20px;
   place-items: center;
   overflow: visible;
-  border: 2px solid #a8a29e;
+  border: 2px solid var(--color-subtle);
   border-radius: 6px;
-  background: #ffffff;
+  background: var(--color-surface);
   transition:
     background-color 160ms ease,
     border-color 160ms ease,
@@ -48,15 +62,15 @@
   content: "";
   position: absolute;
   inset: -9px;
-  border: 2px dotted #fb923c;
-  border-radius: 9999px;
+  border: 2px dotted var(--color-accent);
+  border-radius: var(--radius-pill);
   opacity: 0;
   pointer-events: none;
   transform: scale(0.35) rotate(-20deg);
 }
 
 .task-checkmark {
-  color: #ffffff;
+  color: var(--color-surface);
   opacity: 0;
   transform: scale(0.35) rotate(-35deg);
   transition:
@@ -91,8 +105,8 @@
   left: 0;
   right: 0;
   height: 2px;
-  border-radius: 9999px;
-  background: #f97316;
+  border-radius: var(--radius-pill);
+  background: var(--color-accent);
   opacity: 0;
   pointer-events: none;
   transform: translateY(-50%) scaleX(0);
@@ -107,14 +121,9 @@
   transform: translateY(-50%) scaleX(1);
 }
 
-.task-card.is-done .task-strike-line {
-  opacity: 1;
-  transform: scaleX(1);
-}
-
 .task-card.is-done .task-checkbox {
-  border-color: #f97316;
-  background: #f97316;
+  border-color: var(--color-accent);
+  background: var(--color-accent);
   transform: scale(1);
   transition-delay: 260ms;
 }
@@ -126,7 +135,7 @@
 }
 
 .task-card.is-done .task-title {
-  color: #a8a29e;
+  color: var(--color-subtle);
   transition-delay: 240ms;
 }
 
@@ -162,8 +171,9 @@
   }
 
   45% {
-    background-color: #fff7ed;
-    box-shadow: 0 0 0 4px rgb(249 115 22 / 8%);
+    background-color: var(--color-accent-wash);
+    box-shadow: 0 0 0 4px
+      color-mix(in srgb, var(--color-accent) 8%, transparent);
   }
 }
 
@@ -176,22 +186,6 @@
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
-  }
-}
-
-@keyframes achievement-icon-in {
-  0% {
-    opacity: 0;
-    transform: scale(0.5) rotate(-10deg);
-  }
-
-  65% {
-    transform: scale(1.12) rotate(3deg);
-  }
-
-  100% {
-    opacity: 1;
-    transform: scale(1) rotate(0);
   }
 }
 
@@ -215,17 +209,13 @@
   animation: achievement-card-in 220ms ease-out;
 }
 
-.achievement-icon {
-  animation: achievement-icon-in 450ms ease-out;
-}
-
 .achievement-particle {
   position: absolute;
   left: 50%;
   top: 50%;
   width: 5px;
   height: 5px;
-  border-radius: 9999px;
+  border-radius: var(--radius-pill);
   background: var(--color-accent);
   opacity: 0;
   animation: achievement-particle 700ms ease-out;
@@ -284,28 +274,14 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .achievement-toast,
-  .achievement-toast-out,
-  .achievement-icon {
-    animation: none;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .achievement-toast {
-    animation: none;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
   .achievement-unlock-card,
   .achievement-icon,
-  .achievement-particle {
+  .achievement-particle,
+  .achievement-toast,
+  .achievement-toast-out {
     animation: none;
   }
-}
 
-@media (prefers-reduced-motion: reduce) {
   .task-checkbox,
   .task-checkmark,
   .task-title,
@@ -332,6 +308,8 @@ body {
   background: var(--color-background);
   color: var(--color-ink);
   font-family: var(--font-inter), sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 h1,

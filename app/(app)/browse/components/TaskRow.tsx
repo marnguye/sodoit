@@ -6,10 +6,10 @@ import { Bookmark, Check, Sparkles } from "lucide-react";
 
 import { useAchievementUnlock } from "@/app/(app)/achievements/components/AchievementUnlockProvider";
 import { checkAndUnlockAchievements } from "@/app/(app)/achievements/actions";
+import { ExperienceImage } from "@/components/ui";
 
 import type { Experience } from "../types";
-import { getTaskMeta, getDifficulty } from "../types";
-import { ExperienceImage } from "@/components/ui";
+import { getDifficulty, getTaskMeta } from "../types";
 
 interface TaskRowProps {
   experience: Experience;
@@ -50,9 +50,7 @@ export function TaskRow({
   }
 
   useEffect(() => {
-    if (!isCelebrating) {
-      return;
-    }
+    if (!isCelebrating) return;
 
     const timeout = window.setTimeout(() => {
       setIsCelebrating(false);
@@ -64,9 +62,7 @@ export function TaskRow({
   }, [isCelebrating]);
 
   async function handleToggle() {
-    if (isToggling) {
-      return;
-    }
+    if (isToggling) return;
 
     const completing = !done;
 
@@ -75,12 +71,9 @@ export function TaskRow({
     try {
       await onToggle();
 
-      if (!completing) {
-        return;
-      }
+      if (!completing) return;
 
       const unlockedAchievements = await checkAndUnlockAchievements();
-
       showAchievements(unlockedAchievements);
     } finally {
       setIsToggling(false);
@@ -90,7 +83,8 @@ export function TaskRow({
   return (
     <li
       className={[
-        "task-card relative rounded-xl transition-colors duration-200 hover:bg-card",
+        "task-card relative rounded-card transition-colors duration-200",
+        "hover:bg-surface-subtle",
         done ? "is-done" : "",
         isCelebrating ? "is-celebrating" : "",
         className,
@@ -99,10 +93,10 @@ export function TaskRow({
       <Link
         href={`/tasks/${experience.id}`}
         aria-label={experience.title}
-        className="absolute inset-0 z-10 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/30"
+        className="absolute inset-0 z-10 rounded-card outline-none focus-visible:ring-2 focus-visible:ring-accent/30"
       />
 
-      <div className="pointer-events-none flex items-center gap-3 rounded-xl p-3">
+      <div className="pointer-events-none flex items-center gap-3 rounded-card p-3">
         <ExperienceImage
           imageUrl={experience.image_url}
           imageAlt={experience.image_alt}
@@ -110,7 +104,7 @@ export function TaskRow({
           fallbackColor={thumbnail}
           sizes="56px"
           quality={90}
-          className="h-14 w-14 shrink-0 rounded-lg"
+          className="h-14 w-14 shrink-0 rounded-media"
         />
 
         <div className="min-w-0 flex-1">
@@ -125,7 +119,7 @@ export function TaskRow({
                 }: ${experience.title}`}
                 onClick={handleToggle}
                 disabled={isToggling}
-                className="pointer-events-auto relative z-20 flex h-9 w-9 shrink-0 items-center justify-center rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/30 disabled:pointer-events-none disabled:opacity-60"
+                className="pointer-events-auto relative z-20 flex h-9 w-9 shrink-0 items-center justify-center rounded-control outline-none focus-visible:ring-2 focus-visible:ring-accent/30 disabled:pointer-events-none disabled:opacity-60"
               >
                 <span className="task-checkbox" aria-hidden="true">
                   <Check className="task-checkmark h-3 w-3" strokeWidth={3} />
@@ -135,9 +129,10 @@ export function TaskRow({
 
             <span className="task-title-wrap">
               <span
-                className={`task-title line-clamp-2 sm:truncate text-sm font-semibold text-ink ${
-                  done ? "line-through sm:no-underline" : ""
-                }`}
+                className={[
+                  "task-title line-clamp-2 text-sm font-semibold text-ink sm:truncate",
+                  done ? "line-through sm:no-underline" : "",
+                ].join(" ")}
               >
                 {experience.title}
               </span>
@@ -151,12 +146,12 @@ export function TaskRow({
 
           <div
             className={[
-              "mt-1 flex flex-wrap items-center gap-x-3 gap-y-1",
+              "mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1",
               guest ? "" : "pl-12",
             ].join(" ")}
           >
             {experience.category && (
-              <span className="rounded-md border border-border bg-white px-2 py-0.5 text-[11px] font-semibold text-muted">
+              <span className="rounded-pill border border-border bg-surface px-2.5 py-0.5 text-[11px] font-semibold text-muted">
                 {experience.category}
               </span>
             )}
@@ -176,7 +171,7 @@ export function TaskRow({
             type="button"
             onClick={onGuestSave}
             aria-label={`Save ${experience.title}`}
-            className="pointer-events-auto relative z-20 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-muted transition-colors hover:bg-background hover:text-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/30"
+            className="pointer-events-auto relative z-20 flex h-9 w-9 shrink-0 items-center justify-center rounded-control text-muted transition-colors hover:bg-surface-subtle hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/30"
           >
             <Bookmark className="h-4 w-4" />
           </button>
@@ -187,7 +182,7 @@ export function TaskRow({
             type="button"
             onClick={onRemove}
             aria-label={`Remove ${experience.title} from My List`}
-            className="pointer-events-auto relative z-20 flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-accent transition-colors hover:bg-background focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/30"
+            className="pointer-events-auto relative z-20 flex h-8 w-8 shrink-0 items-center justify-center rounded-control text-accent transition-colors hover:bg-accent-wash focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/30"
           >
             <Bookmark className="h-4 w-4" fill="currentColor" />
           </button>

@@ -6,8 +6,10 @@ import {
   Bookmark,
   CheckCircle2,
   Share2,
-  LucideIcon,
+  type LucideIcon,
 } from "lucide-react";
+
+import { Button } from "@/components/ui/Button";
 
 interface Step {
   icon: LucideIcon;
@@ -43,19 +45,19 @@ export function BrowseSidebar() {
 
   return (
     <div className="flex flex-col gap-5 lg:sticky lg:top-20">
-      <section className="rounded-lg border border-border bg-white p-5">
+      <section className="rounded-card border border-border bg-surface p-5">
         <h2 className="text-base font-bold text-ink">How it works</h2>
 
         <div className="mt-5 flex flex-col gap-5">
           {STEPS.map(({ icon: Icon, title, description }) => (
             <div key={title} className="flex gap-3">
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent-light text-accent-dark">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent-wash text-accent-dark">
                 <Icon className="h-4 w-4" />
               </div>
 
-              <div>
+              <div className="min-w-0">
                 <p className="text-sm font-semibold text-ink">{title}</p>
-                <p className="mt-0.5 text-xs leading-5 text-muted">
+                <p className="mt-0.5 text-xs leading-5 text-secondary">
                   {description}
                 </p>
               </div>
@@ -64,25 +66,25 @@ export function BrowseSidebar() {
         </div>
       </section>
 
-      <section className="rounded-lg border border-border bg-accent-wash p-5">
+      <section className="rounded-card border border-border bg-accent-wash p-5">
         <p className="text-lg font-bold leading-6 text-ink">
           Your life.
           <br />
           Your list.
         </p>
 
-        <p className="mt-2 text-sm leading-6 text-muted">
+        <p className="mt-2 text-sm leading-6 text-secondary">
           Create your own list and start keeping track of the things you
           actually want to do.
         </p>
 
-        <button
+        <Button
           type="button"
           onClick={() => router.push("/signup")}
-          className="mt-5 w-full rounded-lg bg-accent px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-accent-dark"
+          className="mt-5 w-full"
         >
           Create your list
-        </button>
+        </Button>
       </section>
     </div>
   );

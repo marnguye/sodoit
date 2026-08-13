@@ -55,3 +55,6 @@ sql_schema_*.sql
 
 # sentry config file
 .env.sentry-build-plugin
+
+# guides content
+/scripts/content/guides/
