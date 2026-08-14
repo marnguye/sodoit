@@ -16,7 +16,7 @@ function guideCity(overrides: Record<string, unknown> = {}) {
     city: "Prague",
     country_code: "CZ",
     hero_image_url:
-      "https://lwfubyziqibxigycvqqy.supabase.co/storage/v1/object/public/guide-images/prague/hero/prague-hero.webp",
+      "https://example.supabase.co/storage/v1/object/public/guide-images/prague/hero/prague-hero.webp",
     hero_image_alt: "View of Prague",
     eyebrow: "Prague",
     title: "Plans for a great day in Prague",

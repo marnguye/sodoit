@@ -20,11 +20,13 @@ export function DiscoverySearch({
 }: DiscoverySearchProps) {
   const router = useRouter();
   const [search, setSearch] = useState(q);
+  const [prevQ, setPrevQ] = useState(q);
   const isFirstRender = useRef(true);
 
-  useEffect(() => {
+  if (q !== prevQ) {
+    setPrevQ(q);
     setSearch(q);
-  }, [q]);
+  }
 
   useEffect(() => {
     if (isFirstRender.current) {

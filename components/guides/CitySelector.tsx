@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { Check, ChevronDown, MapPin } from "lucide-react";
-import { guidesUrl } from "@/lib/guides/url";
 
 interface CityCount {
   city: string;
@@ -10,15 +9,15 @@ interface CityCount {
 interface CitySelectorProps {
   cities: CityCount[];
   selectedCity: string | null;
-  basePath?: string;
-  urlFor?: (city?: string) => string;
+  basePath: string;
+  urlFor: (city?: string) => string;
 }
 
 export function CitySelector({
   cities,
   selectedCity,
-  basePath = "/guides",
-  urlFor = (city) => guidesUrl({ city }),
+  basePath,
+  urlFor,
 }: CitySelectorProps) {
   if (cities.length === 0) {
     return null;

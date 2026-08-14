@@ -10,27 +10,16 @@ const ITEM_COLUMNS =
 const CITY_COLUMNS =
   "slug, city, country_code, hero_image_url, hero_image_alt, eyebrow, title, description, created_at, updated_at";
 
-async function loadGuides(featuredOnly: boolean): Promise<Guide[]> {
+export async function getPublicGuides(): Promise<Guide[]> {
   const supabase = await createClient();
-  let query = supabase
+  const { data, error } = await supabase
     .from("guides")
     .select(GUIDE_COLUMNS)
     .eq("is_public", true)
     .order("created_at", { ascending: false })
     .order("slug");
-  if (featuredOnly) query = query.eq("featured", true);
-
-  const { data, error } = await query;
   if (error) throw error;
   return (data ?? []) as Guide[];
-}
-
-export function getPublicGuides(): Promise<Guide[]> {
-  return loadGuides(false);
-}
-
-export function getFeaturedGuides(): Promise<Guide[]> {
-  return loadGuides(true);
 }
 
 export async function getGuideCities(): Promise<GuideCity[]> {

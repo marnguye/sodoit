@@ -121,28 +121,30 @@ export default async function GuideDetailPage({ params }: GuidePageProps) {
           />
         </div>
 
-        <section
-          id="itinerary"
-          className="min-w-0 [grid-area:itinerary] scroll-mt-24"
-        >
-          <div className="mb-5 flex items-end justify-between gap-4 border-b border-border pb-4">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
-                Explore
-              </p>
+        {guide.items.length > 0 && (
+          <section
+            id="itinerary"
+            className="min-w-0 [grid-area:itinerary] scroll-mt-24"
+          >
+            <div className="mb-5 flex items-end justify-between gap-4 border-b border-border pb-4">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
+                  Explore
+                </p>
 
-              <h2 className="mt-1 text-2xl font-bold tracking-tight text-ink">
-                {isCollection ? "Explore this collection" : "Your itinerary"}
-              </h2>
+                <h2 className="mt-1 text-2xl font-bold tracking-tight text-ink">
+                  {isCollection ? "Explore this collection" : "Your itinerary"}
+                </h2>
+              </div>
+
+              <span className="shrink-0 text-sm text-muted">
+                {guide.items.length} {stopWord}
+              </span>
             </div>
 
-            <span className="shrink-0 text-sm text-muted">
-              {guide.items.length} {stopWord}
-            </span>
-          </div>
-
-          <GuideItinerary items={guide.items} />
-        </section>
+            <GuideItinerary items={guide.items} />
+          </section>
+        )}
 
         <aside className="[grid-area:summary] lg:sticky lg:top-24 lg:self-start">
           <div className="rounded-panel border border-border bg-surface p-5">
