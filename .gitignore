@@ -43,6 +43,7 @@ tsconfig.tsbuildinfo
 
 # supabase schema
 sql_schema_*.sql
+supabase/*
 
 # aider
 .aider*
@@ -58,3 +59,4 @@ sql_schema_*.sql
 
 # guides content
 /scripts/content/guides/
+/scripts/content/guide-cities/
