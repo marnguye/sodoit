@@ -6,13 +6,21 @@ import { useEffect, useRef } from "react";
 interface SearchFieldProps {
   value: string;
   onChange: (value: string) => void;
+  placeholder?: string;
+  label?: string;
+  name?: string;
   className?: string;
+  size?: "default" | "large";
 }
 
 export function SearchField({
   value,
   onChange,
+  placeholder = "Search experiences...",
+  label = "Search",
+  name,
   className = "",
+  size = "default",
 }: SearchFieldProps) {
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -31,9 +39,11 @@ export function SearchField({
     };
   }, []);
 
+  const heightClass = size === "large" ? "h-12" : "h-10";
+
   return (
     <label className={`relative block w-full ${className}`}>
-      <span className="sr-only">Search experiences</span>
+      <span className="sr-only">{label}</span>
 
       <Search
         aria-hidden="true"
@@ -43,12 +53,15 @@ export function SearchField({
       <input
         ref={inputRef}
         type="search"
+        name={name}
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        placeholder="Search experiences..."
+        placeholder={placeholder}
+        autoComplete="off"
         aria-keyshortcuts="Meta+K Control+K"
         className={[
-          "h-10 w-full rounded-control border border-border bg-surface",
+          heightClass,
+          "w-full rounded-control border border-border bg-surface",
           "pl-10 pr-3.5 text-sm text-ink",
           "placeholder:text-muted",
           "transition-colors",

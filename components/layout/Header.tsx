@@ -12,6 +12,7 @@ interface HeaderProps {
 
 const NAV = [
   { href: "/", label: "Browse" },
+  { href: "/discovery", label: "Discovery" },
   { href: "/feed", label: "Feed" },
 ] as const;
 
@@ -46,7 +47,7 @@ export function Header({ signedIn, username, avatarUrl }: HeaderProps) {
 
         <nav
           aria-label="Primary navigation"
-          className="absolute left-1/2 flex h-full -translate-x-1/2 items-center gap-5 sm:gap-7"
+          className="absolute left-1/2 flex h-full -translate-x-1/2 items-center gap-3 min-[430px]:gap-4 sm:gap-6 md:gap-8"
         >
           {NAV.map((item) => {
             const active = isActiveRoute(pathname, item.href);

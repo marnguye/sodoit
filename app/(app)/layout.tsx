@@ -1,7 +1,7 @@
 import { Header } from "@/components/layout/Header";
+import { Footer } from "@/components/layout/Footer";
 import { createClient } from "@/lib/supabase/server";
 import { AchievementUnlockProvider } from "./achievements/components/AchievementUnlockProvider";
-import { Footer } from "@/components/layout/Footer";
 
 export default async function AppLayout({
   children,
