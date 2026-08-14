@@ -14,15 +14,15 @@ setup("authenticate test user", async ({ page }) => {
   await page.goto("/login?next=%2Fsettings%2Fprofile");
 
   await page.getByLabel("Email", { exact: true }).fill(email);
-
   await page.locator("#password").fill(password);
 
-  await page
-    .getByRole("button", {
-      name: "Log in",
-      exact: true,
-    })
-    .click();
+  const loginButton = page.getByRole("button", {
+    name: "Log in",
+    exact: true,
+  });
+
+  await expect(loginButton).toBeEnabled();
+  await loginButton.click();
 
   await expect(page).toHaveURL(/\/settings\/profile$/);
 

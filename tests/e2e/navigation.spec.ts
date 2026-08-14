@@ -23,13 +23,11 @@ test.describe("main navigation", () => {
     await feedLink.click();
 
     await expect(page).toHaveURL(/\/feed$/);
-
     await expect(feedLink).toHaveAttribute("aria-current", "page");
 
     await browseLink.click();
 
     await expect(page).toHaveURL(/\/$/);
-
     await expect(browseLink).toHaveAttribute("aria-current", "page");
   });
 

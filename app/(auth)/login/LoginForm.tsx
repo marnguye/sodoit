@@ -1,42 +1,41 @@
 "use client";
 
-import { useState, useSyncExternalStore } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+
 import { createClient } from "@/lib/supabase/client";
 import { getSafeNextPath } from "@/lib/auth-redirect";
 import { INPUT_CLASS, PasswordField } from "../PasswordField";
 
 export function LoginForm({ next }: { next: string }) {
   const router = useRouter();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const hydrated = useSyncExternalStore(
-    () => () => {},
-    () => true,
-    () => false,
-  );
-
   const safeNext = getSafeNextPath(next);
   const signupHref = `/signup?next=${encodeURIComponent(safeNext)}`;
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (loading) return;
+
     setLoading(true);
     setError(null);
 
     try {
       const supabase = createClient();
 
-      const { error } = await supabase.auth.signInWithPassword({
+      const { error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
-      if (error) {
+      if (signInError) {
         setError("Incorrect email or password.");
         return;
       }
@@ -53,6 +52,7 @@ export function LoginForm({ next }: { next: string }) {
   return (
     <div>
       <h1 className="text-2xl font-extrabold text-ink">Welcome back</h1>
+
       <p className="mt-1.5 text-sm text-muted">
         Log in to continue where you left off.
       </p>
@@ -69,6 +69,7 @@ export function LoginForm({ next }: { next: string }) {
           >
             Email
           </label>
+
           <input
             id="email"
             name="email"
@@ -76,7 +77,7 @@ export function LoginForm({ next }: { next: string }) {
             required
             autoComplete="email"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(event) => setEmail(event.target.value)}
             className={INPUT_CLASS}
           />
         </div>
@@ -91,8 +92,8 @@ export function LoginForm({ next }: { next: string }) {
 
         <button
           type="submit"
-          disabled={loading || !hydrated}
-          className="mt-2 h-11 rounded-md bg-accent text-[15px] font-bold text-white transition-colors hover:bg-accent-dark disabled:opacity-70"
+          disabled={loading}
+          className="mt-2 h-11 rounded-control bg-accent text-[15px] font-bold text-white transition-colors hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-70"
         >
           {loading ? "Logging in..." : "Log in"}
         </button>
@@ -100,7 +101,7 @@ export function LoginForm({ next }: { next: string }) {
         {error && (
           <p
             role="alert"
-            className="rounded-md border border-red-200 bg-red-50 px-3.5 py-2.5 text-[13px] text-red-600"
+            className="rounded-control border border-red-200 bg-red-50 px-3.5 py-2.5 text-[13px] text-red-600"
           >
             {error}
           </p>
