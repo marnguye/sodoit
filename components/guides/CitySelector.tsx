@@ -10,9 +10,16 @@ interface CityCount {
 interface CitySelectorProps {
   cities: CityCount[];
   selectedCity: string | null;
+  basePath?: string;
+  urlFor?: (city?: string) => string;
 }
 
-export function CitySelector({ cities, selectedCity }: CitySelectorProps) {
+export function CitySelector({
+  cities,
+  selectedCity,
+  basePath = "/guides",
+  urlFor = (city) => guidesUrl({ city }),
+}: CitySelectorProps) {
   if (cities.length === 0) {
     return null;
   }
@@ -61,7 +68,7 @@ export function CitySelector({ cities, selectedCity }: CitySelectorProps) {
 
       <div className="absolute left-0 top-[calc(100%+8px)] z-30 w-[220px] overflow-hidden rounded-panel border border-border bg-surface p-1.5 shadow-popover">
         <Link
-          href="/guides"
+          href={basePath}
           className="flex items-center justify-between gap-3 rounded-control px-3 py-2.5 text-sm transition-colors hover:bg-accent-wash"
         >
           <span
@@ -91,7 +98,7 @@ export function CitySelector({ cities, selectedCity }: CitySelectorProps) {
           return (
             <Link
               key={city}
-              href={guidesUrl({ city })}
+              href={urlFor(city)}
               className="flex items-center justify-between gap-3 rounded-control px-3 py-2.5 text-sm transition-colors hover:bg-accent-wash"
             >
               <div className="min-w-0">

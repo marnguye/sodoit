@@ -6,7 +6,7 @@ const COLUMNS = [
     heading: "Sodoit",
     links: [
       { href: "/", label: "Browse" },
-      { href: "/guides", label: "Guides" },
+      { href: "/discovery", label: "Discovery" },
       { href: "/feed", label: "Feed" },
       { href: "/trips", label: "Open Trips" },
     ],
