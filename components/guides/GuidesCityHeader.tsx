@@ -1,3 +1,6 @@
+import Image from "next/image";
+import type { GuideCity } from "@/lib/guides/types";
+
 import { CitySelector } from "./CitySelector";
 import { GuideFilters } from "./GuideFilters";
 import { GuideSearch } from "./GuideSearch";
@@ -16,6 +19,7 @@ interface GuidesCityHeaderProps {
   q?: string;
   activeDuration?: string;
   activeFeatured: boolean;
+  hero: GuideCity | null;
 }
 
 export function GuidesCityHeader({
@@ -27,35 +31,61 @@ export function GuidesCityHeader({
   q,
   activeDuration,
   activeFeatured,
+  hero,
 }: GuidesCityHeaderProps) {
+  const heroImageUrl = hero?.hero_image_url;
+  const eyebrow = hero?.eyebrow ?? selectedCity ?? "Guides";
+  const title =
+    hero?.title ??
+    (selectedCity
+      ? `Plans for a great day in ${selectedCity}`
+      : "Guides for real life");
+  const description =
+    hero?.description ??
+    (selectedCity
+      ? "Pick a ready-made route and make the most of your time."
+      : "Pick a city and find a plan worth going out for.");
+
   return (
     <section className="border-b border-border bg-background">
-      <div className="mx-auto max-w-[1200px] px-4 py-5 sm:px-6 sm:py-6 lg:px-8">
+      <div className="mx-auto max-w-[1200px] px-4 py-6 sm:px-6 lg:px-8">
         <h1 className="sr-only">Guides</h1>
 
-        {cities.length > 0 && (
-          <CitySelector cities={cities} selectedCity={selectedCity} />
-        )}
+        <div className="relative min-h-[320px] overflow-hidden rounded-panel bg-ink sm:min-h-[380px]">
+          {heroImageUrl && (
+            <Image
+              src={heroImageUrl}
+              alt={hero?.hero_image_alt ?? ""}
+              fill
+              preload
+              sizes="(max-width: 1200px) 100vw, 1200px"
+              className="object-cover"
+            />
+          )}
 
-        <h2
-          className={[
-            "text-2xl font-extrabold tracking-tight text-ink sm:text-3xl",
-            cities.length > 0 ? "mt-4" : "",
-          ].join(" ")}
-        >
-          {selectedCity
-            ? `Plans for a great day in ${selectedCity}`
-            : "Guides for real life"}
-        </h2>
+          <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/15 to-black/5" />
 
-        <p className="mt-1.5 max-w-xl text-sm leading-6 text-secondary">
-          {selectedCity
-            ? "Pick a ready-made route and make the most of your time."
-            : "Pick a city and find a plan worth going out for."}
-        </p>
+          <div className="absolute inset-x-0 bottom-0 p-6 sm:p-8 lg:p-10">
+            {cities.length > 0 && (
+              <CitySelector cities={cities} selectedCity={selectedCity} />
+            )}
+
+            <p className="mt-4 text-xs font-semibold uppercase tracking-[0.14em] text-white/75">
+              {eyebrow}
+            </p>
+
+            <h2 className="mt-2 max-w-2xl text-3xl font-extrabold tracking-[-0.025em] text-white sm:text-4xl lg:text-5xl">
+              {title}
+            </h2>
+
+            <p className="mt-3 max-w-xl text-sm leading-6 text-white/80 sm:text-base">
+              {description}
+            </p>
+          </div>
+        </div>
 
         {hasGuides && (
-          <div className="mt-4 flex flex-col gap-2.5 sm:flex-row sm:items-center">
+          <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center">
             <GuideSearch
               q={q}
               city={selectedCity}

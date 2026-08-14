@@ -14,6 +14,19 @@ export interface Guide {
   updated_at: string;
 }
 
+export interface GuideCity {
+  slug: string;
+  city: string;
+  country_code: string;
+  hero_image_url: string | null;
+  hero_image_alt: string | null;
+  eyebrow: string;
+  title: string;
+  description: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface GuideItem {
   id: string;
   guide_id: string;

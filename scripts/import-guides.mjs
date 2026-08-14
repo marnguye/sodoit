@@ -1,27 +1,32 @@
 import { readdirSync, readFileSync } from "node:fs";
 import { createClient } from "@supabase/supabase-js";
 import {
+  planGuideCityImport,
+  validateGuideCitySources,
+} from "./content/lib/guide-cities.mjs";
+import {
   planGuideImport,
   validateGuideSources,
 } from "./content/lib/guides.mjs";
 
 const GUIDE_DIRECTORY = new URL("./content/guides/", import.meta.url);
+const CITY_DIRECTORY = new URL("./content/guide-cities/", import.meta.url);
 const GUIDE_COLUMNS =
   "id, slug, title, description, city, country_code, cover_image_url, cover_image_alt, duration_label, is_public, featured, created_at, updated_at";
 const ITEM_COLUMNS =
   "id, guide_id, position, title, description, place_name, image_url, image_alt, external_url, created_at, updated_at";
+const CITY_COLUMNS =
+  "slug, city, country_code, hero_image_url, hero_image_alt, eyebrow, title, description, created_at, updated_at";
 
-function loadSources() {
-  return readdirSync(GUIDE_DIRECTORY)
+function loadSources(directory) {
+  return readdirSync(directory)
     .filter((file) => file.endsWith(".json"))
     .sort()
     .map((file) => {
       try {
         return {
           file,
-          value: JSON.parse(
-            readFileSync(new URL(file, GUIDE_DIRECTORY), "utf8"),
-          ),
+          value: JSON.parse(readFileSync(new URL(file, directory), "utf8")),
         };
       } catch (error) {
         throw new Error(`${file}: invalid JSON: ${error.message}`);
@@ -30,17 +35,24 @@ function loadSources() {
 }
 
 async function loadDatabase(supabase) {
-  const [guides, items] = await Promise.all([
+  const [guides, items, cities] = await Promise.all([
     supabase.from("guides").select(GUIDE_COLUMNS).order("slug"),
     supabase
       .from("guide_items")
       .select(ITEM_COLUMNS)
       .order("guide_id")
       .order("position"),
+    supabase.from("guide_cities").select(CITY_COLUMNS).order("slug"),
   ]);
   if (guides.error) throw new Error(`Load Guides: ${guides.error.message}`);
   if (items.error) throw new Error(`Load Guide Items: ${items.error.message}`);
-  return { guides: guides.data ?? [], items: items.data ?? [] };
+  if (cities.error)
+    throw new Error(`Load Guide Cities: ${cities.error.message}`);
+  return {
+    guides: guides.data ?? [],
+    items: items.data ?? [],
+    cities: cities.data ?? [],
+  };
 }
 
 function itemRows(guideId, items) {
@@ -103,7 +115,7 @@ async function replaceItems(supabase, action) {
   );
 }
 
-async function applyPlan(supabase, plan) {
+async function applyGuidePlan(supabase, plan) {
   for (const action of plan.actions) {
     if (action.kind === "create") {
       await createGuide(supabase, action);
@@ -127,6 +139,26 @@ async function applyPlan(supabase, plan) {
   }
 }
 
+async function applyCityPlan(supabase, plan) {
+  for (const action of plan.actions) {
+    if (action.kind === "existing" && !Object.keys(action.values).length) {
+      continue;
+    }
+    const result =
+      action.kind === "create"
+        ? await supabase.from("guide_cities").insert(action.city)
+        : await supabase
+            .from("guide_cities")
+            .update(action.values)
+            .eq("slug", action.slug);
+    if (result.error) {
+      throw new Error(
+        `${action.slug}: city ${action.kind} failed: ${result.error.message}`,
+      );
+    }
+  }
+}
+
 async function main() {
   const dryRun = process.argv.includes("--dry-run");
   const unknownArgs = process.argv
@@ -135,12 +167,17 @@ async function main() {
   if (unknownArgs.length)
     throw new Error(`Unknown argument: ${unknownArgs[0]}`);
 
-  const sources = loadSources();
-  const validated = validateGuideSources(sources);
-  console.log(`Source Guide files: ${sources.length}`);
-  console.log(`Valid Guides: ${validated.guides.length}`);
-  console.log(`Validation errors: ${validated.errors.length}`);
-  if (validated.errors.length) throw new Error(validated.errors.join("\n"));
+  const guideSources = loadSources(GUIDE_DIRECTORY);
+  const citySources = loadSources(CITY_DIRECTORY);
+  const guides = validateGuideSources(guideSources);
+  const cities = validateGuideCitySources(citySources);
+  const validationErrors = [...guides.errors, ...cities.errors];
+  console.log(`Source Guide files: ${guideSources.length}`);
+  console.log(`Valid Guides: ${guides.guides.length}`);
+  console.log(`Source Guide city files: ${citySources.length}`);
+  console.log(`Valid Guide cities: ${cities.cities.length}`);
+  console.log(`Validation errors: ${validationErrors.length}`);
+  if (validationErrors.length) throw new Error(validationErrors.join("\n"));
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -157,21 +194,33 @@ async function main() {
     },
   });
   const database = await loadDatabase(supabase);
-  const plan = planGuideImport(
-    validated.guides,
+  const guidePlan = planGuideImport(
+    guides.guides,
     database.guides,
     database.items,
   );
+  const cityPlan = planGuideCityImport(cities.cities, database.cities);
 
-  console.log(`Guides to create: ${plan.toCreate}`);
-  console.log(`Guides to update: ${plan.toUpdate}`);
-  console.log(`Guides unchanged: ${plan.unchanged}`);
-  console.log(`Item sets to synchronize: ${plan.itemSetsToSync}`);
+  console.log(`Guide cities to create: ${cityPlan.toCreate}`);
+  console.log(`Guide cities to update: ${cityPlan.toUpdate}`);
+  console.log(`Guide cities unchanged: ${cityPlan.unchanged}`);
+  console.log(`Orphan DB Guide cities: ${cityPlan.orphanSlugs.length}`);
+  console.log(`Guides to create: ${guidePlan.toCreate}`);
+  console.log(`Guides to update: ${guidePlan.toUpdate}`);
+  console.log(`Guides unchanged: ${guidePlan.unchanged}`);
+  console.log(`Item sets to synchronize: ${guidePlan.itemSetsToSync}`);
   console.log(
-    `Total source Items: ${validated.guides.reduce((total, guide) => total + guide.items.length, 0)}`,
+    `Total source Items: ${guides.guides.reduce((total, guide) => total + guide.items.length, 0)}`,
   );
-  console.log(`Orphan DB Guides: ${plan.orphanSlugs.length}`);
-  for (const action of plan.actions) {
+  console.log(`Orphan DB Guides: ${guidePlan.orphanSlugs.length}`);
+  for (const action of cityPlan.actions) {
+    const fields =
+      action.kind === "create" ? ["create"] : Object.keys(action.values);
+    if (fields.length) {
+      console.log(`- ${action.slug}: city ${fields.join(", ")}`);
+    }
+  }
+  for (const action of guidePlan.actions) {
     const changes =
       action.kind === "create"
         ? [`create with ${action.items.length} items`]
@@ -188,7 +237,8 @@ async function main() {
     console.log("Dry run: no writes performed.");
     return;
   }
-  await applyPlan(supabase, plan);
+  await applyCityPlan(supabase, cityPlan);
+  await applyGuidePlan(supabase, guidePlan);
   console.log("Guide import complete.");
 }
 

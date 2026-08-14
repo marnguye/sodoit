@@ -194,7 +194,12 @@ export function validateGuideSources(sources) {
 
 export function planGuideImport(sourceGuides, existingGuides, existingItems) {
   const bySlug = new Map(existingGuides.map((guide) => [guide.slug, guide]));
-  const itemsByGuide = Map.groupBy(existingItems, (item) => item.guide_id);
+  const itemsByGuide = new Map();
+  for (const item of existingItems) {
+    const items = itemsByGuide.get(item.guide_id) ?? [];
+    items.push(item);
+    itemsByGuide.set(item.guide_id, items);
+  }
   const sourceSlugs = new Set(sourceGuides.map((guide) => guide.slug));
   const actions = [...sourceGuides]
     .sort((a, b) => a.slug.localeCompare(b.slug))

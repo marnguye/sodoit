@@ -1,9 +1,29 @@
 import { describe, expect, it } from "vitest";
 import {
+  planGuideCityImport,
+  validateGuideCitySource,
+  validateGuideCitySources,
+} from "../../scripts/content/lib/guide-cities.mjs";
+import {
   planGuideImport,
   validateGuideSource,
   validateGuideSources,
 } from "../../scripts/content/lib/guides.mjs";
+
+function guideCity(overrides: Record<string, unknown> = {}) {
+  return {
+    slug: "prague",
+    city: "Prague",
+    country_code: "CZ",
+    hero_image_url:
+      "https://lwfubyziqibxigycvqqy.supabase.co/storage/v1/object/public/guide-images/prague/hero/prague-hero.webp",
+    hero_image_alt: "View of Prague",
+    eyebrow: "Prague",
+    title: "Plans for a great day in Prague",
+    description: "Pick a ready-made route.",
+    ...overrides,
+  };
+}
 
 function guide(overrides: Record<string, unknown> = {}) {
   return {
@@ -141,5 +161,87 @@ describe("Guide import planning", () => {
     expect(plan.toUpdate).toBe(1);
     expect(plan.itemSetsToSync).toBe(1);
     expect(plan.actions[0]).toMatchObject({ itemsChanged: true });
+  });
+});
+
+describe("Guide city source validation", () => {
+  it("accepts valid metadata with or without a hero image", () => {
+    expect(validateGuideCitySource(guideCity()).errors).toEqual([]);
+    expect(
+      validateGuideCitySource(
+        guideCity({ hero_image_url: null, hero_image_alt: null }),
+      ).errors,
+    ).toEqual([]);
+  });
+
+  it.each([
+    ["invalid slug", { slug: "Prague!" }, "slug"],
+    ["lowercase country code", { country_code: "cz" }, "country_code"],
+    ["empty title", { title: " " }, "title"],
+    [
+      "insecure image URL",
+      {
+        hero_image_url: "http://example.com/prague.webp",
+      },
+      "hero_image_url",
+    ],
+    ["missing image alt", { hero_image_alt: null }, "hero_image_alt"],
+    ["unknown field", { surprise: true }, "surprise"],
+  ])("rejects %s", (_name, overrides, path) => {
+    expect(
+      validateGuideCitySource(guideCity(overrides)).errors.join("\n"),
+    ).toContain(path);
+  });
+
+  it("rejects duplicate slugs and locations", () => {
+    const result = validateGuideCitySources([
+      { file: "a.json", value: guideCity() },
+      { file: "b.json", value: guideCity() },
+    ]);
+    expect(result.errors.join("\n")).toContain("duplicate city slug");
+    expect(result.errors.join("\n")).toContain(
+      "duplicate city and country_code",
+    );
+  });
+});
+
+describe("Guide city import planning", () => {
+  it("plans create, update, and unchanged without deleting orphans", () => {
+    const existing = guideCity({
+      created_at: "2026-01-01T00:00:00Z",
+      updated_at: "2026-01-01T00:00:00Z",
+    });
+    const plan = planGuideCityImport(
+      [
+        guideCity(),
+        guideCity({ slug: "brno", city: "Brno", title: "Plans in Brno" }),
+        guideCity({
+          slug: "vienna",
+          city: "Vienna",
+          country_code: "AT",
+          title: "Revised Vienna plans",
+        }),
+      ],
+      [
+        existing,
+        guideCity({
+          slug: "vienna",
+          city: "Vienna",
+          country_code: "AT",
+          title: "Old Vienna plans",
+        }),
+        guideCity({ slug: "orphan", city: "Paris", country_code: "FR" }),
+      ],
+    );
+
+    expect(plan).toMatchObject({
+      toCreate: 1,
+      toUpdate: 1,
+      unchanged: 1,
+      orphanSlugs: ["orphan"],
+    });
+    expect(plan.actions.find(({ slug }) => slug === "vienna")).toMatchObject({
+      values: { title: "Revised Vienna plans" },
+    });
   });
 });

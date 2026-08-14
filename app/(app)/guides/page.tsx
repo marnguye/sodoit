@@ -3,7 +3,11 @@ import { FeaturedGuideCard } from "@/components/guides/FeaturedGuideCard";
 import { GuideGrid } from "@/components/guides/GuideGrid";
 import { GuidesCityHeader } from "@/components/guides/GuidesCityHeader";
 import { GuidesSidebar } from "@/components/guides/GuidesSidebar";
-import { getGuideItemCounts, getPublicGuides } from "@/lib/guides/queries";
+import {
+  getGuideCities,
+  getGuideItemCounts,
+  getPublicGuides,
+} from "@/lib/guides/queries";
 import type { Guide } from "@/lib/guides/types";
 
 export const metadata: Metadata = {
@@ -49,8 +53,6 @@ async function loadGuides(): Promise<Guide[]> {
   return getDevPreviewGuides();
 }
 
-// One shared count call for whichever guides ended up on the page — real
-// Supabase data or (dev-only) local preview sources use the same shape.
 async function loadItemCounts(
   guideIds: string[],
 ): Promise<Record<string, number>> {
@@ -69,16 +71,26 @@ async function loadItemCounts(
 }
 
 export default async function GuidesPage({ searchParams }: GuidesPageProps) {
-  const [{ city, q, duration, featured }, guides] = await Promise.all([
-    searchParams,
-    loadGuides(),
-  ]);
+  const [{ city, q, duration, featured }, guides, guideCities] =
+    await Promise.all([searchParams, loadGuides(), getGuideCities()]);
 
   const itemCounts = await loadItemCounts(guides.map((guide) => guide.id));
 
   const cities = cityCounts(guides);
   const selectedCity =
     city && cities.some((c) => c.city === city) ? city : null;
+  const heroCity =
+    selectedCity ?? (cities.length === 1 ? cities[0].city : null);
+  const heroGuide = heroCity
+    ? guides.find((guide) => guide.city === heroCity)
+    : null;
+  const heroMetadata = heroGuide
+    ? (guideCities.find(
+        (metadata) =>
+          metadata.city === heroGuide.city &&
+          metadata.country_code === heroGuide.country_code,
+      ) ?? null)
+    : null;
 
   const cityScope = selectedCity
     ? guides.filter((guide) => guide.city === selectedCity)
@@ -132,6 +144,18 @@ export default async function GuidesPage({ searchParams }: GuidesPageProps) {
 
   const hasGuides = guides.length > 0;
 
+  console.log({
+    guideCities,
+    heroCity,
+    heroGuide: heroGuide
+      ? {
+          city: heroGuide.city,
+          country_code: heroGuide.country_code,
+        }
+      : null,
+    heroMetadata,
+  });
+
   return (
     <>
       <GuidesCityHeader
@@ -143,6 +167,7 @@ export default async function GuidesPage({ searchParams }: GuidesPageProps) {
         q={q}
         activeDuration={activeDuration}
         activeFeatured={activeFeatured}
+        hero={heroMetadata}
       />
 
       <main className="mx-auto w-full max-w-[1200px] px-4 py-6 sm:px-6 lg:px-8">

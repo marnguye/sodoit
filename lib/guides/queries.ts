@@ -1,12 +1,14 @@
 import "server-only";
 
 import { createClient } from "@/lib/supabase/server";
-import type { Guide, GuideItem, GuideWithItems } from "./types";
+import type { Guide, GuideCity, GuideItem, GuideWithItems } from "./types";
 
 const GUIDE_COLUMNS =
   "id, slug, title, description, city, country_code, cover_image_url, cover_image_alt, duration_label, is_public, featured, created_at, updated_at";
 const ITEM_COLUMNS =
   "id, guide_id, position, title, description, place_name, image_url, image_alt, external_url, created_at, updated_at";
+const CITY_COLUMNS =
+  "slug, city, country_code, hero_image_url, hero_image_alt, eyebrow, title, description, created_at, updated_at";
 
 async function loadGuides(featuredOnly: boolean): Promise<Guide[]> {
   const supabase = await createClient();
@@ -29,6 +31,16 @@ export function getPublicGuides(): Promise<Guide[]> {
 
 export function getFeaturedGuides(): Promise<Guide[]> {
   return loadGuides(true);
+}
+
+export async function getGuideCities(): Promise<GuideCity[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("guide_cities")
+    .select(CITY_COLUMNS)
+    .order("city");
+  if (error) throw error;
+  return (data ?? []) as GuideCity[];
 }
 
 export async function getGuideItemCounts(
