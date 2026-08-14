@@ -1,3 +1,5 @@
+export type GuideType = "itinerary" | "collection";
+
 export interface Guide {
   id: string;
   slug: string;
@@ -10,6 +12,7 @@ export interface Guide {
   duration_label: string | null;
   is_public: boolean;
   featured: boolean;
+  type?: GuideType;
   created_at: string;
   updated_at: string;
 }

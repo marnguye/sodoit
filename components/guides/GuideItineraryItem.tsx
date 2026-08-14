@@ -14,7 +14,7 @@ export function GuideItineraryItem({ item, isLast }: GuideItineraryItemProps) {
       item.title.trim().toLocaleLowerCase();
 
   return (
-    <li className="relative flex gap-3 pb-6 last:pb-0 sm:gap-4">
+    <li className="relative flex gap-3 pb-9 last:pb-0 sm:gap-4">
       {!isLast && (
         <span
           aria-hidden="true"
@@ -30,8 +30,8 @@ export function GuideItineraryItem({ item, isLast }: GuideItineraryItemProps) {
       </span>
 
       <article
-        className={`min-w-0 flex-1 border-b border-border pb-6 ${
-          item.image_url ? "grid gap-4 md:grid-cols-[160px_minmax(0,1fr)]" : ""
+        className={`min-w-0 flex-1 ${
+          item.image_url ? "grid gap-4 md:grid-cols-[176px_minmax(0,1fr)]" : ""
         }`}
       >
         {item.image_url && (
@@ -39,8 +39,8 @@ export function GuideItineraryItem({ item, isLast }: GuideItineraryItemProps) {
             imageUrl={item.image_url}
             imageAlt={item.image_alt}
             title={item.title}
-            sizes="(min-width: 768px) 160px, calc(100vw - 68px)"
-            className="order-2 h-40 w-full rounded-media md:order-1 md:h-[120px] md:w-40"
+            sizes="(min-width: 768px) 176px, calc(100vw - 68px)"
+            className="order-2 h-44 w-full rounded-media md:order-1 md:h-[132px] md:w-44"
           />
         )}
 
