@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useSyncExternalStore } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { getSafeNextPath } from "@/lib/auth-redirect";
@@ -12,10 +12,6 @@ const STRENGTH_COLORS = ["#DC2626", "#F97316", "#EAB308", "#16A34A"];
 
 const DISPLAY_NAME_MAX_LENGTH = 80;
 
-const subscribe = () => () => {};
-const getClientSnapshot = () => true;
-const getServerSnapshot = () => false;
-
 export function SignupForm({ next }: { next: string }) {
   const [displayName, setDisplayName] = useState("");
   const [username, setUsername] = useState("");
@@ -26,12 +22,6 @@ export function SignupForm({ next }: { next: string }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [submittedEmail, setSubmittedEmail] = useState<string | null>(null);
-
-  const hydrated = useSyncExternalStore(
-    subscribe,
-    getClientSnapshot,
-    getServerSnapshot,
-  );
 
   const strength = passwordStrength(password);
   const safeNext = getSafeNextPath(next);
@@ -254,7 +244,7 @@ export function SignupForm({ next }: { next: string }) {
 
         <button
           type="submit"
-          disabled={loading || !hydrated}
+          disabled={loading}
           className="mt-2 h-11 rounded-md bg-accent text-[15px] font-bold text-white transition-colors hover:bg-accent-dark disabled:opacity-70"
         >
           {loading ? "Creating account..." : "Create account"}
