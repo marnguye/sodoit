@@ -1,21 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { StatusFilter } from "../types";
+import { SlidersHorizontal } from "lucide-react";
+
 import { SearchField } from "@/components/ui/SearchField";
-import { FilterGroup } from "./FilterGroup";
-
-const STATUS_FILTERS = [
-  "all",
-  "uncompleted",
-  "completed",
-] as const satisfies readonly StatusFilter[];
-
-const STATUS_LABELS: Record<StatusFilter, string> = {
-  all: "All",
-  uncompleted: "To do",
-  completed: "Done",
-};
+import type { BrowseSort, BrowseView, StatusFilter } from "../types";
+import { BrowseCategoryNav } from "./BrowseCategoryNav";
+import { BrowseFilters } from "./BrowseFilters";
+import { BrowseProgress } from "./BrowseProgress";
+import { BrowseStatusSwitch } from "./BrowseStatusSwitch";
+import { BrowseViewToggle } from "./BrowseViewToggle";
 
 const MOBILE_BREAKPOINT_PX = 640;
 const TOP_EXPAND_PX = 80;
@@ -53,6 +47,7 @@ function useMobileToolbarCollapse() {
 
       frame = requestAnimationFrame(() => {
         frame = null;
+
         const y = window.scrollY;
 
         if (window.innerWidth >= MOBILE_BREAKPOINT_PX) {
@@ -83,12 +78,7 @@ function useMobileToolbarCollapse() {
 
         if (movement < SCROLL_INTENT_THRESHOLD_PX) return;
 
-        if (direction > 0) {
-          transition(true);
-        } else {
-          transition(false);
-        }
-
+        transition(direction > 0);
         movement = 0;
       });
     }
@@ -99,7 +89,10 @@ function useMobileToolbarCollapse() {
     return () => {
       window.removeEventListener("scroll", handleScroll);
       window.removeEventListener("resize", handleScroll);
-      if (frame !== null) cancelAnimationFrame(frame);
+
+      if (frame !== null) {
+        cancelAnimationFrame(frame);
+      }
     };
   }, []);
 
@@ -115,8 +108,13 @@ interface BrowseToolbarProps {
   status: StatusFilter;
   onStatusChange: (value: StatusFilter) => void;
   completedCount: number;
-  totalCount: number;
   signedIn: boolean;
+  view: BrowseView;
+  onViewChange: (value: BrowseView) => void;
+  sort: BrowseSort;
+  onSortChange: (value: BrowseSort) => void;
+  difficulty: string | null;
+  onDifficultyChange: (value: string | null) => void;
 }
 
 export function BrowseToolbar({
@@ -128,17 +126,18 @@ export function BrowseToolbar({
   status,
   onStatusChange,
   completedCount,
-  totalCount,
   signedIn,
+  view,
+  onViewChange,
+  sort,
+  onSortChange,
+  difficulty,
+  onDifficultyChange,
 }: BrowseToolbarProps) {
   const collapsed = useMobileToolbarCollapse();
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
-  const collapsibleClass = (baseSpacing: string) =>
-    `grid overflow-hidden transition-all duration-200 ease-out sm:!grid-rows-[1fr] sm:!opacity-100 sm:!mt-0 ${
-      collapsed
-        ? "grid-rows-[0fr] opacity-0 mt-0"
-        : `grid-rows-[1fr] opacity-100 ${baseSpacing}`
-    }`;
+  const filtersActive = difficulty !== null || sort !== "recommended";
 
   return (
     <header className="sticky top-16 z-30 border-b border-border bg-background py-2.5">
@@ -148,35 +147,69 @@ export function BrowseToolbar({
         className="w-full"
       />
 
-      <div className={collapsibleClass("mt-2")}>
+      <div
+        className={[
+          "grid overflow-hidden transition-all duration-200 ease-out",
+          "sm:!mt-1 sm:!grid-rows-[1fr] sm:!overflow-visible sm:!opacity-100",
+          collapsed
+            ? "mt-0 grid-rows-[0fr] opacity-0"
+            : "mt-1 grid-rows-[1fr] opacity-100",
+        ].join(" ")}
+      >
         <div className="min-h-0 min-w-0">
-          {signedIn && (
-            <p className="mb-2 text-xs text-muted sm:text-sm">
-              <span className="font-semibold text-ink">{completedCount}</span> /{" "}
-              {totalCount} completed
-            </p>
-          )}
-
-          <div className="-mx-4 overflow-x-auto mt-1 px-4 sm:mx-0 sm:px-0">
-            <FilterGroup
-              label="Categories"
-              options={categories}
-              value={category}
-              onChange={onCategoryChange}
-              className="w-max pb-2"
+          <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center sm:gap-1">
+            <BrowseCategoryNav
+              categories={categories}
+              category={category}
+              onCategoryChange={onCategoryChange}
             />
+
+            <div className="flex items-center gap-1 sm:contents">
+              <div className="relative shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setFiltersOpen((open) => !open)}
+                  aria-expanded={filtersOpen}
+                  aria-haspopup="dialog"
+                  className={[
+                    "inline-flex h-8 items-center gap-1.5 rounded-control border px-3",
+                    "text-xs font-semibold transition-colors",
+                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/30",
+                    filtersActive
+                      ? "border-accent/40 bg-accent-wash text-accent-dark"
+                      : "border-border bg-surface text-secondary hover:border-border-strong hover:text-ink",
+                  ].join(" ")}
+                >
+                  <SlidersHorizontal
+                    aria-hidden="true"
+                    className="h-3.5 w-3.5"
+                  />
+                  Filters
+                </button>
+
+                <BrowseFilters
+                  open={filtersOpen}
+                  onClose={() => setFiltersOpen(false)}
+                  sort={sort}
+                  onSortChange={onSortChange}
+                  difficulty={difficulty}
+                  onDifficultyChange={onDifficultyChange}
+                />
+              </div>
+
+              <BrowseViewToggle view={view} onChange={onViewChange} />
+            </div>
           </div>
 
           {signedIn && (
-            <FilterGroup
-              label="Completion status"
-              options={STATUS_FILTERS}
-              value={status}
-              onChange={onStatusChange}
-              variant="segmented"
-              getLabel={(option) => STATUS_LABELS[option]}
-              className="w-full min-w-0 sm:ml-auto sm:w-[250px]"
-            />
+            <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
+              <BrowseProgress completedCount={completedCount} />
+
+              <BrowseStatusSwitch
+                status={status}
+                onStatusChange={onStatusChange}
+              />
+            </div>
           )}
         </div>
       </div>
