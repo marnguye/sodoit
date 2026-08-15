@@ -6,13 +6,14 @@ import { useRouter, usePathname } from "next/navigation";
 import { BrowseToolbar } from "./components/BrowseToolbar";
 import { BrowseHero } from "./components/BrowseHero";
 import { BrowseSidebar } from "./components/BrowseSidebar";
+import { BrowseHowItWorks } from "./components/BrowseHowItWorks";
+import { BrowseSignupCta } from "./components/BrowseSignupCta";
 import { ExperienceSection } from "./components/ExperienceSection";
-import { Pagination } from "./components/Pagination";
-import { TaskRow } from "./components/TaskRow";
+import { InfiniteExperienceResults } from "./components/InfiniteExperienceResults";
 import { setListStatus, removeFromMyList } from "./actions";
 import { loginHrefWithNext } from "@/lib/auth-redirect";
-import { CATEGORIES, PAGE_SIZE } from "./types";
-import type { Experience, StatusFilter } from "./types";
+import { CATEGORIES } from "./types";
+import type { BrowseSort, BrowseView, Experience, StatusFilter } from "./types";
 import type { CuratedSection } from "./data";
 
 const SEARCH_DEBOUNCE_MS = 300;
@@ -21,20 +22,26 @@ const ALL_CATEGORIES = ["All", ...CATEGORIES] as const;
 function buildHref({
   q,
   category,
+  difficulty,
   status,
-  page,
+  sort,
+  view,
 }: {
   q: string;
   category: string | null;
+  difficulty: string | null;
   status: StatusFilter;
-  page: number;
+  sort: BrowseSort;
+  view: BrowseView;
 }) {
   const params = new URLSearchParams();
 
   if (q) params.set("q", q);
   if (category) params.set("category", category);
+  if (difficulty) params.set("difficulty", difficulty);
   if (status !== "all") params.set("status", status);
-  if (page > 1) params.set("page", String(page));
+  if (sort !== "recommended") params.set("sort", sort);
+  if (view !== "grid") params.set("view", view);
 
   const qs = params.toString();
 
@@ -43,27 +50,31 @@ function buildHref({
 
 interface BrowseBoardProps {
   experiences: Experience[];
+  nextCursor: string | null;
+  hasMore: boolean;
   completedIds: string[];
   signedIn: boolean;
-  grandTotal: number;
-  filteredCount: number;
-  page: number;
   q: string;
   category: string | null;
+  difficulty: string | null;
   status: StatusFilter;
+  sort: BrowseSort;
+  view: BrowseView;
   curatedSections: CuratedSection[];
 }
 
 export function BrowseBoard({
   experiences,
+  nextCursor,
+  hasMore,
   completedIds,
   signedIn,
-  grandTotal,
-  filteredCount,
-  page,
   q,
   category,
+  difficulty,
   status,
+  sort,
+  view,
   curatedSections,
 }: BrowseBoardProps) {
   const router = useRouter();
@@ -74,7 +85,7 @@ export function BrowseBoard({
   const isFirstRender = useRef(true);
 
   // Re-sync local state when the server hands us fresh props after a
-  // navigation (new page/filter/search), without an effect+setState pass.
+  // navigation (new filter/search/sort), without an effect+setState pass.
   const [prevCompletedIds, setPrevCompletedIds] = useState(completedIds);
   if (completedIds !== prevCompletedIds) {
     setPrevCompletedIds(completedIds);
@@ -94,7 +105,9 @@ export function BrowseBoard({
     }
 
     const timeout = setTimeout(() => {
-      router.push(buildHref({ q: searchText, category, status, page: 1 }));
+      router.push(
+        buildHref({ q: searchText, category, difficulty, status, sort, view }),
+      );
     }, SEARCH_DEBOUNCE_MS);
 
     return () => clearTimeout(timeout);
@@ -148,8 +161,6 @@ export function BrowseBoard({
     router.push(loginHrefWithNext(pathname));
   }
 
-  const pageCount = Math.max(1, Math.ceil(filteredCount / PAGE_SIZE));
-
   const toolbar = (
     <BrowseToolbar
       search={searchText}
@@ -161,63 +172,103 @@ export function BrowseBoard({
           buildHref({
             q: searchText,
             category: next === "All" ? null : next,
+            difficulty,
             status,
-            page: 1,
+            sort,
+            view,
           }),
         )
       }
       status={status}
       onStatusChange={(next) =>
         router.push(
-          buildHref({ q: searchText, category, status: next, page: 1 }),
+          buildHref({
+            q: searchText,
+            category,
+            difficulty,
+            status: next,
+            sort,
+            view,
+          }),
         )
       }
       completedCount={completedIds.length}
-      totalCount={grandTotal}
       signedIn={signedIn}
+      view={view}
+      onViewChange={(next) =>
+        router.push(
+          buildHref({
+            q: searchText,
+            category,
+            difficulty,
+            status,
+            sort,
+            view: next,
+          }),
+        )
+      }
+      sort={sort}
+      onSortChange={(next) =>
+        router.push(
+          buildHref({
+            q: searchText,
+            category,
+            difficulty,
+            status,
+            sort: next,
+            view,
+          }),
+        )
+      }
+      difficulty={difficulty}
+      onDifficultyChange={(next) =>
+        router.push(
+          buildHref({
+            q: searchText,
+            category,
+            difficulty: next,
+            status,
+            sort,
+            view,
+          }),
+        )
+      }
     />
   );
 
-  const list =
-    experiences.length === 0 ? (
-      <p className="py-16 text-center text-sm text-muted">
-        Nothing matches. Try a different search or category.
-      </p>
-    ) : (
-      <ul className="divide-y divide-border">
-        {experiences.map((experience) => (
-          <TaskRow
-            key={experience.id}
-            experience={experience}
-            done={completed.has(experience.id)}
-            onToggle={() => toggle(experience.id)}
-            guest={!signedIn}
-            onGuestSave={requireLogin}
-          />
-        ))}
-      </ul>
-    );
-
-  const pagination = signedIn ? null : (
-    <Pagination
-      page={page}
-      pageCount={pageCount}
-      buildHref={(p) => buildHref({ q: searchText, category, status, page: p })}
+  const results = (
+    <InfiniteExperienceResults
+      initialExperiences={experiences}
+      initialCursor={nextCursor}
+      initialHasMore={hasMore}
+      view={view}
+      completed={completed}
+      onToggle={toggle}
+      guest={!signedIn}
+      onGuestSave={requireLogin}
+      q={q}
+      category={category}
+      difficulty={difficulty}
+      status={status}
+      sort={sort}
+      resetKey={[q, category, difficulty, status, sort].join("|")}
+      inlineContent={signedIn ? undefined : <BrowseSignupCta compact />}
     />
   );
 
   if (signedIn) {
     return (
-      <div className="mx-auto w-full max-w-[1200px] px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto w-full max-w-[1200px] px-4 py-4 sm:px-6 lg:px-8">
+        <BrowseHero />
         {toolbar}
-        {list}
+        <div className="mt-6">{results}</div>
       </div>
     );
   }
 
   return (
-    <div className="mx-auto w-full max-w-[1200px] px-4 py-5 sm:px-6 lg:px-8">
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_270px]">
+    <div className="mx-auto w-full max-w-[1200px] px-4 py-4 sm:px-6 lg:px-8">
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_280px]">
         <div className="min-w-0">
           <BrowseHero />
           {toolbar}
@@ -231,23 +282,26 @@ export function BrowseBoard({
               onToggle={toggle}
               guest
               onGuestSave={requireLogin}
-              layout="grid"
+              view={view}
             />
           ))}
 
-          <section className="mt-2">
+          <section className="mt-8">
             {curatedSections.length > 0 && (
-              <h2 className="mb-3 text-sm font-bold text-ink">
+              <h2 className="mb-3 text-base font-bold tracking-[-0.01em] text-ink">
                 Explore experiences
               </h2>
             )}
 
-            {list}
-            {pagination}
+            {results}
           </section>
+
+          <div className="mt-4 lg:hidden">
+            <BrowseHowItWorks />
+          </div>
         </div>
 
-        <aside>
+        <aside className="hidden lg:block">
           <BrowseSidebar />
         </aside>
       </div>

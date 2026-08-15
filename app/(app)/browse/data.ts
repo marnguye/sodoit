@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
-import { PAGE_SIZE } from "./types";
-import type { Experience, StatusFilter } from "./types";
+import { BATCH_SIZE, DIFFICULTIES } from "./types";
+import type { Experience, StatusFilter, BrowseSort } from "./types";
+import type { ExperienceDifficulty } from "@/lib/experiences/types";
 
 const EXPERIENCE_COLUMNS =
   "id, title, slug, description, category, difficulty, location_type, country_code, city, featured, is_public, image_url, image_alt, saved_count, completed_count";
@@ -30,29 +31,39 @@ export async function loadGrandTotal(): Promise<number> {
   return count ?? 0;
 }
 
-interface BrowseQuery {
+const DIFFICULTY_LABELS: readonly string[] = DIFFICULTIES.map((d) => d.label);
+
+export interface BrowseQuery {
   q: string;
   category: string | null;
+  difficulty: string | null;
   status: StatusFilter;
-  page: number;
+  sort: BrowseSort;
+  cursor: string | null;
 }
 
-interface BrowseResult {
+export interface BrowseResult {
   experiences: Experience[];
-  filteredCount: number;
+  nextCursor: string | null;
+  hasMore: boolean;
 }
 
-export async function loadExperiencesPage(
-  { q, category, status, page }: BrowseQuery,
+function decodeCursor(cursor: string | null): number {
+  if (!cursor) return 0;
+  const offset = Number.parseInt(cursor, 10);
+  return Number.isFinite(offset) && offset >= 0 ? offset : 0;
+}
+
+export async function loadExperiences(
+  { q, category, difficulty, status, sort, cursor }: BrowseQuery,
   completedIds: string[],
 ): Promise<BrowseResult> {
   const supabase = await createClient();
 
   let query = supabase
     .from("experiences")
-    .select(EXPERIENCE_COLUMNS, { count: "exact" })
-    .eq("is_public", true)
-    .order("created_at", { ascending: false });
+    .select(EXPERIENCE_COLUMNS)
+    .eq("is_public", true);
 
   if (q) {
     query = query.ilike("title", `%${q}%`);
@@ -62,83 +73,42 @@ export async function loadExperiencesPage(
     query = query.eq("category", category);
   }
 
+  if (difficulty && DIFFICULTY_LABELS.includes(difficulty)) {
+    query = query.eq("difficulty", difficulty as ExperienceDifficulty);
+  }
+
   if (status === "completed") {
     query = query.in("id", completedIds.length > 0 ? completedIds : [NONE_ID]);
   } else if (status === "uncompleted" && completedIds.length > 0) {
     query = query.not("id", "in", `(${completedIds.join(",")})`);
   }
 
-  const from = (page - 1) * PAGE_SIZE;
-  const to = from + PAGE_SIZE - 1;
-
-  const { data, count } = await query.range(from, to);
-
-  return {
-    experiences: (data ?? []) as Experience[],
-    filteredCount: count ?? 0,
-  };
-}
-
-const INTERNAL_FETCH_PAGE_SIZE = 1000;
-
-interface UnpaginatedQuery {
-  q: string;
-  category: string | null;
-  status: StatusFilter;
-}
-
-export async function loadAllExperiences(
-  { q, category, status }: UnpaginatedQuery,
-  completedIds: string[],
-): Promise<Experience[]> {
-  const supabase = await createClient();
-
-  const all: Experience[] = [];
-  let from = 0;
-
-  for (;;) {
-    let query = supabase
-      .from("experiences")
-      .select(EXPERIENCE_COLUMNS)
-      .eq("is_public", true)
+  if (sort === "newest") {
+    query = query.order("created_at", { ascending: false });
+  } else if (sort === "easy") {
+    query = query
+      .order("difficulty_rank", { ascending: true })
       .order("created_at", { ascending: false });
-
-    if (q) {
-      query = query.ilike("title", `%${q}%`);
-    }
-
-    if (category) {
-      query = query.eq("category", category);
-    }
-
-    if (status === "completed") {
-      query = query.in(
-        "id",
-        completedIds.length > 0 ? completedIds : [NONE_ID],
-      );
-    } else if (status === "uncompleted" && completedIds.length > 0) {
-      query = query.not("id", "in", `(${completedIds.join(",")})`);
-    }
-
-    const { data, error } = await query.range(
-      from,
-      from + INTERNAL_FETCH_PAGE_SIZE - 1,
-    );
-
-    if (error) {
-      throw error;
-    }
-
-    all.push(...((data ?? []) as Experience[]));
-
-    if (!data || data.length < INTERNAL_FETCH_PAGE_SIZE) {
-      break;
-    }
-
-    from += INTERNAL_FETCH_PAGE_SIZE;
+  } else {
+    query = query
+      .order("featured", { ascending: false })
+      .order("created_at", { ascending: false });
   }
 
-  return all;
+  query = query.order("id", { ascending: false });
+
+  const offset = decodeCursor(cursor);
+  const { data } = await query.range(offset, offset + BATCH_SIZE);
+
+  const rows = (data ?? []) as Experience[];
+  const hasMore = rows.length > BATCH_SIZE;
+  const experiences = hasMore ? rows.slice(0, BATCH_SIZE) : rows;
+
+  return {
+    experiences,
+    nextCursor: hasMore ? String(offset + BATCH_SIZE) : null,
+    hasMore,
+  };
 }
 
 const CURATED_SECTIONS_DEF: { title: string; categories: string[] }[] = [
