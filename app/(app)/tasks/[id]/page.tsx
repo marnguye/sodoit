@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ChevronLeft, Sparkles, CheckCircle2 } from "lucide-react";
+import { ChevronLeft, CheckCircle2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
-import { Badge, Card, ExperienceImage } from "@/components/ui";
+import { ExperienceImage, ExperienceMeta } from "@/components/ui";
 import { getTaskMeta, getDifficulty } from "@/app/(app)/browse/types";
 import type { ListStatus } from "@/app/(app)/browse/types";
 import { ActionPanel } from "./ActionPanel";
@@ -90,41 +90,39 @@ export default async function TaskDetailPage({
   const difficulty = getDifficulty(task.id, task.difficulty);
 
   return (
-    <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+    <div className="mx-auto w-full max-w-[1200px] px-4 py-4 sm:px-6 lg:px-8">
       <Link
-        href="/browse"
-        className="inline-flex items-center gap-1 text-sm font-semibold text-muted hover:text-ink transition-colors"
+        href="/"
+        className="inline-flex items-center gap-1 rounded-control text-sm font-semibold text-muted transition-colors hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/30"
       >
-        <ChevronLeft className="h-4 w-4" />
+        <ChevronLeft aria-hidden="true" className="h-4 w-4" />
         Back to Browse
       </Link>
 
-      <div className="mt-3 sm:mt-4 grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-4 sm:gap-6 items-start">
-        <ExperienceImage
-          title={task.title}
-          imageUrl={task.image_url}
-          imageAlt={task.image_alt}
-          fallbackColor={thumbnail}
-          className="order-1 lg:order-none lg:col-start-1 lg:row-start-1 h-[200px] sm:h-[320px] lg:h-[360px] rounded-xl"
-          sizes="(min-width: 1024px) 800px, 100vw"
-        />
+      <div className="mt-4 grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
+        <header className="order-1 min-w-0 lg:col-start-1 lg:row-start-1">
+          <ExperienceImage
+            title={task.title}
+            imageUrl={task.image_url}
+            imageAlt={task.image_alt}
+            fallbackColor={thumbnail}
+            className="aspect-[16/9] w-full rounded-media"
+            sizes="(min-width: 1024px) 800px, 100vw"
+            priority
+          />
 
-        <div className="order-2 lg:order-none lg:col-start-2 lg:row-start-1 lg:row-span-3 lg:sticky lg:top-6 flex flex-col gap-3 sm:gap-4">
-          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-            {task.category && <Badge variant="accent">{task.category}</Badge>}
-            <span
-              className="flex items-center gap-1 text-[11px] font-semibold"
-              style={{ color: difficulty.color }}
-            >
-              <Sparkles className="h-3 w-3" />
-              {difficulty.label}
-            </span>
-          </div>
+          <ExperienceMeta
+            className="mt-4"
+            category={task.category}
+            difficulty={difficulty.label}
+          />
 
-          <h1 className="text-xl sm:text-2xl font-extrabold text-ink">
+          <h1 className="mt-2 text-2xl font-extrabold tracking-[-0.025em] text-ink sm:text-3xl">
             {task.title}
           </h1>
+        </header>
 
+        <div className="order-2 lg:col-start-2 lg:row-start-1 lg:row-span-2 lg:sticky lg:top-20">
           <ActionPanel
             taskId={task.id}
             taskTitle={task.title}
@@ -134,64 +132,70 @@ export default async function TaskDetailPage({
           />
         </div>
 
-        <Card className="order-3 lg:order-none lg:col-start-1 lg:row-start-2 flex flex-col gap-5 p-4 sm:p-5">
-          <div>
-            <h2 className="text-sm font-bold text-ink">
+        <div className="order-3 min-w-0 lg:col-start-1 lg:row-start-2">
+          <section>
+            <h2 className="text-base font-bold tracking-[-0.01em] text-ink">
               About this experience
             </h2>
-            <p className="mt-2 text-sm text-muted leading-relaxed">
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-secondary">
               {task.description ||
                 "No description yet — just a good idea worth doing."}
             </p>
-          </div>
+          </section>
 
-          <div>
-            <h2 className="text-sm font-bold text-ink">Practical tips</h2>
-            <ul className="mt-2 flex flex-col gap-2">
+          <section className="mt-8">
+            <h2 className="text-base font-bold tracking-[-0.01em] text-ink">
+              Practical tips
+            </h2>
+            <ul className="mt-3 flex max-w-2xl flex-col gap-2.5">
               {PRACTICAL_TIPS.map((tip) => (
                 <li
                   key={tip}
-                  className="flex items-start gap-2 text-sm text-muted"
+                  className="flex items-start gap-2.5 text-sm leading-6 text-secondary"
                 >
-                  <CheckCircle2 className="h-4 w-4 shrink-0 mt-0.5 text-accent" />
+                  <CheckCircle2
+                    aria-hidden="true"
+                    className="mt-0.5 h-4 w-4 shrink-0 text-accent"
+                  />
                   {tip}
                 </li>
               ))}
             </ul>
-          </div>
-        </Card>
+          </section>
 
-        {similar && similar.length > 0 && (
-          <div className="order-4 lg:order-none lg:col-start-1 lg:row-start-3">
-            <h2 className="text-sm font-bold text-ink">Similar tasks</h2>
-            <div className="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-3">
-              {similar.map((item) => {
-                const itemDifficulty = getDifficulty(item.id, item.difficulty);
-                return (
-                  <Link key={item.id} href={`/tasks/${item.id}`}>
-                    <Card className="h-full flex flex-col gap-2 p-4 hover:border-accent transition-colors">
-                      {item.category && (
-                        <Badge variant="accent" className="self-start">
-                          {item.category}
-                        </Badge>
-                      )}
-                      <p className="text-sm font-semibold text-ink">
-                        {item.title}
-                      </p>
-                      <span
-                        className="flex items-center gap-1 text-[11px] font-semibold"
-                        style={{ color: itemDifficulty.color }}
+          {similar && similar.length > 0 && (
+            <section className="mt-8">
+              <h2 className="text-base font-bold tracking-[-0.01em] text-ink">
+                Related experiences
+              </h2>
+
+              <ul className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
+                {similar.map((item) => {
+                  const itemDifficulty = getDifficulty(item.id, item.difficulty);
+
+                  return (
+                    <li key={item.id}>
+                      <Link
+                        href={`/tasks/${item.id}`}
+                        className="flex h-full flex-col gap-2 rounded-card border border-border bg-surface p-3.5 transition-colors hover:border-border-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/30"
                       >
-                        <Sparkles className="h-3 w-3" />
-                        {itemDifficulty.label}
-                      </span>
-                    </Card>
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
-        )}
+                        <p className="line-clamp-2 text-sm font-semibold leading-5 text-ink">
+                          {item.title}
+                        </p>
+
+                        <ExperienceMeta
+                          className="mt-auto"
+                          category={item.category}
+                          difficulty={itemDifficulty.label}
+                        />
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            </section>
+          )}
+        </div>
       </div>
     </div>
   );
