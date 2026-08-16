@@ -106,7 +106,7 @@ export function MyListBoard({
         <div
           role="tablist"
           aria-label="My List sections"
-          className="flex w-fit gap-1 rounded-full border border-border bg-white p-1"
+          className="flex w-fit gap-1 rounded-control border border-border bg-white p-1"
         >
           {TABS.map(({ key, label }) => {
             const count = key === "saved" ? savedCount : completedCount;
@@ -120,7 +120,7 @@ export function MyListBoard({
                 role="tab"
                 aria-selected={selected}
                 onClick={() => setTab(key)}
-                className={`h-8 rounded-full px-3 text-xs font-semibold transition-colors ${
+                className={`h-8 rounded-control px-3 text-xs font-semibold transition-colors ${
                   selected
                     ? "bg-accent text-white"
                     : "text-muted hover:text-ink"
