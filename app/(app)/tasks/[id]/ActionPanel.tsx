@@ -2,8 +2,8 @@
 
 import { useState, useTransition } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { Check, Share2, ListPlus } from "lucide-react";
-import { Button } from "@/components/ui";
+import { Check, ListPlus } from "lucide-react";
+import { Button, ShareButton } from "@/components/ui";
 import { setListStatus, removeFromMyList } from "@/app/(app)/browse/actions";
 import { loginHrefWithNext } from "@/lib/auth-redirect";
 import type { ListStatus } from "@/app/(app)/browse/types";
@@ -26,7 +26,6 @@ export function ActionPanel({
   const router = useRouter();
   const pathname = usePathname();
   const [status, setStatus] = useState<ListStatus | null>(initialStatus);
-  const [shared, setShared] = useState(false);
   const [, startTransition] = useTransition();
 
   function apply(next: ListStatus | null) {
@@ -52,26 +51,6 @@ export function ActionPanel({
     }
     if (status === "completed") return;
     apply(status === "saved" ? null : "saved");
-  }
-
-  async function share() {
-    const url =
-      typeof window !== "undefined" ? window.location.href : `/tasks/${taskId}`;
-
-    if (typeof navigator !== "undefined" && navigator.share) {
-      const didShare = await navigator
-        .share({ title: taskTitle, url })
-        .then(() => true)
-        .catch(() => false);
-
-      if (didShare) return;
-    }
-
-    if (typeof navigator !== "undefined" && navigator.clipboard) {
-      await navigator.clipboard.writeText(url);
-      setShared(true);
-      setTimeout(() => setShared(false), 2000);
-    }
   }
 
   const completed = status === "completed";
@@ -103,10 +82,7 @@ export function ActionPanel({
           {saveLabel}
         </Button>
 
-        <Button type="button" variant="outline" onClick={share}>
-          <Share2 aria-hidden="true" className="h-4 w-4" />
-          {shared ? "Link copied" : "Share"}
-        </Button>
+        <ShareButton url={`/tasks/${taskId}`} title={taskTitle} />
       </div>
 
       <p className="mt-4 border-t border-border pt-3 text-xs leading-5 text-muted">

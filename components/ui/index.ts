@@ -9,3 +9,6 @@ export { ErrorState } from "./ErrorState";
 export { LoadingState } from "./LoadingState";
 export { ExperienceImage } from "./ExperienceImage";
 export { ExperienceMeta, experienceLocation } from "./ExperienceMeta";
+export { PageHero } from "./PageHero";
+export { ViewToggle } from "./ViewToggle";
+export { ShareButton } from "./ShareButton";

@@ -1,21 +1,18 @@
 import { LayoutGrid, List } from "lucide-react";
-import type { BrowseView } from "../types";
 
-interface BrowseViewToggleProps {
-  view: BrowseView;
-  onChange: (view: BrowseView) => void;
+export type ViewMode = "grid" | "list";
+
+interface ViewToggleProps {
+  view: ViewMode;
+  onChange: (view: ViewMode) => void;
 }
 
-const OPTIONS: {
-  view: BrowseView;
-  label: string;
-  icon: typeof LayoutGrid;
-}[] = [
+const OPTIONS: { view: ViewMode; label: string; icon: typeof LayoutGrid }[] = [
   { view: "grid", label: "Grid view", icon: LayoutGrid },
   { view: "list", label: "List view", icon: List },
 ];
 
-export function BrowseViewToggle({ view, onChange }: BrowseViewToggleProps) {
+export function ViewToggle({ view, onChange }: ViewToggleProps) {
   return (
     <div
       role="group"
