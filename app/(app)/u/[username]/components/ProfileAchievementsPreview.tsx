@@ -1,18 +1,23 @@
-import { MILESTONES } from "@/app/(app)/achievements/data";
+import {
+  getAchievementIcon,
+  type AchievementDefinition,
+} from "@/app/(app)/achievements/data";
 import { Card, EmptyState } from "@/components/ui";
 
 interface ProfileAchievementsPreviewProps {
   earnedMilestoneIds: string[];
+  achievements: AchievementDefinition[];
   limit?: number;
 }
 
 export function ProfileAchievementsPreview({
   earnedMilestoneIds,
+  achievements,
   limit,
 }: ProfileAchievementsPreviewProps) {
   const earnedIds = new Set(earnedMilestoneIds);
 
-  const milestones = MILESTONES.filter((milestone) =>
+  const milestones = achievements.filter((milestone) =>
     earnedIds.has(milestone.id),
   );
   const visibleMilestones =
@@ -26,7 +31,7 @@ export function ProfileAchievementsPreview({
     <Card className="p-0">
       <ul className="divide-y divide-border">
         {visibleMilestones.map((milestone) => {
-          const Icon = milestone.icon;
+          const Icon = getAchievementIcon(milestone.icon);
 
           return (
             <li

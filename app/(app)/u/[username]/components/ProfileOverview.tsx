@@ -54,6 +54,7 @@ export function ProfileOverview({
           <div className="mt-3">
             <ProfileAchievementsPreview
               earnedMilestoneIds={profile.earnedMilestoneIds}
+              achievements={profile.earnedAchievements}
               limit={4}
             />
           </div>

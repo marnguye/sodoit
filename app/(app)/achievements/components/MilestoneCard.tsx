@@ -1,9 +1,10 @@
 import { Lock } from "lucide-react";
+import { createElement } from "react";
 import { Card } from "@/components/ui";
-import type { MilestoneDef } from "../data";
+import { getAchievementIcon, type AchievementDefinition } from "../data";
 
 interface MilestoneCardProps {
-  milestone: MilestoneDef;
+  milestone: AchievementDefinition;
   current: number;
   earned: boolean;
 }
@@ -13,7 +14,7 @@ export function MilestoneCard({
   current,
   earned,
 }: MilestoneCardProps) {
-  const Icon = milestone.icon;
+  const Icon = getAchievementIcon(milestone.icon);
 
   const progress = Math.min(current, milestone.target);
   const percent =
@@ -30,7 +31,7 @@ export function MilestoneCard({
           earned ? "bg-accent-light text-accent-dark" : "bg-border text-muted"
         }`}
       >
-        <Icon className="h-5 w-5" />
+        {createElement(Icon, { className: "h-5 w-5" })}
       </div>
 
       <div>

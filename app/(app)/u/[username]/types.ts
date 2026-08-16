@@ -1,5 +1,8 @@
 import type { PostType } from "@/app/(app)/feed/types";
-import type { AchievementStats } from "@/app/(app)/achievements/data";
+import type {
+  AchievementDefinition,
+  AchievementStats,
+} from "@/app/(app)/achievements/data";
 
 export interface CompletedExperience {
   id: string;
@@ -28,6 +31,8 @@ export interface ProfileViewModel {
   achievementCount: number;
   recentCompleted: CompletedExperience[];
   earnedMilestoneIds: string[];
+  earnedAchievements: AchievementDefinition[];
+  achievementDefinitions: AchievementDefinition[];
   stats: AchievementStats;
   posts: ProfilePost[];
 }

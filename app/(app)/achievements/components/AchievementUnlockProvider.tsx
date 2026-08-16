@@ -9,6 +9,7 @@ import {
   type ReactNode,
 } from "react";
 import { AchievementUnlock } from "./AchievementUnlock";
+import type { AchievementDefinition } from "../data";
 
 interface AchievementUnlockContextValue {
   showAchievements: (achievementIds: string[]) => void;
@@ -19,8 +20,10 @@ const AchievementUnlockContext =
 
 export function AchievementUnlockProvider({
   children,
+  definitions,
 }: {
   children: ReactNode;
+  definitions: AchievementDefinition[];
 }) {
   const [queue, setQueue] = useState<string[]>([]);
 
@@ -55,6 +58,7 @@ export function AchievementUnlockProvider({
       {activeAchievement && (
         <AchievementUnlock
           achievementId={activeAchievement}
+          definitions={definitions}
           onClose={handleClose}
         />
       )}
