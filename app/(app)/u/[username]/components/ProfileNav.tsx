@@ -12,40 +12,40 @@ const TABS: { key: View; label: string; view?: string }[] = [
 export function ProfileNav({
   username,
   active,
-  showList,
 }: {
   username: string;
   active: View;
-  showList: boolean;
 }) {
-  const tabs = TABS.filter((tab) => tab.key !== "list" || showList);
-
   return (
     <div
       role="tablist"
       aria-label="Profile sections"
-      className="flex w-fit gap-1 rounded-full border border-border bg-white p-1"
+      className="-mx-1 overflow-x-auto border-b border-border px-1"
     >
-      {tabs.map((tab) => {
-        const href = tab.view
-          ? `/u/${username}?view=${tab.view}`
-          : `/u/${username}`;
-        const selected = active === tab.key;
+      <div className="flex min-w-max gap-5">
+        {TABS.map((tab) => {
+          const href = tab.view
+            ? `/u/${username}?view=${tab.view}`
+            : `/u/${username}`;
+          const selected = active === tab.key;
 
-        return (
-          <Link
-            key={tab.key}
-            href={href}
-            role="tab"
-            aria-selected={selected}
-            className={`flex h-8 items-center rounded-full px-3 text-xs font-semibold transition-colors ${
-              selected ? "bg-accent text-white" : "text-muted hover:text-ink"
-            }`}
-          >
-            {tab.label}
-          </Link>
-        );
-      })}
+          return (
+            <Link
+              key={tab.key}
+              href={href}
+              role="tab"
+              aria-selected={selected}
+              className={`border-b-2 py-3 text-xs font-semibold transition-colors ${
+                selected
+                  ? "border-accent text-ink"
+                  : "border-transparent text-muted hover:text-ink"
+              }`}
+            >
+              {tab.label}
+            </Link>
+          );
+        })}
+      </div>
     </div>
   );
 }

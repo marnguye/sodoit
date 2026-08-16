@@ -1,7 +1,6 @@
 import { CalendarDays } from "lucide-react";
-import { Avatar } from "@/components/ui";
+import { Avatar, ShareButton } from "@/components/ui";
 import { EditProfileButton } from "./EditProfileButton";
-import { signOut } from "@/app/(app)/settings/profile/actions";
 
 function formatJoinedDate(value: string) {
   return new Intl.DateTimeFormat("en", {
@@ -26,38 +25,39 @@ export function ProfileHeader({
   isOwner: boolean;
 }) {
   return (
-    <div className="flex flex-col items-center text-center lg:items-start lg:text-left">
-      <Avatar name={username} src={avatarUrl} size="lg" />
-
-      <h1 className="mt-4 text-2xl font-extrabold text-ink">{username}</h1>
-      <p className="mt-1 text-sm text-muted">@{username}</p>
-
-      {bio && <p className="mt-2 text-sm text-ink leading-relaxed">{bio}</p>}
-
-      <div className="mt-4 flex items-center gap-1.5 text-xs text-muted">
-        <CalendarDays className="h-3.5 w-3.5" />
-        Joined {formatJoinedDate(joinedAt)}
+    <div className="flex flex-col gap-4 border-b border-border pb-6 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex min-w-0 items-start gap-4">
+        <Avatar name={username} src={avatarUrl} size="lg" />
+        <div className="min-w-0">
+          <h1 className="text-2xl font-extrabold text-ink">{username}</h1>
+          <p className="mt-1 text-sm text-muted">@{username}</p>
+          {bio && (
+            <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink">
+              {bio}
+            </p>
+          )}
+          <div className="mt-3 flex items-center gap-1.5 text-xs text-muted">
+            <CalendarDays className="h-3.5 w-3.5" />
+            Joined {formatJoinedDate(joinedAt)}
+          </div>
+        </div>
       </div>
 
-      {isOwner && (
-        <div className="mt-4 flex items-center gap-2">
+      <div className="flex shrink-0 items-center gap-2 sm:self-start">
+        {isOwner && (
           <EditProfileButton
             userId={userId}
             username={username}
             bio={bio ?? ""}
             avatarUrl={avatarUrl}
           />
-
-          <form action={signOut}>
-            <button
-              type="submit"
-              className="rounded-md px-3 py-1.5 text-sm font-semibold text-muted transition-colors hover:text-ink"
-            >
-              Log out
-            </button>
-          </form>
-        </div>
-      )}
+        )}
+        <ShareButton
+          url={`/u/${username}`}
+          title={`${username}'s profile`}
+          size="sm"
+        />
+      </div>
     </div>
   );
 }
