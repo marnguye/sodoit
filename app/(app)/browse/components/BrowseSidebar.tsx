@@ -1,91 +1,60 @@
-"use client";
+import { Sparkles } from "lucide-react";
 
-import { useRouter } from "next/navigation";
-import {
-  Search,
-  Bookmark,
-  CheckCircle2,
-  Share2,
-  type LucideIcon,
-} from "lucide-react";
-
-import { Button } from "@/components/ui/Button";
-
-interface Step {
-  icon: LucideIcon;
-  title: string;
-  description: string;
-}
-
-const STEPS: Step[] = [
-  {
-    icon: Search,
-    title: "Discover",
-    description: "Find experiences and ideas worth trying.",
-  },
-  {
-    icon: Bookmark,
-    title: "Save",
-    description: "Build your personal list of things to do.",
-  },
-  {
-    icon: CheckCircle2,
-    title: "Do",
-    description: "Complete experiences in the real world.",
-  },
-  {
-    icon: Share2,
-    title: "Share",
-    description: "Share what you learned with the community.",
-  },
-];
+import { BrowseSignupCta } from "./BrowseSignupCta";
+import { BROWSE_STEPS } from "./browseSteps";
 
 export function BrowseSidebar() {
-  const router = useRouter();
-
   return (
-    <div className="flex flex-col gap-5 lg:sticky lg:top-20">
-      <section className="rounded-card border border-border bg-surface p-5">
-        <h2 className="text-base font-bold text-ink">How it works</h2>
+    <div className="flex flex-col gap-4 lg:sticky lg:top-24">
+      <section className="rounded-panel border border-border bg-surface p-5">
+        <div className="flex items-start gap-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent-wash text-accent-dark">
+            <Sparkles aria-hidden="true" className="h-5 w-5" />
+          </div>
 
-        <div className="mt-5 flex flex-col gap-5">
-          {STEPS.map(({ icon: Icon, title, description }) => (
-            <div key={title} className="flex gap-3">
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent-wash text-accent-dark">
-                <Icon className="h-4 w-4" />
-              </div>
+          <div className="min-w-0">
+            <h2 className="text-base font-bold text-ink">How Sodoit works</h2>
 
-              <div className="min-w-0">
-                <p className="text-sm font-semibold text-ink">{title}</p>
-                <p className="mt-0.5 text-xs leading-5 text-secondary">
-                  {description}
-                </p>
+            <p className="mt-1 text-sm leading-5 text-secondary">
+              Find something worth doing, save it, and make it happen.
+            </p>
+          </div>
+        </div>
+
+        <div className="relative mt-6">
+          <div
+            aria-hidden="true"
+            className="absolute bottom-5 left-[17px] top-5 w-px bg-border"
+          />
+
+          <div className="relative flex flex-col gap-6">
+            {BROWSE_STEPS.map(({ number, icon: Icon, title, description }) => (
+              <div key={number} className="flex items-start gap-3">
+                <div className="relative z-10 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent-wash text-[11px] font-bold text-accent-dark">
+                  {number}
+                </div>
+
+                <div className="min-w-0 pt-0.5">
+                  <div className="flex items-center gap-2">
+                    <Icon
+                      aria-hidden="true"
+                      className="h-4 w-4 text-accent-dark"
+                    />
+
+                    <p className="text-sm font-semibold text-ink">{title}</p>
+                  </div>
+
+                  <p className="mt-1 text-xs leading-5 text-secondary">
+                    {description}
+                  </p>
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </section>
 
-      <section className="rounded-card border border-border bg-accent-wash p-5">
-        <p className="text-lg font-bold leading-6 text-ink">
-          Your life.
-          <br />
-          Your list.
-        </p>
-
-        <p className="mt-2 text-sm leading-6 text-secondary">
-          Create your own list and start keeping track of the things you
-          actually want to do.
-        </p>
-
-        <Button
-          type="button"
-          onClick={() => router.push("/signup")}
-          className="mt-5 w-full"
-        >
-          Create your list
-        </Button>
-      </section>
+      <BrowseSignupCta />
     </div>
   );
 }

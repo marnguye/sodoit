@@ -51,7 +51,11 @@ export function ForgotPasswordForm() {
         Enter your email and we&apos;ll send you a reset link.
       </p>
 
-      <form onSubmit={handleSubmit} className="mt-7 flex flex-col gap-4">
+      <form
+        method="post"
+        onSubmit={handleSubmit}
+        className="mt-7 flex flex-col gap-4"
+      >
         <div>
           <label
             htmlFor="email"

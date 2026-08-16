@@ -1,8 +1,18 @@
 export type { Experience } from "@/lib/experiences/types";
 export type StatusFilter = "all" | "completed" | "uncompleted";
 export type ListStatus = "saved" | "completed";
+export type BrowseView = "grid" | "list";
+export type BrowseSort = "recommended" | "newest" | "easy";
 
-export const PAGE_SIZE = 30;
+export const BROWSE_VIEWS: readonly BrowseView[] = ["grid", "list"];
+export const BROWSE_SORTS: readonly BrowseSort[] = ["recommended", "newest"];
+export const SORT_LABELS: Record<BrowseSort, string> = {
+  recommended: "Recommended",
+  newest: "Newest",
+  easy: "Easy first",
+};
+
+export const BATCH_SIZE = 24;
 
 export const CATEGORIES = [
   "Adventure",
@@ -24,9 +34,9 @@ export function hashString(value: string): number {
 }
 
 export const DIFFICULTIES = [
-  { label: "Easy", color: "#16A34A" },
-  { label: "Medium", color: "#F97316" },
-  { label: "Hard", color: "#DC2626" },
+  { label: "Easy" },
+  { label: "Medium" },
+  { label: "Hard" },
 ] as const;
 
 export const THUMBNAIL_HUES = [

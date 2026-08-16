@@ -1,5 +1,5 @@
-import type { Experience } from "../types";
-import { TaskRow } from "./TaskRow";
+import type { BrowseView, Experience } from "../types";
+import { ExperienceResults } from "./ExperienceResults";
 
 interface ExperienceSectionProps {
   title: string;
@@ -8,7 +8,7 @@ interface ExperienceSectionProps {
   onToggle: (id: string) => Promise<void>;
   guest: boolean;
   onGuestSave: () => void;
-  layout?: "list" | "grid";
+  view: BrowseView;
 }
 
 export function ExperienceSection({
@@ -18,39 +18,26 @@ export function ExperienceSection({
   onToggle,
   guest,
   onGuestSave,
-  layout = "list",
+  view,
 }: ExperienceSectionProps) {
   if (experiences.length === 0) {
     return null;
   }
 
   return (
-    <section className="mb-8">
-      <h2 className="mb-3 text-sm font-bold text-ink">{title}</h2>
+    <section className="mt-8">
+      <h2 className="mb-3 text-base font-bold tracking-[-0.01em] text-ink">
+        {title}
+      </h2>
 
-      <ul
-        className={
-          layout === "grid"
-            ? "grid grid-cols-1 gap-3 sm:grid-cols-2"
-            : "divide-y divide-border"
-        }
-      >
-        {experiences.map((experience) => (
-          <TaskRow
-            key={experience.id}
-            experience={experience}
-            done={completed.has(experience.id)}
-            onToggle={() => onToggle(experience.id)}
-            guest={guest}
-            onGuestSave={onGuestSave}
-            className={
-              layout === "grid"
-                ? "rounded-card border border-border bg-surface"
-                : ""
-            }
-          />
-        ))}
-      </ul>
+      <ExperienceResults
+        experiences={experiences}
+        view={view}
+        completed={completed}
+        onToggle={onToggle}
+        guest={guest}
+        onGuestSave={onGuestSave}
+      />
     </section>
   );
 }

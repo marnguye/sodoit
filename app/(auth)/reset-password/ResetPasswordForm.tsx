@@ -54,7 +54,11 @@ export function ResetPasswordForm() {
         Use at least {PASSWORD_MIN_LENGTH} characters.
       </p>
 
-      <form onSubmit={handleSubmit} className="mt-7 flex flex-col gap-4">
+      <form
+        method="post"
+        onSubmit={handleSubmit}
+        className="mt-7 flex flex-col gap-4"
+      >
         <PasswordField
           id="new-password"
           label="New password"
