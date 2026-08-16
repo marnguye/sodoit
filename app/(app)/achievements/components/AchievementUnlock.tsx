@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { X } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
-import { MILESTONES } from "../data";
+import { createElement, useCallback, useEffect, useState } from "react";
+import { getAchievementIcon, type AchievementDefinition } from "../data";
 
 interface AchievementUnlockProps {
   achievementId: string;
+  definitions: AchievementDefinition[];
   onClose: () => void;
 }
 
@@ -15,11 +16,12 @@ const EXIT_DURATION = 220;
 
 export function AchievementUnlock({
   achievementId,
+  definitions,
   onClose,
 }: AchievementUnlockProps) {
   const [isClosing, setIsClosing] = useState(false);
 
-  const milestone = MILESTONES.find((item) => item.id === achievementId);
+  const milestone = definitions.find((item) => item.id === achievementId);
 
   const close = useCallback(() => {
     if (isClosing) return;
@@ -43,7 +45,7 @@ export function AchievementUnlock({
     return null;
   }
 
-  const Icon = milestone.icon;
+  const Icon = getAchievementIcon(milestone.icon);
 
   return (
     <div
@@ -65,7 +67,7 @@ export function AchievementUnlock({
 
         <div className="flex gap-3 pr-6">
           <div className="achievement-icon flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent-light text-accent-dark">
-            <Icon className="h-5 w-5" />
+            {createElement(Icon, { className: "h-5 w-5" })}
           </div>
 
           <div className="min-w-0">

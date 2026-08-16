@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
-import { MILESTONES } from "@/app/(app)/achievements/data";
 import type { AchievementStats } from "@/app/(app)/achievements/data";
+import { loadAchievementDefinitions } from "@/app/(app)/achievements/queries";
 import type { PostType } from "@/app/(app)/feed/types";
 import type { ProfileViewModel } from "./types";
 
@@ -59,25 +59,27 @@ export async function loadProfile(
 
   const profile = profileData as ProfileRow;
 
-  const [completedResult, achievementsResult, postsResult] = await Promise.all([
-    supabase
-      .from("user_lists")
-      .select("experiences(id, title, category, image_url, image_alt)")
-      .eq("user_id", profile.id)
-      .eq("status", "completed"),
+  const [completedResult, achievementsResult, postsResult, definitions] =
+    await Promise.all([
+      supabase
+        .from("user_lists")
+        .select("experiences(id, title, category, image_url, image_alt)")
+        .eq("user_id", profile.id)
+        .eq("status", "completed"),
 
-    supabase
-      .from("user_achievements")
-      .select("achievement_id")
-      .eq("user_id", profile.id),
+      supabase
+        .from("user_achievements")
+        .select("achievement_id")
+        .eq("user_id", profile.id),
 
-    supabase
-      .from("posts")
-      .select("id, type, title, body, created_at")
-      .eq("author_id", profile.id)
-      .order("created_at", { ascending: false })
-      .limit(POSTS_LIMIT),
-  ]);
+      supabase
+        .from("posts")
+        .select("id, type, title, body, created_at")
+        .eq("author_id", profile.id)
+        .order("created_at", { ascending: false })
+        .limit(POSTS_LIMIT),
+      loadAchievementDefinitions(),
+    ]);
 
   if (completedResult.error || achievementsResult.error || postsResult.error) {
     throw new Error("Could not load profile.");
@@ -110,6 +112,9 @@ export async function loadProfile(
   };
 
   const earnedMilestoneIds = achievementRows.map((row) => row.achievement_id);
+  const earnedAchievements = definitions.filter((definition) =>
+    earnedMilestoneIds.includes(definition.id),
+  );
 
   return {
     id: profile.id,
@@ -119,9 +124,7 @@ export async function loadProfile(
     joinedAt: profile.created_at,
     completedCount: completedExperiences.length,
     categoryCount: categoriesCompleted.size,
-    achievementCount: MILESTONES.filter((milestone) =>
-      earnedMilestoneIds.includes(milestone.id),
-    ).length,
+    achievementCount: earnedAchievements.length,
     recentCompleted: completedExperiences.slice(0, 5).map((experience) => ({
       id: experience.id,
       title: experience.title,
@@ -130,6 +133,8 @@ export async function loadProfile(
       image_alt: experience.image_alt,
     })),
     earnedMilestoneIds,
+    earnedAchievements,
+    achievementDefinitions: definitions,
     stats,
     posts: postRows.map((post) => ({
       id: post.id,

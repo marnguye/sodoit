@@ -1,6 +1,6 @@
 {
   "name": "sodoit",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -18,7 +18,8 @@
     "content:backfill-slugs": "node --env-file=.env.local scripts/backfill-experience-slugs.mjs",
     "content:classify": "node --env-file=.env.local scripts/classify-experiences.mjs",
     "content:curate": "node --env-file=.env.local scripts/apply-curated-catalog.mjs",
-    "content:import-guides": "node --env-file=.env.local scripts/import-guides.mjs"
+    "content:import-guides": "node --env-file=.env.local scripts/import-guides.mjs",
+    "content:import-achievements": "node --env-file=.env.local scripts/import-achievements.mjs"
   },
   "dependencies": {
     "@sentry/nextjs": "^10.70.0",

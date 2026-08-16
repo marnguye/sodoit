@@ -2,6 +2,7 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { createClient } from "@/lib/supabase/server";
 import { AchievementUnlockProvider } from "./achievements/components/AchievementUnlockProvider";
+import { loadAchievementDefinitions } from "./achievements/queries";
 
 export default async function AppLayout({
   children,
@@ -9,6 +10,7 @@ export default async function AppLayout({
   children: React.ReactNode;
 }) {
   const supabase = await createClient();
+  const definitions = await loadAchievementDefinitions().catch(() => []);
 
   const {
     data: { user },
@@ -37,7 +39,9 @@ export default async function AppLayout({
       />
 
       <main className="min-h-screen bg-background pb-8">
-        <AchievementUnlockProvider>{children}</AchievementUnlockProvider>
+        <AchievementUnlockProvider definitions={definitions}>
+          {children}
+        </AchievementUnlockProvider>
       </main>
 
       {!user && <Footer />}

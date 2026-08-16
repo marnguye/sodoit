@@ -106,6 +106,8 @@ export default async function UserProfilePage({
         {activeView === "achievements" && (
           <ProfileAchievements
             earnedMilestoneIds={profile.earnedMilestoneIds}
+            achievements={profile.achievementDefinitions}
+            stats={profile.stats}
           />
         )}
         {activeView === "posts" && <ProfilePosts posts={profile.posts} />}
