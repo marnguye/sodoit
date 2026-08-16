@@ -4,12 +4,12 @@ import { useEffect, useState } from "react";
 import { SlidersHorizontal } from "lucide-react";
 
 import { SearchField } from "@/components/ui/SearchField";
+import { ViewToggle } from "@/components/ui/ViewToggle";
 import type { BrowseSort, BrowseView, StatusFilter } from "../types";
 import { BrowseCategoryNav } from "./BrowseCategoryNav";
 import { BrowseFilters } from "./BrowseFilters";
 import { BrowseProgress } from "./BrowseProgress";
 import { BrowseStatusSwitch } from "./BrowseStatusSwitch";
-import { BrowseViewToggle } from "./BrowseViewToggle";
 
 const MOBILE_BREAKPOINT_PX = 640;
 const TOP_EXPAND_PX = 80;
@@ -197,7 +197,7 @@ export function BrowseToolbar({
                 />
               </div>
 
-              <BrowseViewToggle view={view} onChange={onViewChange} />
+              <ViewToggle view={view} onChange={onViewChange} />
             </div>
           </div>
 

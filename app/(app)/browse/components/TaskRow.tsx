@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Check } from "lucide-react";
+import { Check, FolderPlus } from "lucide-react";
 
 import {
   ExperienceImage,
@@ -21,6 +21,8 @@ interface TaskRowProps {
   done: boolean;
   onToggle: () => Promise<void>;
   onRemove?: () => void;
+  removeLabel?: string;
+  onManageCollections?: () => void;
   guest?: boolean;
   onGuestSave?: () => void;
   className?: string;
@@ -31,6 +33,8 @@ export function TaskRow({
   done,
   onToggle,
   onRemove,
+  removeLabel,
+  onManageCollections,
   guest = false,
   onGuestSave,
   className = "",
@@ -145,9 +149,24 @@ export function TaskRow({
           />
         )}
 
+        {!guest && onManageCollections && (
+          <button
+            type="button"
+            onClick={onManageCollections}
+            aria-label={`Manage collections for ${experience.title}`}
+            className="pointer-events-auto relative z-20 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-control text-muted transition-colors hover:bg-surface-subtle hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/30"
+          >
+            <FolderPlus aria-hidden="true" className="h-4 w-4" />
+          </button>
+        )}
+
         {!guest && onRemove && (
           <SaveButton
-            label={`Remove ${experience.title} from My List`}
+            label={
+              removeLabel
+                ? `${removeLabel}: ${experience.title}`
+                : `Remove ${experience.title} from My List`
+            }
             onClick={onRemove}
             saved
           />

@@ -21,6 +21,28 @@ test.describe("authenticated protected routes", () => {
     ).not.toBeVisible();
   });
 
+  test("authenticated user can access My List", async ({ page }) => {
+    await page.goto("/list");
+
+    await expect(page).toHaveURL(/\/list$/);
+
+    await expect(
+      page.getByRole("heading", { name: "My list" }),
+    ).toBeVisible();
+  });
+
+  test("authenticated header shows My List", async ({ page }) => {
+    await page.goto("/");
+
+    const navigation = page.getByRole("navigation", {
+      name: "Primary navigation",
+    });
+
+    await expect(
+      navigation.getByRole("link", { name: "My List" }),
+    ).toBeVisible();
+  });
+
   test("authenticated user visiting login is redirected to requested page", async ({
     page,
   }) => {

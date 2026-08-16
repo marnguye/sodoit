@@ -88,7 +88,7 @@ describe("user lists security", () => {
     expect(unchanged?.user_id).toBe(fixture.bId);
   });
 
-  it("exposes completed list rows publicly without leaking private rows", async () => {
+  it("keeps another user's list rows private by default", async () => {
     const fixture = getFixture();
 
     const result = await fixture.anon
@@ -101,46 +101,40 @@ describe("user lists security", () => {
       ]);
 
     expect(result.error).toBeNull();
-
-    expect(result.data).toEqual([
-      {
-        experience_id: fixture.experienceIds.publicList,
-        status: "completed",
-      },
-    ]);
+    expect(result.data).toEqual([]);
   });
 
   it("lets a user resolve their own hidden Experience without exposing it anonymously", async () => {
     const fixture = getFixture();
     const experienceId = fixture.experienceIds.ownList;
 
-    expect(
-      (
-        await fixture.admin
-          .from("experiences")
-          .update({ is_public: false })
-          .eq("id", experienceId)
-      ).error,
-    ).toBeNull();
-    expect(
-      (
-        await fixture.userA.from("user_lists").insert({
-          user_id: fixture.aId,
-          experience_id: experienceId,
-          status: "saved",
-        })
-      ).error,
-    ).toBeNull();
+    const hidden = await fixture.admin
+      .from("experiences")
+      .update({ is_public: false })
+      .eq("id", experienceId);
+
+    expect(hidden.error).toBeNull();
+
+    const added = await fixture.userA.from("user_lists").insert({
+      user_id: fixture.aId,
+      experience_id: experienceId,
+      status: "saved",
+    });
+
+    expect(added.error).toBeNull();
 
     const own = await fixture.userA
       .from("experiences")
       .select("id")
       .eq("id", experienceId);
+
     const anonymous = await fixture.anon
       .from("experiences")
       .select("id")
       .eq("id", experienceId);
 
+    expect(own.error).toBeNull();
+    expect(anonymous.error).toBeNull();
     expect(own.data).toEqual([{ id: experienceId }]);
     expect(anonymous.data).toEqual([]);
   });

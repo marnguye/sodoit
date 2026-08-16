@@ -171,7 +171,10 @@ export default async function TaskDetailPage({
 
               <ul className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
                 {similar.map((item) => {
-                  const itemDifficulty = getDifficulty(item.id, item.difficulty);
+                  const itemDifficulty = getDifficulty(
+                    item.id,
+                    item.difficulty,
+                  );
 
                   return (
                     <li key={item.id}>

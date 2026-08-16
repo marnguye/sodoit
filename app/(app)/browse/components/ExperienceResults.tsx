@@ -9,8 +9,11 @@ interface ExperienceResultsProps {
   view: BrowseView;
   completed: Set<string>;
   onToggle: (id: string) => Promise<void>;
-  guest: boolean;
-  onGuestSave: () => void;
+  onRemove?: (id: string) => void;
+  removeLabel?: string;
+  onManageCollections?: (id: string) => void;
+  guest?: boolean;
+  onGuestSave?: () => void;
   inlineContent?: ReactNode;
   inlineAfter?: number;
 }
@@ -20,8 +23,11 @@ export function ExperienceResults({
   view,
   completed,
   onToggle,
-  guest,
-  onGuestSave,
+  onRemove,
+  removeLabel,
+  onManageCollections,
+  guest = false,
+  onGuestSave = () => {},
   inlineContent,
   inlineAfter = 6,
 }: ExperienceResultsProps) {
@@ -34,6 +40,11 @@ export function ExperienceResults({
       onToggle: () => onToggle(experience.id),
       guest,
       onGuestSave,
+      onRemove: onRemove ? () => onRemove(experience.id) : undefined,
+      removeLabel,
+      onManageCollections: onManageCollections
+        ? () => onManageCollections(experience.id)
+        : undefined,
     };
 
     return (
