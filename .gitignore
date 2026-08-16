@@ -60,4 +60,5 @@ supabase/*
 # guide content
 /scripts/content/guides/
 /scripts/content/guide-cities/
+/scripts/content/achievements/
 /scripts/content/reports/

@@ -1,17 +1,32 @@
 import {
-  Compass,
-  UtensilsCrossed,
-  Plane,
   Brain,
+  Compass,
   Dumbbell,
+  Heart,
   Leaf,
   Palette,
-  Wrench,
-  Heart,
-  Users,
+  Plane,
   Sparkles,
-  LucideIcon,
+  UtensilsCrossed,
+  Users,
+  Wrench,
+  type LucideIcon,
 } from "lucide-react";
+
+export type AchievementRuleType =
+  "total_completed" | "categories_completed" | "category_completed";
+
+export interface AchievementDefinition {
+  id: string;
+  title: string;
+  description: string;
+  group: string;
+  ruleType: AchievementRuleType;
+  ruleValue?: string;
+  target: number;
+  icon: string;
+  sortOrder: number;
+}
 
 export interface AchievementStats {
   totalCompleted: number;
@@ -19,65 +34,39 @@ export interface AchievementStats {
   completedByCategory: Map<string, number>;
 }
 
-export interface MilestoneDef {
-  id: string;
-  title: string;
-  description: string;
-  icon: LucideIcon;
-  target: number;
-  progress: (stats: AchievementStats) => number;
+export function getAchievementProgress(
+  definition: AchievementDefinition,
+  stats: AchievementStats,
+): number {
+  switch (definition.ruleType) {
+    case "total_completed":
+      return stats.totalCompleted;
+    case "categories_completed":
+      return stats.categoriesCompleted.size;
+    case "category_completed":
+      if (!definition.ruleValue)
+        throw new Error("category_completed requires ruleValue");
+      return stats.completedByCategory.get(definition.ruleValue) ?? 0;
+    default:
+      throw new Error(
+        `Unsupported achievement rule: ${String(definition.ruleType)}`,
+      );
+  }
 }
 
-export const MILESTONES: readonly MilestoneDef[] = [
-  {
-    id: "first-step",
-    title: "First step",
-    description: "Complete your first experience",
-    icon: Sparkles,
-    target: 1,
-    progress: (stats) => stats.totalCompleted,
-  },
-  {
-    id: "getting-started",
-    title: "Getting started",
-    description: "Complete 5 experiences",
-    icon: Compass,
-    target: 5,
-    progress: (stats) => stats.totalCompleted,
-  },
-  {
-    id: "adventurer",
-    title: "Adventurer",
-    description: "Complete 10 experiences",
-    icon: Dumbbell,
-    target: 10,
-    progress: (stats) => stats.totalCompleted,
-  },
-  {
-    id: "explorer",
-    title: "Explorer",
-    description: "Complete experiences in 5 categories",
-    icon: Leaf,
-    target: 5,
-    progress: (stats) => stats.categoriesCompleted.size,
-  },
-  {
-    id: "world-traveler",
-    title: "World traveler",
-    description: "Complete 10 Travel experiences",
-    icon: Plane,
-    target: 10,
-    progress: (stats) => stats.completedByCategory.get("Travel") ?? 0,
-  },
-  {
-    id: "peak-seeker",
-    title: "Peak seeker",
-    description: "Complete 5 Adventure experiences",
-    icon: Compass,
-    target: 5,
-    progress: (stats) => stats.completedByCategory.get("Adventure") ?? 0,
-  },
-];
+const ACHIEVEMENT_ICONS: Record<string, LucideIcon> = {
+  brain: Brain,
+  compass: Compass,
+  dumbbell: Dumbbell,
+  heart: Heart,
+  leaf: Leaf,
+  palette: Palette,
+  plane: Plane,
+  sparkles: Sparkles,
+  utensils: UtensilsCrossed,
+  users: Users,
+  wrench: Wrench,
+};
 
 const CATEGORY_ICONS: Record<string, LucideIcon> = {
   Adventure: Compass,
@@ -93,25 +82,26 @@ const CATEGORY_ICONS: Record<string, LucideIcon> = {
 };
 
 const CATEGORY_ACCENTS: Record<string, string> = {
-  Adventure: "#F97316",
-  Food: "#DC2626",
-  Travel: "#0EA5E9",
-  Mind: "#8B5CF6",
-  Fitness: "#16A34A",
-  Nature: "#65A30D",
-  Culture: "#DB2777",
-  Skills: "#CA8A04",
-  Lifestyle: "#EC4899",
-  Social: "#0891B2",
+  Adventure: "var(--color-accent)",
+  Food: "var(--color-error)",
+  Travel: "var(--color-info)",
+  Mind: "var(--color-accent-dark)",
+  Fitness: "var(--color-success)",
+  Nature: "var(--color-success)",
+  Culture: "var(--color-accent-dark)",
+  Skills: "var(--color-warning)",
+  Lifestyle: "var(--color-accent-dark)",
+  Social: "var(--color-info)",
 };
 
-const DEFAULT_CATEGORY_ICON = Sparkles;
-const DEFAULT_CATEGORY_ACCENT = "#78716C";
+export function getAchievementIcon(iconKey: string): LucideIcon {
+  return ACHIEVEMENT_ICONS[iconKey] ?? Sparkles;
+}
 
 export function getCategoryIcon(category: string): LucideIcon {
-  return CATEGORY_ICONS[category] ?? DEFAULT_CATEGORY_ICON;
+  return CATEGORY_ICONS[category] ?? Sparkles;
 }
 
 export function getCategoryAccent(category: string): string {
-  return CATEGORY_ACCENTS[category] ?? DEFAULT_CATEGORY_ACCENT;
+  return CATEGORY_ACCENTS[category] ?? "var(--color-muted)";
 }
