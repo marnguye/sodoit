@@ -30,6 +30,28 @@ export async function loadCollections(userId: string): Promise<Collection[]> {
   }));
 }
 
+export async function loadPublicCollections(
+  userId: string,
+): Promise<Collection[]> {
+  const supabase = await createClient();
+
+  const { data } = await supabase
+    .from("collections")
+    .select("id, slug, name, description, visibility, collection_items(count)")
+    .eq("user_id", userId)
+    .eq("visibility", "public")
+    .order("created_at", { ascending: false });
+
+  return ((data ?? []) as CollectionRow[]).map((row) => ({
+    id: row.id,
+    slug: row.slug,
+    name: row.name,
+    description: row.description,
+    visibility: row.visibility,
+    itemCount: row.collection_items[0]?.count ?? 0,
+  }));
+}
+
 export async function loadCollectionSlugs(userId: string): Promise<string[]> {
   const supabase = await createClient();
 
