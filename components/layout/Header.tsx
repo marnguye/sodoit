@@ -10,10 +10,15 @@ interface HeaderProps {
   avatarUrl?: string | null;
 }
 
-const NAV = [
+const BASE_NAV = [
   { href: "/", label: "Browse" },
   { href: "/discovery", label: "Discovery" },
   { href: "/feed", label: "Feed" },
+] as const;
+
+const AUTHENTICATED_NAV = [
+  ...BASE_NAV,
+  { href: "/list", label: "My List" },
 ] as const;
 
 function isActiveRoute(pathname: string, href: string) {
@@ -27,6 +32,7 @@ function isActiveRoute(pathname: string, href: string) {
 export function Header({ signedIn, username, avatarUrl }: HeaderProps) {
   const pathname = usePathname();
   const isAuthRoute = pathname === "/login" || pathname === "/signup";
+  const nav = signedIn ? AUTHENTICATED_NAV : BASE_NAV;
 
   return (
     <header className="sticky top-0 z-50 h-16 border-b border-border bg-surface">
@@ -49,7 +55,7 @@ export function Header({ signedIn, username, avatarUrl }: HeaderProps) {
           aria-label="Primary navigation"
           className="absolute left-1/2 flex h-full -translate-x-1/2 items-center gap-3 min-[430px]:gap-4 sm:gap-6 md:gap-8"
         >
-          {NAV.map((item) => {
+          {nav.map((item) => {
             const active = isActiveRoute(pathname, item.href);
 
             return (

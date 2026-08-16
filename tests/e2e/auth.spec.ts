@@ -77,6 +77,24 @@ test.describe("authentication", () => {
     await expect(page).toHaveURL(/\/login\?next=%2Fsettings%2Fprofile$/);
   });
 
+  test("redirects My List to login for guests", async ({ page }) => {
+    await page.goto("/list");
+
+    await expect(page).toHaveURL(/\/login\?next=%2Flist$/);
+  });
+
+  test("guest header does not show My List", async ({ page }) => {
+    await page.goto("/");
+
+    const navigation = page.getByRole("navigation", {
+      name: "Primary navigation",
+    });
+
+    await expect(
+      navigation.getByRole("link", { name: "My List" }),
+    ).not.toBeVisible();
+  });
+
   test("preserves protected route query string", async ({ page }) => {
     await page.goto("/feed/new?experience=test");
 
