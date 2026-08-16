@@ -3,8 +3,12 @@ import { createClient } from "@/lib/supabase/server";
 import { ErrorState } from "@/components/ui";
 import { loadProfile } from "./data";
 import { loadMyList } from "@/app/(app)/list/data";
+import {
+  loadCollections,
+  loadPublicCollections,
+  loadPublicList,
+} from "@/app/(app)/list/collections/data";
 import { ProfileHeader } from "./components/ProfileHeader";
-import { ProfileStats } from "./components/ProfileStats";
 import { ProfileNav } from "./components/ProfileNav";
 import { ProfileOverview } from "./components/ProfileOverview";
 import { ProfileList } from "./components/ProfileList";
@@ -13,8 +17,8 @@ import { ProfilePosts } from "./components/ProfilePosts";
 
 type View = "overview" | "list" | "achievements" | "posts";
 
-function resolveView(raw: string | undefined, isOwner: boolean): View {
-  if (raw === "list") return isOwner ? "list" : "overview";
+function resolveView(raw: string | undefined): View {
+  if (raw === "list") return "list";
   if (raw === "achievements" || raw === "posts") return raw;
   return "overview";
 }
@@ -51,50 +55,60 @@ export default async function UserProfilePage({
   if (!profile) notFound();
 
   const isOwner = user?.id === profile.id;
-  const activeView = resolveView(view, isOwner);
+  const activeView = resolveView(view);
 
-  const myList = activeView === "list" ? await loadMyList(profile.id) : null;
+  const [collections, listResult] = await Promise.all([
+    isOwner ? loadCollections(profile.id) : loadPublicCollections(profile.id),
+    activeView === "list"
+      ? isOwner
+        ? loadMyList(profile.id).then((list) => ({
+            ...list,
+            visibility: "public" as const,
+          }))
+        : loadPublicList(username)
+      : Promise.resolve(null),
+  ]);
 
   return (
-    <div className="mx-auto max-w-[1280px] px-4 py-8 sm:px-6 lg:px-8">
-      <div className="grid gap-8 lg:grid-cols-[280px_minmax(0,1fr)]">
-        <aside className="lg:sticky lg:top-6 lg:self-start">
-          <ProfileHeader
-            userId={profile.id}
-            username={profile.username}
-            bio={profile.bio}
-            avatarUrl={profile.avatarUrl}
-            joinedAt={profile.joinedAt}
+    <div className="mx-auto max-w-[1200px] px-4 py-6 sm:px-6 lg:px-8">
+      <ProfileHeader
+        userId={profile.id}
+        username={profile.username}
+        bio={profile.bio}
+        avatarUrl={profile.avatarUrl}
+        joinedAt={profile.joinedAt}
+        isOwner={isOwner}
+      />
+      <div className="mt-5">
+        <ProfileNav username={profile.username} active={activeView} />
+      </div>
+
+      <div className="mt-6 min-w-0">
+        {activeView === "overview" && (
+          <ProfileOverview
+            profile={profile}
+            collections={collections}
             isOwner={isOwner}
           />
-          <ProfileStats
-            completed={profile.completedCount}
-            categories={profile.categoryCount}
-            achievements={profile.achievementCount}
+        )}
+        {activeView === "list" &&
+          listResult &&
+          (listResult.visibility === "public" || isOwner ? (
+            <ProfileList
+              username={profile.username}
+              isOwner={isOwner}
+              saved={listResult.saved}
+              completed={listResult.completed}
+            />
+          ) : (
+            <ErrorState title="This list isn't public." />
+          ))}
+        {activeView === "achievements" && (
+          <ProfileAchievements
+            earnedMilestoneIds={profile.earnedMilestoneIds}
           />
-        </aside>
-
-        <div className="min-w-0">
-          <ProfileNav
-            username={profile.username}
-            active={activeView}
-            showList={isOwner}
-          />
-
-          <div className="mt-6">
-            {activeView === "overview" && <ProfileOverview profile={profile} />}
-            {activeView === "list" && myList && (
-              <ProfileList saved={myList.saved} completed={myList.completed} />
-            )}
-            {activeView === "achievements" && (
-              <ProfileAchievements
-                stats={profile.stats}
-                earnedMilestoneIds={profile.earnedMilestoneIds}
-              />
-            )}
-            {activeView === "posts" && <ProfilePosts posts={profile.posts} />}
-          </div>
-        </div>
+        )}
+        {activeView === "posts" && <ProfilePosts posts={profile.posts} />}
       </div>
     </div>
   );

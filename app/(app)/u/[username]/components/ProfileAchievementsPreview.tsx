@@ -1,29 +1,31 @@
 import { MILESTONES } from "@/app/(app)/achievements/data";
 import { Card, EmptyState } from "@/components/ui";
 
-const PREVIEW_COUNT = 4;
-
 interface ProfileAchievementsPreviewProps {
   earnedMilestoneIds: string[];
+  limit?: number;
 }
 
 export function ProfileAchievementsPreview({
   earnedMilestoneIds,
+  limit,
 }: ProfileAchievementsPreviewProps) {
   const earnedIds = new Set(earnedMilestoneIds);
 
   const milestones = MILESTONES.filter((milestone) =>
     earnedIds.has(milestone.id),
-  ).slice(0, PREVIEW_COUNT);
+  );
+  const visibleMilestones =
+    limit === undefined ? milestones : milestones.slice(0, limit);
 
-  if (milestones.length === 0) {
+  if (visibleMilestones.length === 0) {
     return <EmptyState title="No achievements earned yet" />;
   }
 
   return (
     <Card className="p-0">
       <ul className="divide-y divide-border">
-        {milestones.map((milestone) => {
+        {visibleMilestones.map((milestone) => {
           const Icon = milestone.icon;
 
           return (
