@@ -2,7 +2,13 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { publicEnv } from "@/lib/env/public";
 
-const PROTECTED_ROUTES = ["/list", "/achievements", "/feed/new", "/settings"];
+const PROTECTED_ROUTES = [
+  "/list",
+  "/achievements",
+  "/feed/new",
+  "/settings",
+  "/admin",
+];
 
 function isProtectedRoute(pathname: string) {
   return PROTECTED_ROUTES.some(
@@ -10,7 +16,18 @@ function isProtectedRoute(pathname: string) {
   );
 }
 
+const ADMIN_HOST_PATTERN = /^admin\.sodoit\.cc(:\d+)?$/;
+
 export async function proxy(request: NextRequest) {
+  const isAdminHost = ADMIN_HOST_PATTERN.test(
+    request.headers.get("host") ?? "",
+  );
+  const originalPathname = request.nextUrl.pathname;
+  const pathname =
+    isAdminHost && !originalPathname.startsWith("/admin")
+      ? `/admin${originalPathname === "/" ? "" : originalPathname}`
+      : originalPathname;
+
   let response = NextResponse.next({ request });
 
   const supabase = createServerClient(
@@ -41,14 +58,26 @@ export async function proxy(request: NextRequest) {
 
   const isAuthenticated = !error && Boolean(data?.claims?.sub);
 
-  if (!isAuthenticated && isProtectedRoute(request.nextUrl.pathname)) {
+  if (!isAuthenticated && isProtectedRoute(pathname)) {
     const loginUrl = request.nextUrl.clone();
-    const next = request.nextUrl.pathname + request.nextUrl.search;
+    const next = pathname + request.nextUrl.search;
 
     loginUrl.pathname = "/login";
     loginUrl.search = `?next=${encodeURIComponent(next)}`;
 
     return NextResponse.redirect(loginUrl);
+  }
+
+  if (pathname !== originalPathname) {
+    const rewriteUrl = request.nextUrl.clone();
+    rewriteUrl.pathname = pathname;
+
+    const rewritten = NextResponse.rewrite(rewriteUrl, { request });
+    response.cookies
+      .getAll()
+      .forEach((cookie) => rewritten.cookies.set(cookie));
+
+    return rewritten;
   }
 
   return response;
