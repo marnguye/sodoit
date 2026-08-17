@@ -89,6 +89,41 @@ export async function getExperienceAdmin(
   return data as Experience | null;
 }
 
+const EXPORT_COLUMNS =
+  "id, title, slug, description, category, difficulty, location_type, country_code, city, image_url, image_alt, featured, is_public";
+const EXPORT_ROW_LIMIT = 10_000;
+
+export type ExperienceExportItem = Pick<
+  Experience,
+  | "id"
+  | "title"
+  | "slug"
+  | "description"
+  | "category"
+  | "difficulty"
+  | "location_type"
+  | "country_code"
+  | "city"
+  | "image_url"
+  | "image_alt"
+  | "featured"
+  | "is_public"
+>;
+
+export async function listExperiencesForExport(): Promise<
+  ExperienceExportItem[]
+> {
+  const client = createAdminClient();
+  const { data, error } = await client
+    .from("experiences")
+    .select(EXPORT_COLUMNS)
+    .order("title")
+    .range(0, EXPORT_ROW_LIMIT - 1);
+
+  if (error) throw error;
+  return (data ?? []) as ExperienceExportItem[];
+}
+
 export async function isExperienceSlugTaken(
   slug: string,
   excludeId?: string,
