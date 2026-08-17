@@ -13,6 +13,9 @@ export interface Guide {
   is_public: boolean;
   featured: boolean;
   type?: GuideType;
+  city_slug?: string | null;
+  sort_order?: number;
+  editorial_attribution?: string | null;
   created_at: string;
   updated_at: string;
 }
