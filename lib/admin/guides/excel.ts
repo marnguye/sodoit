@@ -16,6 +16,7 @@ export const GUIDE_TEMPLATE_FILENAME = "sodoit-guides-template.xlsx";
 
 export interface GuideExcelRow {
   id: string;
+  import_ref: string;
   title: string;
   slug: string;
   description: string;
@@ -35,6 +36,7 @@ export interface GuideExcelRow {
 export interface GuideItemExcelRow {
   id: string;
   guide_id: string;
+  guide_ref: string;
   position: number;
   title: string;
   description: string;
@@ -53,6 +55,7 @@ interface ExcelColumn<Row> {
 
 export const GUIDE_EXCEL_COLUMNS: readonly ExcelColumn<GuideExcelRow>[] = [
   { key: "id", header: "id", width: 38 },
+  { key: "import_ref", header: "import_ref", width: 24 },
   { key: "title", header: "title", width: 42 },
   { key: "slug", header: "slug", width: 32 },
   { key: "description", header: "description", width: 60 },
@@ -73,6 +76,7 @@ export const GUIDE_ITEM_EXCEL_COLUMNS: readonly ExcelColumn<GuideItemExcelRow>[]
   [
     { key: "id", header: "id", width: 38 },
     { key: "guide_id", header: "guide_id", width: 38 },
+    { key: "guide_ref", header: "guide_ref", width: 24 },
     { key: "position", header: "position", width: 10 },
     { key: "title", header: "title", width: 40 },
     { key: "description", header: "description", width: 50 },
@@ -119,6 +123,7 @@ export type GuideItemExportSource = Pick<
 export function toGuideExcelRow(guide: GuideExportSource): GuideExcelRow {
   return {
     id: guide.id,
+    import_ref: "",
     title: guide.title ?? "",
     slug: guide.slug ?? "",
     description: guide.description ?? "",
@@ -142,6 +147,7 @@ export function toGuideItemExcelRow(
   return {
     id: item.id,
     guide_id: item.guide_id,
+    guide_ref: "",
     position: item.position ?? 0,
     title: item.title ?? "",
     description: item.description ?? "",
@@ -186,6 +192,7 @@ function styleTypeCell(cell: ExcelJS.Cell): void {
 
 function styleGuideDataRow(row: ExcelJS.Row): void {
   const idCell = row.getCell("id");
+  const importRefCell = row.getCell("import_ref");
   const titleCell = row.getCell("title");
   const descriptionCell = row.getCell("description");
   const typeCell = row.getCell("type");
@@ -194,6 +201,13 @@ function styleGuideDataRow(row: ExcelJS.Row): void {
 
   idCell.font = { color: { argb: GUIDE_COLORS.mutedText } };
   idCell.fill = {
+    type: "pattern",
+    pattern: "solid",
+    fgColor: { argb: GUIDE_COLORS.mutedBackground },
+  };
+
+  importRefCell.font = { color: { argb: GUIDE_COLORS.mutedText } };
+  importRefCell.fill = {
     type: "pattern",
     pattern: "solid",
     fgColor: { argb: GUIDE_COLORS.mutedBackground },
@@ -221,6 +235,7 @@ function styleGuideDataRow(row: ExcelJS.Row): void {
 function styleGuideItemDataRow(row: ExcelJS.Row): void {
   const idCell = row.getCell("id");
   const guideIdCell = row.getCell("guide_id");
+  const guideRefCell = row.getCell("guide_ref");
   const positionCell = row.getCell("position");
   const titleCell = row.getCell("title");
   const descriptionCell = row.getCell("description");
@@ -234,6 +249,13 @@ function styleGuideItemDataRow(row: ExcelJS.Row): void {
 
   guideIdCell.font = { color: { argb: GUIDE_COLORS.mutedText } };
   guideIdCell.fill = {
+    type: "pattern",
+    pattern: "solid",
+    fgColor: { argb: GUIDE_COLORS.mutedBackground },
+  };
+
+  guideRefCell.font = { color: { argb: GUIDE_COLORS.mutedText } };
+  guideRefCell.fill = {
     type: "pattern",
     pattern: "solid",
     fgColor: { argb: GUIDE_COLORS.mutedBackground },

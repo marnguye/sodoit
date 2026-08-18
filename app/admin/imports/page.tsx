@@ -1,6 +1,7 @@
 import { Download } from "lucide-react";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { ExperienceImportPanel } from "@/components/admin/imports/ExperienceImportPanel";
+import { GuideImportPanel } from "@/components/admin/imports/GuideImportPanel";
 import { Card } from "@/components/ui";
 
 const DOWNLOAD_LINK_CLASS =
@@ -67,6 +68,8 @@ export default function AdminImportsPage() {
             Download template
           </a>
         </div>
+
+        <GuideImportPanel />
       </Card>
     </div>
   );
