@@ -104,6 +104,37 @@ export async function getGuideAdmin(
   };
 }
 
+const EXPORT_ROW_LIMIT = 10_000;
+
+export interface GuideExportResult {
+  guides: Guide[];
+  items: GuideItem[];
+}
+
+export async function listGuidesForExport(): Promise<GuideExportResult> {
+  const client = createAdminClient();
+
+  const guidesResult = await client
+    .from("guides")
+    .select(ADMIN_GUIDE_COLUMNS)
+    .order("title")
+    .range(0, EXPORT_ROW_LIMIT - 1);
+  if (guidesResult.error) throw guidesResult.error;
+
+  const itemsResult = await client
+    .from("guide_items")
+    .select(ADMIN_ITEM_COLUMNS)
+    .order("guide_id")
+    .order("position")
+    .range(0, EXPORT_ROW_LIMIT - 1);
+  if (itemsResult.error) throw itemsResult.error;
+
+  return {
+    guides: (guidesResult.data ?? []) as Guide[],
+    items: (itemsResult.data ?? []) as GuideItem[],
+  };
+}
+
 export async function isGuideSlugTaken(
   slug: string,
   excludeId?: string,

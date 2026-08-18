@@ -1,6 +1,13 @@
 import "server-only";
 import ExcelJS from "exceljs";
 import type { Experience } from "@/lib/experiences/types";
+import {
+  EXCEL_COLORS,
+  setStatusStyle,
+  styleBooleanCell,
+  styleHeaderRow,
+  workbookToBlob as workbookToBlobShared,
+} from "@/lib/admin/excelWorkbook";
 
 export const EXPERIENCES_SHEET_NAME = "Experiences";
 export const EXPERIENCE_TEMPLATE_FILENAME = "sodoit-experiences-template.xlsx";
@@ -61,12 +68,7 @@ export type ExperienceExportSource = Pick<
 >;
 
 const COLORS = {
-  headerBackground: "FFF3F3F1",
-  headerText: "FF1C1917",
-  border: "FFE7E5E4",
-
-  mutedBackground: "FFF7F7F5",
-  mutedText: "FF78716C",
+  ...EXCEL_COLORS,
 
   easyBackground: "FFDCFCE7",
   easyText: "FF166534",
@@ -76,12 +78,6 @@ const COLORS = {
 
   hardBackground: "FFFEE2E2",
   hardText: "FF991B1B",
-
-  publicBackground: "FFDCFCE7",
-  publicText: "FF166534",
-
-  featuredBackground: "FFFFEDD5",
-  featuredText: "FFC2410C",
 
   globalBackground: "FFDBEAFE",
   globalText: "FF1D4ED8",
@@ -110,28 +106,6 @@ export function toExperienceExcelRow(
     image_alt: experience.image_alt ?? "",
     featured: Boolean(experience.featured),
     is_public: Boolean(experience.is_public),
-  };
-}
-
-function setStatusStyle(
-  cell: ExcelJS.Cell,
-  background: string,
-  text: string,
-): void {
-  cell.fill = {
-    type: "pattern",
-    pattern: "solid",
-    fgColor: { argb: background },
-  };
-
-  cell.font = {
-    bold: true,
-    color: { argb: text },
-  };
-
-  cell.alignment = {
-    horizontal: "center",
-    vertical: "middle",
   };
 }
 
@@ -173,19 +147,6 @@ function styleLocationTypeCell(cell: ExcelJS.Cell): void {
       setStatusStyle(cell, COLORS.cityBackground, COLORS.cityText);
       break;
   }
-}
-
-function styleBooleanCell(
-  cell: ExcelJS.Cell,
-  trueBackground: string,
-  trueText: string,
-): void {
-  if (cell.value === true) {
-    setStatusStyle(cell, trueBackground, trueText);
-    return;
-  }
-
-  setStatusStyle(cell, COLORS.mutedBackground, COLORS.mutedText);
 }
 
 function styleDataRow(row: ExcelJS.Row): void {
@@ -233,36 +194,6 @@ function styleDataRow(row: ExcelJS.Row): void {
   };
 }
 
-function styleHeaderRow(sheet: ExcelJS.Worksheet): void {
-  const headerRow = sheet.getRow(1);
-
-  headerRow.height = 24;
-
-  headerRow.eachCell((cell) => {
-    cell.font = {
-      bold: true,
-      color: { argb: COLORS.headerText },
-    };
-
-    cell.fill = {
-      type: "pattern",
-      pattern: "solid",
-      fgColor: { argb: COLORS.headerBackground },
-    };
-
-    cell.alignment = {
-      vertical: "middle",
-    };
-
-    cell.border = {
-      bottom: {
-        style: "thin",
-        color: { argb: COLORS.border },
-      },
-    };
-  });
-}
-
 export function buildExperiencesWorkbook(
   rows: ExperienceExcelRow[],
 ): ExcelJS.Workbook {
@@ -296,18 +227,7 @@ export function buildExperiencesWorkbook(
   return workbook;
 }
 
-const XLSX_CONTENT_TYPE =
-  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-
-export async function workbookToBlob(
-  workbook: ExcelJS.Workbook,
-): Promise<Blob> {
-  const arrayBuffer = await workbook.xlsx.writeBuffer();
-
-  return new Blob([arrayBuffer], {
-    type: XLSX_CONTENT_TYPE,
-  });
-}
+export const workbookToBlob = workbookToBlobShared;
 
 export function experienceExportFilename(date: Date = new Date()): string {
   const iso = date.toISOString().slice(0, 10);

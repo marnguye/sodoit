@@ -21,7 +21,7 @@ export async function GET() {
     status: 200,
     headers: {
       "Content-Disposition": `attachment; filename="${experienceExportFilename()}"`,
-      "Cache-Control": "no-store",
+      "Cache-Control": "private, no-store",
     },
   });
 }

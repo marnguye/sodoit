@@ -43,6 +43,7 @@ export interface GuideItem {
   image_url: string | null;
   image_alt: string | null;
   external_url: string | null;
+  place_id: string | null;
   created_at: string;
   updated_at: string;
 }

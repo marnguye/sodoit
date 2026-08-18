@@ -43,6 +43,31 @@ export default function AdminImportsPage() {
 
         <ExperienceImportPanel />
       </Card>
+
+      <Card className="mt-4">
+        <h2 className="text-sm font-semibold text-ink">Guides</h2>
+        <p className="mt-1 text-sm text-muted">
+          Bulk edit and create guides using Excel.
+        </p>
+
+        <div className="mt-4 flex flex-wrap items-center gap-2">
+          <a
+            href="/admin/imports/guides/export"
+            className={`${DOWNLOAD_LINK_CLASS} ${PRIMARY_CLASS}`}
+          >
+            <Download className="h-4 w-4" />
+            Export current data
+          </a>
+
+          <a
+            href="/admin/imports/guides/template"
+            className={`${DOWNLOAD_LINK_CLASS} ${OUTLINE_CLASS}`}
+          >
+            <Download className="h-4 w-4" />
+            Download template
+          </a>
+        </div>
+      </Card>
     </div>
   );
 }
