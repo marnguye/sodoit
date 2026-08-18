@@ -20,6 +20,7 @@ import type {
 
 const GUIDE_HEADERS = [
   "id",
+  "import_ref",
   "title",
   "slug",
   "description",
@@ -39,6 +40,7 @@ const GUIDE_HEADERS = [
 const GUIDE_ITEM_HEADERS = [
   "id",
   "guide_id",
+  "guide_ref",
   "position",
   "title",
   "description",
@@ -164,6 +166,14 @@ describe("toGuideExcelRow / toGuideItemExcelRow", () => {
     expect(row.position).toBe(3);
     expect(typeof row.position).toBe("number");
   });
+
+  it("always exports blank import_ref/guide_ref for real DB data", () => {
+    const guideRow = toGuideExcelRow(guideSource());
+    const itemRow = toGuideItemExcelRow(itemSource());
+
+    expect(guideRow.import_ref).toBe("");
+    expect(itemRow.guide_ref).toBe("");
+  });
 });
 
 describe("buildGuidesWorkbook", () => {
@@ -202,6 +212,7 @@ describe("buildGuidesWorkbook", () => {
     expect(itemValues.slice(1)).toEqual([
       itemRow.id,
       guideRow.id,
+      "",
       0,
       itemRow.title,
       itemRow.description,
@@ -211,7 +222,7 @@ describe("buildGuidesWorkbook", () => {
       itemRow.image_alt,
       itemRow.external_url,
     ]);
-    expect(typeof itemValues[3]).toBe("number");
+    expect(typeof itemValues[4]).toBe("number");
   });
 
   it("produces a blank template with headers but no records on either sheet", async () => {
