@@ -69,6 +69,7 @@ function createPreviewGuide(source: GuideSource): GuideWithItems {
     image_url: item.image_url,
     image_alt: item.image_alt,
     external_url: item.external_url,
+    place_id: null,
     created_at: timestamp,
     updated_at: timestamp,
   }));
