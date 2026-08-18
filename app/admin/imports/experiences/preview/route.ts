@@ -2,10 +2,9 @@ import { requireAdminForRequest } from "@/lib/admin/httpAuth";
 import { listExperiencesForExport } from "@/lib/admin/experiences/queries";
 import {
   buildExperienceImportPreview,
-  hasXlsxSignature,
-  MAX_IMPORT_UPLOAD_BYTES,
   parseExperiencesWorkbook,
 } from "@/lib/admin/experiences/import";
+import { readXlsxUpload } from "@/lib/admin/experiences/uploadGuard";
 import { logger } from "@/lib/logger";
 
 function badRequest(error: string) {
@@ -23,32 +22,10 @@ export async function POST(request: Request) {
     return badRequest("Could not read the upload.");
   }
 
-  const file = formData.get("file");
-  if (!(file instanceof File)) {
-    return badRequest("No file was uploaded.");
-  }
+  const upload = await readXlsxUpload(formData);
+  if (!upload.ok) return badRequest(upload.error);
 
-  if (!file.name.toLowerCase().endsWith(".xlsx")) {
-    return badRequest("Only .xlsx files are supported.");
-  }
-
-  if (file.size === 0) {
-    return badRequest("The uploaded file is empty.");
-  }
-
-  if (file.size > MAX_IMPORT_UPLOAD_BYTES) {
-    return badRequest(
-      `File is too large (max ${Math.floor(MAX_IMPORT_UPLOAD_BYTES / (1024 * 1024))} MB).`,
-    );
-  }
-
-  const buffer = await file.arrayBuffer();
-
-  if (!hasXlsxSignature(buffer)) {
-    return badRequest("This does not look like a valid .xlsx file.");
-  }
-
-  const parseResult = await parseExperiencesWorkbook(buffer);
+  const parseResult = await parseExperiencesWorkbook(upload.buffer);
   if (!parseResult.ok) {
     return badRequest(parseResult.error);
   }

@@ -1,4 +1,5 @@
 import "server-only";
+import { createHash } from "node:crypto";
 import ExcelJS from "exceljs";
 import { EXPERIENCE_EXCEL_COLUMNS, EXPERIENCES_SHEET_NAME } from "./excel";
 import { validateExperienceInput, type ExperienceInput } from "./validation";
@@ -202,6 +203,7 @@ export type ExperienceImportPreviewRow =
       id: string;
       candidate: ExperienceImportCandidate;
       changes: ExperienceImportChange[];
+      baseFingerprint: string;
     }
   | { status: "unchanged"; rowNumber: number; id: string }
   | {
@@ -241,6 +243,13 @@ function toValidationInput(
     featured: candidate.featured,
     is_public: candidate.is_public,
   };
+}
+
+export function fingerprintExperience(existing: ExperienceExportItem): string {
+  const canonical = CANDIDATE_FIELDS.map((field) =>
+    JSON.stringify(existing[field] ?? null),
+  ).join("|");
+  return createHash("sha256").update(canonical).digest("hex");
 }
 
 function diffCandidate(
@@ -347,6 +356,7 @@ export function buildExperienceImportPreview(
       id: candidate.id,
       candidate,
       changes,
+      baseFingerprint: fingerprintExperience(existingRow!),
     };
   });
 
