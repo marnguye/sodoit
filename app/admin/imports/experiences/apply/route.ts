@@ -1,5 +1,5 @@
 import { requireAdminForRequest } from "@/lib/admin/httpAuth";
-import { readXlsxUpload } from "@/lib/admin/experiences/uploadGuard";
+import { readXlsxUpload } from "@/lib/admin/uploadGuard";
 import { applyExperienceImport } from "@/lib/admin/experiences/apply";
 
 function badRequest(error: string, extra: Record<string, unknown> = {}) {

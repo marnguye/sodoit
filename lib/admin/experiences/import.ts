@@ -4,8 +4,16 @@ import ExcelJS from "exceljs";
 import { EXPERIENCE_EXCEL_COLUMNS, EXPERIENCES_SHEET_NAME } from "./excel";
 import { validateExperienceInput, type ExperienceInput } from "./validation";
 import type { ExperienceExportItem } from "./queries";
+import {
+  cellText,
+  hasXlsxSignature,
+  isBlankText,
+  MAX_IMPORT_UPLOAD_BYTES,
+  parseBooleanCell,
+  validateSheetHeaders,
+} from "@/lib/admin/excelParsing";
 
-export const MAX_IMPORT_UPLOAD_BYTES = 5 * 1024 * 1024;
+export { hasXlsxSignature, MAX_IMPORT_UPLOAD_BYTES };
 
 export interface ExperienceImportCandidate {
   id: string | null;
@@ -44,34 +52,6 @@ type ParsedRow =
 export type ParseWorkbookResult =
   { ok: true; rows: ParsedRow[] } | { ok: false; error: string };
 
-function isBlankText(value: string) {
-  return value.trim().length === 0;
-}
-
-function parseBooleanCell(
-  cell: ExcelJS.Cell,
-  header: string,
-): { ok: true; value: boolean } | { ok: false; error: string } {
-  if (cell.value === null || cell.value === undefined)
-    return { ok: true, value: false };
-
-  if (typeof cell.value === "boolean") return { ok: true, value: cell.value };
-
-  if (typeof cell.value === "string") {
-    const normalized = cell.value.trim().toLowerCase();
-    if (normalized === "") return { ok: true, value: false };
-    if (normalized === "true") return { ok: true, value: true };
-    if (normalized === "false") return { ok: true, value: false };
-  }
-
-  return { ok: false, error: `Column "${header}" must be TRUE or FALSE.` };
-}
-
-function cellText(cell: ExcelJS.Cell): string {
-  const text = cell.text;
-  return typeof text === "string" ? text.trim() : "";
-}
-
 export async function parseExperiencesWorkbook(
   buffer: ArrayBuffer,
 ): Promise<ParseWorkbookResult> {
@@ -94,18 +74,11 @@ export async function parseExperiencesWorkbook(
     };
   }
 
-  const headerRow = sheet.getRow(1);
   const expectedHeaders = EXPERIENCE_EXCEL_COLUMNS.map(
     (column) => column.header,
   );
-  const actualHeaders = EXPERIENCE_EXCEL_COLUMNS.map((_, index) =>
-    cellText(headerRow.getCell(index + 1)),
-  );
 
-  const headersMatch = expectedHeaders.every(
-    (header, index) => header === actualHeaders[index],
-  );
-  if (!headersMatch) {
+  if (!validateSheetHeaders(sheet, expectedHeaders)) {
     return {
       ok: false,
       error:
@@ -369,15 +342,4 @@ export function buildExperienceImportPreview(
   };
 
   return { rows: previewRows, summary };
-}
-
-export function hasXlsxSignature(buffer: ArrayBuffer): boolean {
-  if (buffer.byteLength < 4) return false;
-  const bytes = new Uint8Array(buffer, 0, 4);
-  return (
-    bytes[0] === 0x50 &&
-    bytes[1] === 0x4b &&
-    bytes[2] === 0x03 &&
-    bytes[3] === 0x04
-  );
 }

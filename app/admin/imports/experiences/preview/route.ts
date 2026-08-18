@@ -4,7 +4,7 @@ import {
   buildExperienceImportPreview,
   parseExperiencesWorkbook,
 } from "@/lib/admin/experiences/import";
-import { readXlsxUpload } from "@/lib/admin/experiences/uploadGuard";
+import { readXlsxUpload } from "@/lib/admin/uploadGuard";
 import { logger } from "@/lib/logger";
 
 function badRequest(error: string) {
