@@ -14,7 +14,7 @@ export function PageShell({
   subtitle,
   actions,
   toolbar,
-  maxWidth = "1280px",
+  maxWidth = "1200px",
   children,
 }: PageShellProps) {
   return (
