@@ -111,6 +111,40 @@ export async function loadExperiences(
   };
 }
 
+export async function loadExperiencesCount(
+  { q, category, difficulty, status }: Omit<BrowseQuery, "sort" | "cursor">,
+  completedIds: string[],
+): Promise<number> {
+  const supabase = await createClient();
+
+  let query = supabase
+    .from("experiences")
+    .select("id", { count: "exact", head: true })
+    .eq("is_public", true);
+
+  if (q) {
+    query = query.ilike("title", `%${q}%`);
+  }
+
+  if (category) {
+    query = query.eq("category", category);
+  }
+
+  if (difficulty && DIFFICULTY_LABELS.includes(difficulty)) {
+    query = query.eq("difficulty", difficulty as ExperienceDifficulty);
+  }
+
+  if (status === "completed") {
+    query = query.in("id", completedIds.length > 0 ? completedIds : [NONE_ID]);
+  } else if (status === "uncompleted" && completedIds.length > 0) {
+    query = query.not("id", "in", `(${completedIds.join(",")})`);
+  }
+
+  const { count } = await query;
+
+  return count ?? 0;
+}
+
 const CURATED_SECTIONS_DEF: { title: string; categories: string[] }[] = [
   { title: "Adventure picks", categories: ["Adventure"] },
   { title: "Food & skills", categories: ["Food", "Skills"] },

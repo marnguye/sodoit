@@ -24,6 +24,7 @@ interface ExperienceCardProps {
   onManageCollections?: () => void;
   guest?: boolean;
   onGuestSave?: () => void;
+  className?: string;
 }
 
 export function ExperienceCard({
@@ -35,13 +36,19 @@ export function ExperienceCard({
   onManageCollections,
   guest = false,
   onGuestSave,
+  className = "",
 }: ExperienceCardProps) {
   const { thumbnail } = getTaskMeta(experience.id);
   const difficulty = getDifficulty(experience.id, experience.difficulty);
   const { isToggling, handleToggle } = useCompletionToggle(done, onToggle);
 
   return (
-    <li className="relative flex h-full flex-col overflow-hidden rounded-card border border-border bg-surface transition-colors hover:border-border-strong">
+    <li
+      className={[
+        "group relative flex h-full flex-col overflow-hidden rounded-card",
+        className,
+      ].join(" ")}
+    >
       <Link
         href={`/tasks/${experience.id}`}
         aria-label={experience.title}
@@ -56,15 +63,16 @@ export function ExperienceCard({
         sizes="(min-width: 1024px) 280px, (min-width: 640px) 45vw, 90vw"
         quality={90}
         className={[
-          "aspect-[4/3] w-full transition-opacity",
+          "aspect-[4/3] w-full rounded-card transition-transform duration-300",
+          "group-hover:scale-[1.02]",
           done ? COMPLETED_MEDIA : "",
         ].join(" ")}
       />
 
-      <div className="pointer-events-none flex flex-1 flex-col gap-2 p-3">
+      <div className="pointer-events-none flex flex-1 flex-col gap-2 pt-3">
         <h3
           className={[
-            "line-clamp-2 text-sm font-semibold leading-5",
+            "line-clamp-2 text-sm font-bold leading-5 tracking-[-0.01em]",
             done ? COMPLETED_TITLE : "text-ink",
           ].join(" ")}
         >

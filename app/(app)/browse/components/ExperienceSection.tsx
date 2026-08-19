@@ -1,5 +1,19 @@
-import type { BrowseView, Experience } from "../types";
-import { ExperienceResults } from "./ExperienceResults";
+import type { Experience } from "../types";
+import { ExperienceCard } from "./ExperienceCard";
+
+export type SectionVariant = "wide" | "standard";
+
+const VARIANT_COUNT: Record<SectionVariant, number> = {
+  wide: 2,
+  standard: 3,
+};
+
+function spanClassName(variant: SectionVariant, index: number, total: number) {
+  const lgSpan = variant === "wide" ? "lg:col-span-6" : "lg:col-span-4";
+  const isTrailingOdd = total % 2 === 1 && index === total - 1;
+
+  return isTrailingOdd ? `sm:col-span-2 ${lgSpan}` : lgSpan;
+}
 
 interface ExperienceSectionProps {
   title: string;
@@ -8,7 +22,7 @@ interface ExperienceSectionProps {
   onToggle: (id: string) => Promise<void>;
   guest: boolean;
   onGuestSave: () => void;
-  view: BrowseView;
+  variant: SectionVariant;
 }
 
 export function ExperienceSection({
@@ -18,26 +32,33 @@ export function ExperienceSection({
   onToggle,
   guest,
   onGuestSave,
-  view,
+  variant,
 }: ExperienceSectionProps) {
-  if (experiences.length === 0) {
+  const items = experiences.slice(0, VARIANT_COUNT[variant]);
+
+  if (items.length === 0) {
     return null;
   }
 
   return (
-    <section className="mt-8">
-      <h2 className="mb-3 text-base font-bold tracking-[-0.01em] text-ink">
+    <section className="mt-10">
+      <h2 className="mb-4 text-base font-bold tracking-[-0.01em] text-ink">
         {title}
       </h2>
 
-      <ExperienceResults
-        experiences={experiences}
-        view={view}
-        completed={completed}
-        onToggle={onToggle}
-        guest={guest}
-        onGuestSave={onGuestSave}
-      />
+      <ul className="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-2 lg:grid-cols-12">
+        {items.map((experience, index) => (
+          <ExperienceCard
+            key={experience.id}
+            experience={experience}
+            done={completed.has(experience.id)}
+            onToggle={() => onToggle(experience.id)}
+            guest={guest}
+            onGuestSave={onGuestSave}
+            className={spanClassName(variant, index, items.length)}
+          />
+        ))}
+      </ul>
     </section>
   );
 }

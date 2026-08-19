@@ -5,14 +5,15 @@ import { useRouter, usePathname } from "next/navigation";
 
 import { BrowseToolbar } from "./components/BrowseToolbar";
 import { BrowseHero } from "./components/BrowseHero";
-import { BrowseSidebar } from "./components/BrowseSidebar";
-import { BrowseHowItWorks } from "./components/BrowseHowItWorks";
 import { BrowseSignupCta } from "./components/BrowseSignupCta";
 import { ExperienceSection } from "./components/ExperienceSection";
+import type { SectionVariant } from "./components/ExperienceSection";
+import { ExperienceFeature } from "./components/ExperienceFeature";
 import { InfiniteExperienceResults } from "./components/InfiniteExperienceResults";
 import { setListStatus, removeFromMyList } from "./actions";
 import { loginHrefWithNext } from "@/lib/auth-redirect";
 import { CATEGORIES } from "./types";
+import { isDefaultBrowseView, splitFeatured } from "./browse-editorial";
 import type { BrowseSort, BrowseView, Experience, StatusFilter } from "./types";
 import type { CuratedSection } from "./data";
 
@@ -61,6 +62,7 @@ interface BrowseBoardProps {
   sort: BrowseSort;
   view: BrowseView;
   curatedSections: CuratedSection[];
+  resultCount: number | null;
 }
 
 export function BrowseBoard({
@@ -76,6 +78,7 @@ export function BrowseBoard({
   sort,
   view,
   curatedSections,
+  resultCount,
 }: BrowseBoardProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -84,8 +87,6 @@ export function BrowseBoard({
   const [searchText, setSearchText] = useState(q);
   const isFirstRender = useRef(true);
 
-  // Re-sync local state when the server hands us fresh props after a
-  // navigation (new filter/search/sort), without an effect+setState pass.
   const [prevCompletedIds, setPrevCompletedIds] = useState(completedIds);
   if (completedIds !== prevCompletedIds) {
     setPrevCompletedIds(completedIds);
@@ -159,6 +160,21 @@ export function BrowseBoard({
 
   function requireLogin() {
     router.push(loginHrefWithNext(pathname));
+  }
+
+  const isDefaultView = isDefaultBrowseView({
+    q,
+    category,
+    difficulty,
+    status,
+    sort,
+  });
+
+  const { featured, rest } = splitFeatured(experiences, isDefaultView);
+  const remainingExperiences = isDefaultView ? rest : experiences;
+
+  function sectionVariant(index: number): SectionVariant {
+    return index === 0 ? "wide" : "standard";
   }
 
   const toolbar = (
@@ -238,7 +254,7 @@ export function BrowseBoard({
 
   const results = (
     <InfiniteExperienceResults
-      initialExperiences={experiences}
+      initialExperiences={remainingExperiences}
       initialCursor={nextCursor}
       initialHasMore={hasMore}
       view={view}
@@ -256,54 +272,71 @@ export function BrowseBoard({
     />
   );
 
-  if (signedIn) {
-    return (
-      <div className="mx-auto w-full max-w-[1200px] px-4 py-4 sm:px-6 lg:px-8">
-        <BrowseHero />
-        {toolbar}
-        <div className="mt-6">{results}</div>
-      </div>
-    );
-  }
-
   return (
     <div className="mx-auto w-full max-w-[1200px] px-4 py-4 sm:px-6 lg:px-8">
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_280px]">
-        <div className="min-w-0">
-          <BrowseHero />
-          {toolbar}
+      <BrowseHero />
+      {toolbar}
 
-          {curatedSections.map((section) => (
-            <ExperienceSection
-              key={section.title}
-              title={section.title}
-              experiences={section.items}
-              completed={completed}
-              onToggle={toggle}
-              guest
-              onGuestSave={requireLogin}
-              view={view}
-            />
-          ))}
-
-          <section className="mt-8">
-            {curatedSections.length > 0 && (
-              <h2 className="mb-3 text-base font-bold tracking-[-0.01em] text-ink">
-                Explore experiences
-              </h2>
+      <div className="mt-6">
+        {isDefaultView ? (
+          <>
+            {featured && (
+              <ExperienceFeature
+                experience={featured}
+                done={completed.has(featured.id)}
+                onToggle={() => toggle(featured.id)}
+                guest={!signedIn}
+                onGuestSave={requireLogin}
+              />
             )}
 
+            {!signedIn &&
+              curatedSections.map((section, index) => (
+                <ExperienceSection
+                  key={section.title}
+                  title={section.title}
+                  experiences={section.items}
+                  completed={completed}
+                  onToggle={toggle}
+                  guest
+                  onGuestSave={requireLogin}
+                  variant={sectionVariant(index)}
+                />
+              ))}
+
+            <section className="mt-10">
+              <h2 className="mb-4 text-base font-bold tracking-[-0.01em] text-ink">
+                Explore experiences
+              </h2>
+
+              {results}
+            </section>
+          </>
+        ) : (
+          <>
+            <div className="mb-4 flex items-center justify-between gap-3">
+              <p
+                className="text-sm text-secondary"
+                role="status"
+                aria-live="polite"
+              >
+                {resultCount === null
+                  ? null
+                  : `${resultCount} ${resultCount === 1 ? "result" : "results"}`}
+              </p>
+
+              <button
+                type="button"
+                onClick={() => router.push("/")}
+                className="text-xs font-semibold text-accent-dark hover:text-accent"
+              >
+                Clear filters
+              </button>
+            </div>
+
             {results}
-          </section>
-
-          <div className="mt-4 lg:hidden">
-            <BrowseHowItWorks />
-          </div>
-        </div>
-
-        <aside className="hidden lg:block">
-          <BrowseSidebar />
-        </aside>
+          </>
+        )}
       </div>
     </div>
   );
