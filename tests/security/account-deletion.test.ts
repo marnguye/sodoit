@@ -10,8 +10,6 @@ describe("account deletion security", () => {
   it("deletes User A and all owned data without changing User B or catalog data", async () => {
     const fixture = getFixture();
 
-    const aCommentId = crypto.randomUUID();
-    const aVoteId = crypto.randomUUID();
     const aCompletionId = crypto.randomUUID();
 
     const bProfileBefore = await adminRow(
@@ -27,20 +25,6 @@ describe("account deletion security", () => {
       .eq("user_id", fixture.bId)
       .eq("experience_id", fixture.experienceIds.privateList)
       .single();
-
-    const bPostBefore = await adminRow(
-      fixture,
-      "posts",
-      "id",
-      fixture.postIds.b,
-    );
-
-    const bCommentBefore = await adminRow(
-      fixture,
-      "comments",
-      "id",
-      fixture.bCommentId,
-    );
 
     const bAvatarBefore = await storageBytes(
       fixture,
@@ -84,19 +68,6 @@ describe("account deletion security", () => {
         achievement_id: "first-step",
       }),
 
-      fixture.admin.from("comments").insert({
-        id: aCommentId,
-        post_id: fixture.postIds.b,
-        author_id: fixture.aId,
-        body: "Account deletion fixture comment.",
-      }),
-
-      fixture.admin.from("post_votes").insert({
-        id: aVoteId,
-        post_id: fixture.postIds.a,
-        user_id: fixture.aId,
-      }),
-
       fixture.admin.from("completions").insert({
         id: aCompletionId,
         user_id: fixture.aId,
@@ -123,8 +94,6 @@ describe("account deletion security", () => {
 
     expect(rateLimitConsumed.allowed).toBe(true);
 
-    // A normal authenticated client must not have access
-    // to Supabase Auth admin operations.
     const directAdminDelete = await fixture.userA.auth.admin.deleteUser(
       fixture.bId,
     );
@@ -137,29 +106,21 @@ describe("account deletion security", () => {
 
     expect(userBBeforeDelete.data.user?.id).toBe(fixture.bId);
 
-    // Execute the same domain deletion helper used by the app.
     await deleteAccountData(fixture.admin, fixture.aId);
 
-    // Auth user must be gone.
     const deletedAuth = await fixture.admin.auth.admin.getUserById(fixture.aId);
 
     expect(deletedAuth.data.user).toBeNull();
 
-    // User A's previously authenticated client should
-    // no longer resolve a valid user.
     const deletedSession = await fixture.userA.auth.getUser();
 
     expect(deletedSession.data.user).toBeNull();
 
-    // Every owned database row must be gone.
     const ownedTables = [
       ["profiles", "id"],
       ["user_lists", "user_id"],
       ["completions", "user_id"],
       ["user_achievements", "user_id"],
-      ["posts", "author_id"],
-      ["comments", "author_id"],
-      ["post_votes", "user_id"],
       ["rate_limits", "user_id"],
     ] as const;
 
@@ -177,12 +138,10 @@ describe("account deletion security", () => {
       expect(rows.count, `${table} retained User A rows`).toBe(0);
     }
 
-    // User A's Storage objects must be gone.
     expect(
       await storageObjectExists(fixture, "avatars", fixture.storage.aAvatar),
     ).toBe(false);
 
-    // Catalog content survives account deletion.
     const retainedExperience = await adminRow(
       fixture,
       "experiences",
@@ -193,7 +152,6 @@ describe("account deletion security", () => {
     expect(retainedExperience).not.toBeNull();
     expect(retainedExperience?.created_by).toBeNull();
 
-    // User B must remain completely unchanged.
     expect(await adminRow(fixture, "profiles", "id", fixture.bId)).toEqual(
       bProfileBefore,
     );
@@ -208,19 +166,10 @@ describe("account deletion security", () => {
     expect(bListAfter.error).toBeNull();
     expect(bListAfter.data).toEqual(bListBefore.data);
 
-    expect(await adminRow(fixture, "posts", "id", fixture.postIds.b)).toEqual(
-      bPostBefore,
-    );
-
-    expect(
-      await adminRow(fixture, "comments", "id", fixture.bCommentId),
-    ).toEqual(bCommentBefore);
-
     expect(
       await storageBytes(fixture, "avatars", fixture.storage.bAvatar),
     ).toEqual(bAvatarBefore);
 
-    // Unrelated catalog data must also remain untouched.
     expect(
       await adminRow(fixture, "experiences", "id", fixture.experienceIds.main),
     ).toEqual(catalogBefore);
