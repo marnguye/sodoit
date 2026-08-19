@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import { Avatar, Card } from "@/components/ui";
-import { relativeTime } from "@/app/(app)/feed/types";
+import { relativeTime } from "@/lib/relative-time";
 import type { CollectionActivityItem } from "@/app/(app)/feed/data";
 
 export function CollectionActivityCard({

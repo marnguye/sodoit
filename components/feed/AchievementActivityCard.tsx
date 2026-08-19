@@ -1,5 +1,5 @@
 import { Avatar, Card } from "@/components/ui";
-import { relativeTime } from "@/app/(app)/feed/types";
+import { relativeTime } from "@/lib/relative-time";
 import type { AchievementActivityItem } from "@/app/(app)/feed/data";
 
 export function AchievementActivityCard({

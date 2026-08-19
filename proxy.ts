@@ -2,13 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { publicEnv } from "@/lib/env/public";
 
-const PROTECTED_ROUTES = [
-  "/list",
-  "/achievements",
-  "/feed/new",
-  "/settings",
-  "/admin",
-];
+const PROTECTED_ROUTES = ["/list", "/achievements", "/settings", "/admin"];
 
 function isProtectedRoute(pathname: string) {
   return PROTECTED_ROUTES.some(

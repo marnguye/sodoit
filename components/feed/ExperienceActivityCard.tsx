@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Avatar, Card, ExperienceImage } from "@/components/ui";
-import { relativeTime } from "@/app/(app)/feed/types";
+import { relativeTime } from "@/lib/relative-time";
 import type { ExperienceActivityItem } from "@/app/(app)/feed/data";
 import { AddToListButton } from "./AddToListButton";
 
