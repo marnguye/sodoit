@@ -90,12 +90,6 @@ export interface SecurityFixture {
     forgedAuthenticated: string;
     forgedAnon: string;
   };
-  postIds: {
-    a: string;
-    b: string;
-  };
-  bCommentId: string;
-  bVoteId: string;
   legacyIds: {
     completion: string;
   };
@@ -161,9 +155,6 @@ export async function createSecurityFixture(): Promise<SecurityFixture> {
     forgedAuthenticated: crypto.randomUUID(),
     forgedAnon: crypto.randomUUID(),
   };
-  const postIds = { a: crypto.randomUUID(), b: crypto.randomUUID() };
-  const bCommentId = crypto.randomUUID();
-  const bVoteId = crypto.randomUUID();
   const legacyIds = {
     completion: crypto.randomUUID(),
   };
@@ -280,45 +271,6 @@ export async function createSecurityFixture(): Promise<SecurityFixture> {
     );
 
     requireSuccess(
-      await admin.from("posts").insert([
-        {
-          id: postIds.a,
-          author_id: aId,
-          type: "tip",
-          title: `Security A post ${runId}`,
-          body: "Temporary post owned by User A.",
-        },
-        {
-          id: postIds.b,
-          author_id: bId,
-          type: "question",
-          title: `Security B post ${runId}`,
-          body: "Temporary post owned by User B.",
-        },
-      ]),
-      "Prepare posts",
-    );
-
-    requireSuccess(
-      await admin.from("comments").insert({
-        id: bCommentId,
-        post_id: postIds.b,
-        author_id: bId,
-        body: "Temporary comment owned by User B.",
-      }),
-      "Prepare User B comment",
-    );
-
-    requireSuccess(
-      await admin.from("post_votes").insert({
-        id: bVoteId,
-        post_id: postIds.b,
-        user_id: bId,
-      }),
-      "Prepare User B vote",
-    );
-
-    requireSuccess(
       await admin.from("completions").insert({
         id: legacyIds.completion,
         user_id: bId,
@@ -364,9 +316,6 @@ export async function createSecurityFixture(): Promise<SecurityFixture> {
       experienceIds,
       guideIds,
       guideItemIds,
-      postIds,
-      bCommentId,
-      bVoteId,
       legacyIds,
       storage,
       image: PNG,
@@ -440,19 +389,14 @@ export async function cleanupSecurityFixture(fixture: PartialFixture) {
   );
 
   for (const table of [
-    "post_votes",
-    "comments",
     "user_achievements",
     "user_lists",
     "completions",
     "rate_limits",
-    "posts",
   ]) {
     if (ids.length) {
-      const ownerColumn =
-        table === "posts" || table === "comments" ? "author_id" : "user_id";
       await clean(`Clean ${table}`, () =>
-        admin.from(table).delete().in(ownerColumn, ids),
+        admin.from(table).delete().in("user_id", ids),
       );
     }
   }
@@ -491,20 +435,12 @@ export async function cleanupSecurityFixture(fixture: PartialFixture) {
       errors.push("Profile cleanup left test rows behind.");
 
     for (const table of [
-      "post_votes",
       "user_achievements",
       "user_lists",
       "completions",
       "rate_limits",
     ]) {
       const rows = await admin.from(table).select("*").in("user_id", ids);
-      if (rows.error)
-        errors.push(`Verify ${table} cleanup: ${rows.error.message}`);
-      if (rows.data?.length)
-        errors.push(`${table} cleanup left test rows behind.`);
-    }
-    for (const table of ["posts", "comments"]) {
-      const rows = await admin.from(table).select("*").in("author_id", ids);
       if (rows.error)
         errors.push(`Verify ${table} cleanup: ${rows.error.message}`);
       if (rows.data?.length)

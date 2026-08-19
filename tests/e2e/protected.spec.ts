@@ -11,24 +11,12 @@ test.describe("authenticated protected routes", () => {
     ).not.toBeVisible();
   });
 
-  test("authenticated user can access new post page", async ({ page }) => {
-    await page.goto("/feed/new");
-
-    await expect(page).toHaveURL(/\/feed\/new$/);
-
-    await expect(
-      page.getByRole("heading", { name: "Welcome back" }),
-    ).not.toBeVisible();
-  });
-
   test("authenticated user can access My List", async ({ page }) => {
     await page.goto("/list");
 
     await expect(page).toHaveURL(/\/list$/);
 
-    await expect(
-      page.getByRole("heading", { name: "My list" }),
-    ).toBeVisible();
+    await expect(page.getByRole("heading", { name: "My list" })).toBeVisible();
   });
 
   test("authenticated header shows My List", async ({ page }) => {
@@ -54,8 +42,8 @@ test.describe("authenticated protected routes", () => {
   test("authenticated redirect preserves protected query string", async ({
     page,
   }) => {
-    await page.goto("/login?next=%2Ffeed%2Fnew%3Fexperience%3Dtest");
+    await page.goto("/login?next=%2Flist%3Ffilter%3Dsaved");
 
-    await expect(page).toHaveURL(/\/feed\/new\?experience=test$/);
+    await expect(page).toHaveURL(/\/list\?filter=saved$/);
   });
 });

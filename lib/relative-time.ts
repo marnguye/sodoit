@@ -1,23 +1,3 @@
-export type PostType = "question" | "tip" | "experience";
-
-export const POST_TYPES: readonly PostType[] = [
-  "question",
-  "tip",
-  "experience",
-];
-
-export interface FeedPost {
-  id: string;
-  type: PostType;
-  title: string;
-  body: string;
-  createdAt: string;
-  authorName: string;
-  experience: { id: string; title: string; category: string | null } | null;
-  helpfulCount: number;
-  commentCount: number;
-}
-
 export function relativeTime(iso: string): string {
   const diffMs = Date.now() - new Date(iso).getTime();
   const minutes = Math.floor(diffMs / 60000);

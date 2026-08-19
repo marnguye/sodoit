@@ -1,10 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import type { AchievementStats } from "@/app/(app)/achievements/data";
 import { loadAchievementDefinitions } from "@/app/(app)/achievements/queries";
-import type { PostType } from "@/app/(app)/feed/types";
 import type { ProfileViewModel } from "./types";
-
-const POSTS_LIMIT = 20;
 
 interface ProfileRow {
   id: string;
@@ -30,14 +27,6 @@ interface AchievementRow {
   achievement_id: string;
 }
 
-interface PostRow {
-  id: string;
-  type: PostType;
-  title: string;
-  body: string;
-  created_at: string;
-}
-
 function toSingle<T>(value: T | T[] | null): T | null {
   if (!value) return null;
   return Array.isArray(value) ? (value[0] ?? null) : value;
@@ -59,35 +48,27 @@ export async function loadProfile(
 
   const profile = profileData as ProfileRow;
 
-  const [completedResult, achievementsResult, postsResult, definitions] =
-    await Promise.all([
-      supabase
-        .from("user_lists")
-        .select("experiences(id, title, category, image_url, image_alt)")
-        .eq("user_id", profile.id)
-        .eq("status", "completed"),
+  const [completedResult, achievementsResult, definitions] = await Promise.all([
+    supabase
+      .from("user_lists")
+      .select("experiences(id, title, category, image_url, image_alt)")
+      .eq("user_id", profile.id)
+      .eq("status", "completed"),
 
-      supabase
-        .from("user_achievements")
-        .select("achievement_id")
-        .eq("user_id", profile.id),
+    supabase
+      .from("user_achievements")
+      .select("achievement_id")
+      .eq("user_id", profile.id),
 
-      supabase
-        .from("posts")
-        .select("id, type, title, body, created_at")
-        .eq("author_id", profile.id)
-        .order("created_at", { ascending: false })
-        .limit(POSTS_LIMIT),
-      loadAchievementDefinitions(),
-    ]);
+    loadAchievementDefinitions(),
+  ]);
 
-  if (completedResult.error || achievementsResult.error || postsResult.error) {
+  if (completedResult.error || achievementsResult.error) {
     throw new Error("Could not load profile.");
   }
 
   const completedRows = (completedResult.data ?? []) as CompletedRow[];
   const achievementRows = (achievementsResult.data ?? []) as AchievementRow[];
-  const postRows = (postsResult.data ?? []) as PostRow[];
 
   const completedExperiences = completedRows
     .map((row) => toSingle(row.experiences))
@@ -136,12 +117,5 @@ export async function loadProfile(
     earnedAchievements,
     achievementDefinitions: definitions,
     stats,
-    posts: postRows.map((post) => ({
-      id: post.id,
-      type: post.type,
-      title: post.title,
-      body: post.body,
-      createdAt: post.created_at,
-    })),
   };
 }

@@ -1,11 +1,10 @@
 import Link from "next/link";
 
-type View = "overview" | "list" | "achievements" | "posts";
+type View = "overview" | "list" | "achievements";
 
 const TABS: { key: View; label: string; view?: string }[] = [
   { key: "overview", label: "Overview" },
   { key: "list", label: "My List", view: "list" },
-  { key: "posts", label: "Posts", view: "posts" },
   { key: "achievements", label: "Achievements", view: "achievements" },
 ];
 

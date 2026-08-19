@@ -1,12 +1,9 @@
 import Link from "next/link";
 import { RecentCompleted } from "./RecentCompleted";
 import { ProfileAchievementsPreview } from "./ProfileAchievementsPreview";
-import { ProfilePosts } from "./ProfilePosts";
 import { ProfileCollections } from "./ProfileCollections";
 import type { ProfileViewModel } from "../types";
 import type { Collection } from "@/app/(app)/list/collections/types";
-
-const POSTS_PREVIEW_COUNT = 3;
 
 export function ProfileOverview({
   profile,
@@ -37,47 +34,27 @@ export function ProfileOverview({
         </div>
       </section>
 
-      <div className="grid gap-6 md:grid-cols-2">
-        <section>
-          <div className="flex items-center justify-between gap-3">
-            <h2 className="text-sm font-bold text-ink">Achievements</h2>
-            {profile.achievementCount > 0 && (
-              <Link
-                href={`/u/${profile.username}?view=achievements`}
-                className="text-xs font-semibold text-accent-dark hover:text-accent"
-              >
-                View all
-              </Link>
-            )}
-          </div>
+      <section>
+        <div className="flex items-center justify-between gap-3">
+          <h2 className="text-sm font-bold text-ink">Achievements</h2>
+          {profile.achievementCount > 0 && (
+            <Link
+              href={`/u/${profile.username}?view=achievements`}
+              className="text-xs font-semibold text-accent-dark hover:text-accent"
+            >
+              View all
+            </Link>
+          )}
+        </div>
 
-          <div className="mt-3">
-            <ProfileAchievementsPreview
-              earnedMilestoneIds={profile.earnedMilestoneIds}
-              achievements={profile.earnedAchievements}
-              limit={4}
-            />
-          </div>
-        </section>
-
-        <section>
-          <div className="flex items-center justify-between gap-3">
-            <h2 className="text-sm font-bold text-ink">Community posts</h2>
-            {profile.posts.length > 0 && (
-              <Link
-                href={`/u/${profile.username}?view=posts`}
-                className="text-xs font-semibold text-accent-dark hover:text-accent"
-              >
-                View all
-              </Link>
-            )}
-          </div>
-
-          <div className="mt-3">
-            <ProfilePosts posts={profile.posts.slice(0, POSTS_PREVIEW_COUNT)} />
-          </div>
-        </section>
-      </div>
+        <div className="mt-3">
+          <ProfileAchievementsPreview
+            earnedMilestoneIds={profile.earnedMilestoneIds}
+            achievements={profile.earnedAchievements}
+            limit={4}
+          />
+        </div>
+      </section>
 
       <section>
         <div className="flex items-center justify-between gap-3">

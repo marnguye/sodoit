@@ -13,13 +13,12 @@ import { ProfileNav } from "./components/ProfileNav";
 import { ProfileOverview } from "./components/ProfileOverview";
 import { ProfileList } from "./components/ProfileList";
 import { ProfileAchievements } from "./components/ProfileAchievements";
-import { ProfilePosts } from "./components/ProfilePosts";
 
-type View = "overview" | "list" | "achievements" | "posts";
+type View = "overview" | "list" | "achievements";
 
 function resolveView(raw: string | undefined): View {
   if (raw === "list") return "list";
-  if (raw === "achievements" || raw === "posts") return raw;
+  if (raw === "achievements") return raw;
   return "overview";
 }
 
@@ -110,7 +109,6 @@ export default async function UserProfilePage({
             stats={profile.stats}
           />
         )}
-        {activeView === "posts" && <ProfilePosts posts={profile.posts} />}
       </div>
     </div>
   );

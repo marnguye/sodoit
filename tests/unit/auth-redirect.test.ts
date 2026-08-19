@@ -11,7 +11,6 @@ describe("getSafeNextPath", () => {
   it("allows valid internal paths", () => {
     expect(getSafeNextPath("/")).toBe("/");
     expect(getSafeNextPath("/feed")).toBe("/feed");
-    expect(getSafeNextPath("/feed/new")).toBe("/feed/new");
     expect(getSafeNextPath("/settings/profile")).toBe("/settings/profile");
     expect(getSafeNextPath("/tasks/abc-123")).toBe("/tasks/abc-123");
   });
@@ -63,7 +62,9 @@ describe("getSafeNextPath", () => {
 
 describe("loginHrefWithNext", () => {
   it("builds a login URL with an encoded internal path", () => {
-    expect(loginHrefWithNext("/feed/new")).toBe("/login?next=%2Ffeed%2Fnew");
+    expect(loginHrefWithNext("/settings/profile")).toBe(
+      "/login?next=%2Fsettings%2Fprofile",
+    );
   });
 
   it("encodes query strings safely", () => {

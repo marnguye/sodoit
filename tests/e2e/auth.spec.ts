@@ -96,11 +96,9 @@ test.describe("authentication", () => {
   });
 
   test("preserves protected route query string", async ({ page }) => {
-    await page.goto("/feed/new?experience=test");
+    await page.goto("/list?filter=saved");
 
-    await expect(page).toHaveURL(
-      /\/login\?next=%2Ffeed%2Fnew%3Fexperience%3Dtest$/,
-    );
+    await expect(page).toHaveURL(/\/login\?next=%2Flist%3Ffilter%3Dsaved$/);
   });
 
   test("login links to signup while preserving next", async ({ page }) => {

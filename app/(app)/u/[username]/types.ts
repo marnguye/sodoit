@@ -1,4 +1,3 @@
-import type { PostType } from "@/app/(app)/feed/types";
 import type {
   AchievementDefinition,
   AchievementStats,
@@ -10,14 +9,6 @@ export interface CompletedExperience {
   category: string | null;
   image_url: string | null;
   image_alt: string | null;
-}
-
-export interface ProfilePost {
-  id: string;
-  type: PostType;
-  title: string;
-  body: string;
-  createdAt: string;
 }
 
 export interface ProfileViewModel {
@@ -34,5 +25,4 @@ export interface ProfileViewModel {
   earnedAchievements: AchievementDefinition[];
   achievementDefinitions: AchievementDefinition[];
   stats: AchievementStats;
-  posts: ProfilePost[];
 }

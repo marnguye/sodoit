@@ -1,168 +1,75 @@
-import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { PageShell, ErrorState, EmptyState } from "@/components/ui";
-import type { FeedPost, PostType } from "./types";
-import { FeedBoard } from "./FeedBoard";
+import { PageShell, ErrorState } from "@/components/ui";
+import { ActivityFeed } from "@/components/feed/ActivityFeed";
+import {
+  ACTIVITY_FILTERS,
+  loadActivityFeed,
+  loadViewerListStatuses,
+  type ActivityFilter,
+  type ExperienceActivityItem,
+} from "./data";
 
-interface PostRow {
-  id: string;
-  author_id: string;
-  experience_id: string | null;
-  type: PostType;
-  title: string;
-  body: string;
-  created_at: string;
+function isExperienceActivity(item: {
+  kind: string;
+}): item is ExperienceActivityItem {
+  return item.kind === "completed" || item.kind === "added_to_list";
 }
 
-interface ProfileRow {
-  id: string;
-  username: string;
+interface FeedPageProps {
+  searchParams: Promise<{ filter?: string; page?: string }>;
 }
 
-interface ExperienceRow {
-  id: string;
-  title: string;
-  category: string | null;
-}
-
-interface PostReferenceRow {
-  post_id: string;
-}
-
-export default async function FeedPage() {
-  const supabase = await createClient();
-
-  const { data: rows, error } = (await supabase
-    .from("posts")
-    .select("id, author_id, experience_id, type, title, body, created_at")
-    .order("created_at", { ascending: false })) as {
-    data: PostRow[] | null;
-    error: { message: string } | null;
-  };
-
-  const actions = (
-    <Link
-      href="/feed/new"
-      className="inline-flex items-center gap-1 rounded-md bg-accent px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-accent-dark"
-    >
-      Create post
-    </Link>
-  );
+export default async function FeedPage({ searchParams }: FeedPageProps) {
+  const params = await searchParams;
+  const filter: ActivityFilter = ACTIVITY_FILTERS.includes(
+    params.filter as ActivityFilter,
+  )
+    ? (params.filter as ActivityFilter)
+    : "all";
+  const page = Math.max(1, Number(params.page ?? 1) || 1);
 
   const shellProps = {
-    title: "Community Feed",
-    subtitle: "Questions, tips, and real experiences from the community.",
-    actions,
+    title: "Community updates",
+    subtitle: "See what people are adding, completing, and planning.",
   } as const;
 
-  if (error) {
+  let result;
+  try {
+    result = await loadActivityFeed(filter, page);
+  } catch {
     return (
       <PageShell {...shellProps}>
         <ErrorState
-          title="Couldn't load the Feed"
+          title="Couldn't load community updates"
           description="Please try again shortly."
         />
       </PageShell>
     );
   }
 
-  if (!rows || rows.length === 0) {
-    return (
-      <PageShell {...shellProps}>
-        <EmptyState
-          title="No posts yet"
-          description="Be the first to ask a question, share a tip, or post about an experience."
-          action={
-            <Link
-              href="/feed/new"
-              className="text-accent font-semibold text-sm hover:text-accent-dark transition-colors"
-            >
-              Create the first post →
-            </Link>
-          }
-        />
-      </PageShell>
-    );
-  }
+  const experienceIds = result.items
+    .filter(isExperienceActivity)
+    .map((item) => item.experience.id);
 
-  const postIds = rows.map((row) => row.id);
-  const authorIds = [...new Set(rows.map((row) => row.author_id))];
-  const experienceIds = [
-    ...new Set(
-      rows.flatMap((row) => (row.experience_id ? [row.experience_id] : [])),
-    ),
-  ];
-
-  const [profilesResult, experiencesResult, votesResult, commentsResult] =
-    await Promise.all([
-      supabase.from("profiles").select("id, username").in("id", authorIds),
-      experienceIds.length
-        ? supabase
-            .from("experiences")
-            .select("id, title, category")
-            .in("id", experienceIds)
-        : Promise.resolve({ data: [], error: null }),
-      supabase.from("post_votes").select("post_id").in("post_id", postIds),
-      supabase.from("comments").select("post_id").in("post_id", postIds),
-    ]);
-
-  if (
-    profilesResult.error ||
-    experiencesResult.error ||
-    votesResult.error ||
-    commentsResult.error
-  ) {
-    return (
-      <PageShell {...shellProps}>
-        <ErrorState
-          title="Couldn't load the Feed"
-          description="Please try again shortly."
-        />
-      </PageShell>
-    );
-  }
-
-  const profiles = (profilesResult.data ?? []) as ProfileRow[];
-  const experiences = (experiencesResult.data ?? []) as ExperienceRow[];
-  const votes = (votesResult.data ?? []) as PostReferenceRow[];
-  const comments = (commentsResult.data ?? []) as PostReferenceRow[];
-  const authorNames = new Map(
-    profiles.map((profile) => [profile.id, profile.username]),
-  );
-  const experienceById = new Map(
-    experiences.map((experience) => [experience.id, experience]),
-  );
-
-  const voteCounts = new Map<string, number>();
-  for (const vote of votes) {
-    voteCounts.set(vote.post_id, (voteCounts.get(vote.post_id) ?? 0) + 1);
-  }
-
-  const commentCounts = new Map<string, number>();
-  for (const comment of comments) {
-    commentCounts.set(
-      comment.post_id,
-      (commentCounts.get(comment.post_id) ?? 0) + 1,
-    );
-  }
-
-  const posts: FeedPost[] = rows.map((row) => ({
-    id: row.id,
-    type: row.type,
-    title: row.title,
-    body: row.body,
-    createdAt: row.created_at,
-    authorName: authorNames.get(row.author_id) ?? "Someone",
-    experience: row.experience_id
-      ? (experienceById.get(row.experience_id) ?? null)
-      : null,
-    helpfulCount: voteCounts.get(row.id) ?? 0,
-    commentCount: commentCounts.get(row.id) ?? 0,
-  }));
+  const supabase = await createClient();
+  const [
+    {
+      data: { user },
+    },
+    viewerStatuses,
+  ] = await Promise.all([
+    supabase.auth.getUser(),
+    loadViewerListStatuses(experienceIds),
+  ]);
 
   return (
     <PageShell {...shellProps}>
-      <FeedBoard posts={posts} />
+      <ActivityFeed
+        filter={filter}
+        result={result}
+        viewerStatuses={viewerStatuses}
+        signedIn={Boolean(user)}
+      />
     </PageShell>
   );
 }
