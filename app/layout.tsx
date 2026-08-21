@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   title: "Sodoit",
   description: "Your life. Your list. Your proof.",
   icons: {
-    icon: "/sodoit_favicon.png",
+    icon: "/favicon.png",
   },
 };
 
