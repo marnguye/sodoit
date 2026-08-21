@@ -155,6 +155,7 @@ const CURATED_SECTION_LIMIT = 6;
 
 export interface CuratedSection {
   title: string;
+  category: string;
   items: Experience[];
 }
 
@@ -171,7 +172,11 @@ export async function loadCuratedSections(): Promise<CuratedSection[]> {
         .order("created_at", { ascending: false })
         .limit(CURATED_SECTION_LIMIT);
 
-      return { title, items: (data ?? []) as Experience[] };
+      return {
+        title,
+        category: categories[0],
+        items: (data ?? []) as Experience[],
+      };
     }),
   );
 
