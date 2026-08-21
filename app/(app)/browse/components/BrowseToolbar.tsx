@@ -4,12 +4,9 @@ import { useEffect, useState } from "react";
 import { SlidersHorizontal } from "lucide-react";
 
 import { SearchField } from "@/components/ui/SearchField";
-import { ViewToggle } from "@/components/ui/ViewToggle";
-import type { BrowseSort, BrowseView, StatusFilter } from "../types";
+import type { BrowseSort } from "../types";
 import { BrowseCategoryNav } from "./BrowseCategoryNav";
 import { BrowseFilters } from "./BrowseFilters";
-import { BrowseProgress } from "./BrowseProgress";
-import { BrowseStatusSwitch } from "./BrowseStatusSwitch";
 
 const MOBILE_BREAKPOINT_PX = 640;
 const TOP_EXPAND_PX = 80;
@@ -105,12 +102,6 @@ interface BrowseToolbarProps {
   categories: readonly string[];
   category: string;
   onCategoryChange: (value: string) => void;
-  status: StatusFilter;
-  onStatusChange: (value: StatusFilter) => void;
-  completedCount: number;
-  signedIn: boolean;
-  view: BrowseView;
-  onViewChange: (value: BrowseView) => void;
   sort: BrowseSort;
   onSortChange: (value: BrowseSort) => void;
   difficulty: string | null;
@@ -123,12 +114,6 @@ export function BrowseToolbar({
   categories,
   category,
   onCategoryChange,
-  status,
-  onStatusChange,
-  completedCount,
-  signedIn,
-  view,
-  onViewChange,
   sort,
   onSortChange,
   difficulty,
@@ -140,7 +125,7 @@ export function BrowseToolbar({
   const filtersActive = difficulty !== null || sort !== "recommended";
 
   return (
-    <header className="sticky top-16 z-30 border-b border-border bg-background py-2.5">
+    <div className="relative w-full max-w-[560px]">
       <SearchField
         value={search}
         onChange={onSearchChange}
@@ -150,69 +135,51 @@ export function BrowseToolbar({
       <div
         className={[
           "grid overflow-hidden transition-all duration-200 ease-out",
-          "sm:!mt-1 sm:!grid-rows-[1fr] sm:!overflow-visible sm:!opacity-100",
+          "sm:!mt-2 sm:!grid-rows-[1fr] sm:!overflow-visible sm:!opacity-100",
           collapsed
             ? "mt-0 grid-rows-[0fr] opacity-0"
-            : "mt-1 grid-rows-[1fr] opacity-100",
+            : "mt-2 grid-rows-[1fr] opacity-100",
         ].join(" ")}
       >
         <div className="min-h-0 min-w-0">
-          <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center sm:gap-1">
+          <div className="flex min-w-0 flex-wrap items-center gap-1.5">
             <BrowseCategoryNav
               categories={categories}
               category={category}
               onCategoryChange={onCategoryChange}
             />
 
-            <div className="flex items-center gap-1 sm:contents">
-              <div className="relative shrink-0">
-                <button
-                  type="button"
-                  onClick={() => setFiltersOpen((open) => !open)}
-                  aria-expanded={filtersOpen}
-                  aria-haspopup="dialog"
-                  className={[
-                    "inline-flex h-8 items-center gap-1.5 rounded-control border px-3",
-                    "text-xs font-semibold transition-colors",
-                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/30",
-                    filtersActive
-                      ? "border-accent/40 bg-accent-wash text-accent-dark"
-                      : "border-border bg-surface text-secondary hover:border-border-strong hover:text-ink",
-                  ].join(" ")}
-                >
-                  <SlidersHorizontal
-                    aria-hidden="true"
-                    className="h-3.5 w-3.5"
-                  />
-                  Filters
-                </button>
+            <div className="relative shrink-0">
+              <button
+                type="button"
+                onClick={() => setFiltersOpen((open) => !open)}
+                aria-expanded={filtersOpen}
+                aria-haspopup="dialog"
+                className={[
+                  "inline-flex h-8 items-center gap-1.5 rounded-control border px-3",
+                  "text-xs font-semibold transition-colors",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/30",
+                  filtersActive
+                    ? "border-accent/40 bg-accent-wash text-accent-dark"
+                    : "border-border bg-surface text-secondary hover:border-border-strong hover:text-ink",
+                ].join(" ")}
+              >
+                <SlidersHorizontal aria-hidden="true" className="h-3.5 w-3.5" />
+                Filters
+              </button>
 
-                <BrowseFilters
-                  open={filtersOpen}
-                  onClose={() => setFiltersOpen(false)}
-                  sort={sort}
-                  onSortChange={onSortChange}
-                  difficulty={difficulty}
-                  onDifficultyChange={onDifficultyChange}
-                />
-              </div>
-
-              <ViewToggle view={view} onChange={onViewChange} />
-            </div>
-          </div>
-
-          {signedIn && (
-            <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
-              <BrowseProgress completedCount={completedCount} />
-
-              <BrowseStatusSwitch
-                status={status}
-                onStatusChange={onStatusChange}
+              <BrowseFilters
+                open={filtersOpen}
+                onClose={() => setFiltersOpen(false)}
+                sort={sort}
+                onSortChange={onSortChange}
+                difficulty={difficulty}
+                onDifficultyChange={onDifficultyChange}
               />
             </div>
-          )}
+          </div>
         </div>
       </div>
-    </header>
+    </div>
   );
 }

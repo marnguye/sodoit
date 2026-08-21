@@ -170,8 +170,10 @@ export function BrowseBoard({
     sort,
   });
 
-  const { featured, rest } = splitFeatured(experiences, isDefaultView);
-  const remainingExperiences = isDefaultView ? rest : experiences;
+  const showEditorial = isDefaultView && view === "grid";
+
+  const { featured, rest } = splitFeatured(experiences, showEditorial);
+  const remainingExperiences = showEditorial ? rest : experiences;
 
   function sectionVariant(index: number): SectionVariant {
     return index === 0 ? "wide" : "standard";
@@ -273,37 +275,46 @@ export function BrowseBoard({
   );
 
   return (
-    <div className="mx-auto w-full max-w-[1200px] px-4 py-4 sm:px-6 lg:px-8">
-      <BrowseHero />
-      {toolbar}
+    <div className="mx-auto w-full max-w-[1440px] px-4 pb-4 sm:px-6 lg:px-8">
+      <BrowseHero>{toolbar}</BrowseHero>
 
       <div className="mt-6">
-        {isDefaultView ? (
+        {showEditorial ? (
           <>
             {featured && (
-              <ExperienceFeature
-                experience={featured}
-                done={completed.has(featured.id)}
-                onToggle={() => toggle(featured.id)}
+              <div
+                className={[
+                  "mb-8 grid gap-4",
+                  !signedIn &&
+                    "lg:grid-cols-[minmax(0,3fr)_minmax(280px,1fr)] lg:auto-rows-[320px]",
+                ]
+                  .filter(Boolean)
+                  .join(" ")}
+              >
+                <ExperienceFeature
+                  experience={featured}
+                  done={completed.has(featured.id)}
+                  onToggle={() => toggle(featured.id)}
+                  guest={!signedIn}
+                  onGuestSave={requireLogin}
+                />
+
+                {!signedIn && <BrowseSignupCta featured />}
+              </div>
+            )}
+            {curatedSections.map((section, index) => (
+              <ExperienceSection
+                key={section.title}
+                title={section.title}
+                experiences={section.items}
+                completed={completed}
+                onToggle={toggle}
                 guest={!signedIn}
                 onGuestSave={requireLogin}
+                variant={sectionVariant(index)}
+                viewAllHref={`/?category=${encodeURIComponent(section.category)}`}
               />
-            )}
-
-            {!signedIn &&
-              curatedSections.map((section, index) => (
-                <ExperienceSection
-                  key={section.title}
-                  title={section.title}
-                  experiences={section.items}
-                  completed={completed}
-                  onToggle={toggle}
-                  guest
-                  onGuestSave={requireLogin}
-                  variant={sectionVariant(index)}
-                />
-              ))}
-
+            ))}
             <section className="mt-10">
               <h2 className="mb-4 text-base font-bold tracking-[-0.01em] text-ink">
                 Explore experiences
@@ -312,6 +323,8 @@ export function BrowseBoard({
               {results}
             </section>
           </>
+        ) : isDefaultView ? (
+          results
         ) : (
           <>
             <div className="mb-4 flex items-center justify-between gap-3">
@@ -322,7 +335,9 @@ export function BrowseBoard({
               >
                 {resultCount === null
                   ? null
-                  : `${resultCount} ${resultCount === 1 ? "result" : "results"}`}
+                  : `${resultCount} ${
+                      resultCount === 1 ? "result" : "results"
+                    }`}
               </p>
 
               <button
