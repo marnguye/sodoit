@@ -169,6 +169,72 @@ describe("buildExperiencesWorkbook", () => {
 
     expect(sheet.rowCount).toBe(1);
   });
+
+  it("gives the difficulty column a dropdown listing all four values, without padding the sheet with empty rows", () => {
+    const workbook = buildExperiencesWorkbook([]);
+    const sheet = workbook.getWorksheet(EXPERIENCES_SHEET_NAME)! as unknown as {
+      dataValidations: { model: Record<string, { type: string; formulae: string[] }> };
+      rowCount: number;
+      getColumn(key: string): { letter: string };
+    };
+
+    const letter = sheet.getColumn("difficulty").letter;
+    const entry = Object.entries(sheet.dataValidations.model).find(([range]) =>
+      range.startsWith(`${letter}2:${letter}`),
+    );
+
+    expect(entry).toBeDefined();
+    expect(entry?.[1].type).toBe("list");
+    expect(entry?.[1].formulae[0]).toBe('"Easy,Medium,Hard,Extreme"');
+    expect(sheet.rowCount).toBe(1);
+  });
+
+  it("styles an Extreme difficulty cell distinctly from Hard", () => {
+    const hardRow = toExperienceExcelRow({
+      id: "exp-hard",
+      title: "Complete a full marathon",
+      slug: "complete-a-full-marathon",
+      description: "Run 42km",
+      category: "Fitness",
+      difficulty: "Hard",
+      location_type: "global",
+      country_code: null,
+      city: null,
+      image_url: null,
+      image_alt: null,
+      featured: false,
+      is_public: true,
+    });
+    const extremeRow = toExperienceExcelRow({
+      id: "exp-extreme",
+      title: "Climb Mount Everest",
+      slug: "climb-everest",
+      description: "Summit the tallest mountain on Earth",
+      category: "Adventure",
+      difficulty: "Extreme",
+      location_type: "global",
+      country_code: null,
+      city: null,
+      image_url: null,
+      image_alt: null,
+      featured: false,
+      is_public: true,
+    });
+
+    const workbook = buildExperiencesWorkbook([hardRow, extremeRow]);
+    const sheet = workbook.getWorksheet(EXPERIENCES_SHEET_NAME)!;
+    const difficultyColumn = sheet.getColumn("difficulty").number;
+
+    const hardFill = sheet.getCell(2, difficultyColumn).fill;
+    const extremeFill = sheet.getCell(3, difficultyColumn).fill;
+
+    expect(extremeFill).not.toEqual(hardFill);
+    expect(
+      extremeFill && "fgColor" in extremeFill
+        ? extremeFill.fgColor?.argb
+        : undefined,
+    ).toBe("FFFEE2E2");
+  });
 });
 
 describe("experienceExportFilename", () => {

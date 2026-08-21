@@ -1,9 +1,10 @@
 import { CATEGORIES } from "@/app/(app)/browse/types";
+import { EXPERIENCE_DIFFICULTIES } from "@/lib/experiences/difficulty.mjs";
 import { SLUG_RE } from "@/lib/admin/slug";
 
 export const EXPERIENCE_TITLE_MAX = 120;
 export const EXPERIENCE_DESCRIPTION_MAX = 2000;
-export const DIFFICULTY_VALUES = ["Easy", "Medium", "Hard"] as const;
+export const DIFFICULTY_VALUES = EXPERIENCE_DIFFICULTIES;
 export const LOCATION_TYPES = ["global", "country", "city"] as const;
 
 export interface ExperienceInput {

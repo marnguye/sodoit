@@ -1,6 +1,7 @@
 import "server-only";
 import ExcelJS from "exceljs";
 import type { Experience } from "@/lib/experiences/types";
+import { EXPERIENCE_DIFFICULTIES } from "@/lib/experiences/difficulty.mjs";
 import {
   EXCEL_COLORS,
   setStatusStyle,
@@ -11,6 +12,8 @@ import {
 
 export const EXPERIENCES_SHEET_NAME = "Experiences";
 export const EXPERIENCE_TEMPLATE_FILENAME = "sodoit-experiences-template.xlsx";
+
+const DIFFICULTY_DROPDOWN_ROWS = 500;
 
 export interface ExperienceExcelRow {
   id: string;
@@ -76,8 +79,11 @@ const COLORS = {
   mediumBackground: "FFFEF3C7",
   mediumText: "FF92400E",
 
-  hardBackground: "FFFEE2E2",
-  hardText: "FF991B1B",
+  hardBackground: "FFFFEDD5",
+  hardText: "FF9A3412",
+
+  extremeBackground: "FFFEE2E2",
+  extremeText: "FF991B1B",
 
   globalBackground: "FFDBEAFE",
   globalText: "FF1D4ED8",
@@ -125,6 +131,10 @@ function styleDifficultyCell(cell: ExcelJS.Cell): void {
 
     case "hard":
       setStatusStyle(cell, COLORS.hardBackground, COLORS.hardText);
+      break;
+
+    case "extreme":
+      setStatusStyle(cell, COLORS.extremeBackground, COLORS.extremeText);
       break;
   }
 }
@@ -223,6 +233,19 @@ export function buildExperiencesWorkbook(
     from: { row: 1, column: 1 },
     to: { row: 1, column: EXPERIENCE_EXCEL_COLUMNS.length },
   };
+
+  const difficultyLetter = sheet.getColumn("difficulty").letter;
+  const lastRow = Math.max(rows.length + 1, DIFFICULTY_DROPDOWN_ROWS);
+
+  (
+    sheet as ExcelJS.Worksheet & {
+      dataValidations: { add(address: string, validation: unknown): void };
+    }
+  ).dataValidations.add(`${difficultyLetter}2:${difficultyLetter}${lastRow}`, {
+    type: "list",
+    allowBlank: true,
+    formulae: [`"${EXPERIENCE_DIFFICULTIES.join(",")}"`],
+  });
 
   return workbook;
 }
