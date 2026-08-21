@@ -22,7 +22,7 @@ export function Logo({ size = "md" }: LogoProps) {
       }}
     >
       <Image
-        src="/logo.png"
+        src="/brand/logo.png"
         alt="Sodoit"
         fill
         priority
