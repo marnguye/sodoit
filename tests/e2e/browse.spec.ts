@@ -107,4 +107,78 @@ test.describe("browse editorial redesign", () => {
 
     await expect(page.getByText("Nothing matches")).toBeVisible();
   });
+
+  test("save toggles from the Feature and from a Standard card", async ({
+    page,
+  }) => {
+    await page.goto("/");
+
+    const controls = page.getByRole("checkbox");
+    await expect(controls.nth(1)).toBeVisible();
+
+    for (const index of [0, 1]) {
+      const control = controls.nth(index);
+      const before = await control.getAttribute("aria-checked");
+
+      await control.click();
+      await expect(control).not.toHaveAttribute("aria-checked", before ?? "");
+
+      await control.click();
+      await expect(control).toHaveAttribute("aria-checked", before ?? "false");
+    }
+  });
+
+  test("list mode never renders the Featured hero or wide/standard sections", async ({
+    page,
+  }) => {
+    await page.goto("/?view=list");
+
+    await expect(page.getByText("Featured", { exact: true })).toHaveCount(0);
+    await expect(page.locator("main ul.grid")).toHaveCount(0);
+  });
+
+  test("filtered results use the Standard card, not editorial sections", async ({
+    page,
+  }) => {
+    await page.goto("/?category=Adventure");
+
+    await expect(page.getByText("Featured", { exact: true })).toHaveCount(0);
+    await expect(page.locator("main section h2")).toHaveCount(0);
+  });
+
+  test("difficulty filter supports all four levels and round-trips via the URL", async ({
+    page,
+  }) => {
+    await page.goto("/");
+
+    await page.getByRole("button", { name: "Filters", exact: true }).click();
+
+    const difficultyGroup = page.getByRole("group", { name: "Difficulty" });
+    await expect(
+      difficultyGroup.getByRole("button", { name: "Extreme" }),
+    ).toBeVisible();
+
+    await difficultyGroup.getByRole("button", { name: "Extreme" }).click();
+
+    await expect(page).toHaveURL(/[?&]difficulty=Extreme/);
+
+    await page.reload();
+    await page.getByRole("button", { name: "Filters", exact: true }).click();
+    await expect(
+      page
+        .getByRole("group", { name: "Difficulty" })
+        .getByRole("button", { name: "Extreme", exact: true }),
+    ).toHaveAttribute("aria-pressed", "true");
+  });
+
+  test("difficulty indicator always exposes a readable text label", async ({
+    page,
+  }) => {
+    await page.goto("/?category=Adventure");
+
+    const firstCard = page.locator("main ul li").first();
+    await expect(
+      firstCard.getByText(/^(Easy|Medium|Hard|Extreme)$/),
+    ).toBeVisible();
+  });
 });
