@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { Experience } from "../types";
 import { ExperienceCard } from "./ExperienceCard";
 
@@ -23,6 +24,7 @@ interface ExperienceSectionProps {
   guest: boolean;
   onGuestSave: () => void;
   variant: SectionVariant;
+  viewAllHref?: string;
 }
 
 export function ExperienceSection({
@@ -33,6 +35,7 @@ export function ExperienceSection({
   guest,
   onGuestSave,
   variant,
+  viewAllHref,
 }: ExperienceSectionProps) {
   const items = experiences.slice(0, VARIANT_COUNT[variant]);
 
@@ -42,9 +45,20 @@ export function ExperienceSection({
 
   return (
     <section className="mt-10">
-      <h2 className="mb-4 text-base font-bold tracking-[-0.01em] text-ink">
-        {title}
-      </h2>
+      <div className="mb-4 flex items-baseline justify-between gap-3">
+        <h2 className="text-base font-bold tracking-[-0.01em] text-ink">
+          {title}
+        </h2>
+
+        {viewAllHref && (
+          <Link
+            href={viewAllHref}
+            className="text-xs font-semibold text-accent-dark hover:text-accent"
+          >
+            View all →
+          </Link>
+        )}
+      </div>
 
       <ul className="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-2 lg:grid-cols-12">
         {items.map((experience, index) => (
@@ -56,6 +70,8 @@ export function ExperienceSection({
             guest={guest}
             onGuestSave={onGuestSave}
             className={spanClassName(variant, index, items.length)}
+            ratio={variant}
+            showCategory={false}
           />
         ))}
       </ul>

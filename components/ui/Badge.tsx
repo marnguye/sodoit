@@ -21,7 +21,7 @@ export function Badge({
   return (
     <span
       className={[
-        "inline-flex items-center rounded-pill px-2.5 py-0.5",
+        "inline-flex items-center rounded px-2.5 py-0.5",
         "text-[11px] font-semibold leading-5",
         variants[variant],
         className,
