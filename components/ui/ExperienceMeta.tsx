@@ -1,9 +1,26 @@
 import type { Experience } from "@/lib/experiences/types";
 import { Badge } from "./Badge";
 
+const regionNames = new Intl.DisplayNames(["en"], { type: "region" });
+
+function countryName(code: string | null): string | null {
+  if (!code) return null;
+  try {
+    return regionNames.of(code) ?? code;
+  } catch {
+    return code;
+  }
+}
+
 export function experienceLocation(experience: Experience): string | null {
-  if (experience.location_type === "city") return experience.city;
-  if (experience.location_type === "country") return experience.country_code;
+  if (experience.location_type === "city") {
+    const country = countryName(experience.country_code);
+    if (experience.city && country) return `${experience.city}, ${country}`;
+    return experience.city ?? country;
+  }
+  if (experience.location_type === "country") {
+    return countryName(experience.country_code);
+  }
   return null;
 }
 

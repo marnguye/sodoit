@@ -2,9 +2,11 @@ import { createClient } from "@/lib/supabase/server";
 import { BrowseBoard } from "./browse/BrowseBoard";
 import {
   loadExperiences,
+  loadExperiencesCount,
   loadCompletedIds,
   loadCuratedSections,
 } from "./browse/data";
+import { isDefaultBrowseView } from "./browse/browse-editorial";
 import {
   BROWSE_SORTS,
   BROWSE_VIEWS,
@@ -63,22 +65,35 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     : "all";
 
   const completedIds = user ? await loadCompletedIds(user.id) : [];
-  const isDefaultView = !q && !category && !difficulty && status === "all";
+  const effectiveStatus: StatusFilter = user ? status : "all";
+  const isDefaultView = isDefaultBrowseView({
+    q,
+    category,
+    difficulty,
+    status: effectiveStatus,
+    sort,
+  });
 
-  const [{ experiences, nextCursor, hasMore }, curatedSections] =
+  const [{ experiences, nextCursor, hasMore }, curatedSections, resultCount] =
     await Promise.all([
       loadExperiences(
         {
           q,
           category,
           difficulty,
-          status: user ? status : "all",
+          status: effectiveStatus,
           sort,
           cursor: null,
         },
         completedIds,
       ),
       !user && isDefaultView ? loadCuratedSections() : Promise.resolve([]),
+      isDefaultView
+        ? Promise.resolve(null)
+        : loadExperiencesCount(
+            { q, category, difficulty, status: effectiveStatus },
+            completedIds,
+          ),
     ]);
 
   return (
@@ -91,10 +106,11 @@ export default async function HomePage({ searchParams }: HomePageProps) {
       q={q}
       category={category}
       difficulty={difficulty}
-      status={user ? status : "all"}
+      status={effectiveStatus}
       sort={sort}
       view={view}
       curatedSections={curatedSections}
+      resultCount={resultCount}
     />
   );
 }

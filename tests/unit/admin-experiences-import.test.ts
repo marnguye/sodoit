@@ -353,6 +353,41 @@ describe("buildExperienceImportPreview — classification", () => {
     expect(preview.summary.error).toBe(1);
   });
 
+  it("accepts the new Extreme difficulty", async () => {
+    const rows = await parseRows([
+      row({ id: "", slug: "extreme-row", difficulty: "Extreme" }),
+    ]);
+
+    const preview = buildExperienceImportPreview(rows, []);
+
+    expect(preview.summary.error).toBe(0);
+    expect(preview.summary.create).toBe(1);
+  });
+
+  it("rejects an unknown difficulty value", async () => {
+    const rows = await parseRows([
+      row({ id: "", slug: "bad-difficulty", difficulty: "Super Hard" }),
+    ]);
+
+    const preview = buildExperienceImportPreview(rows, []);
+
+    expect(preview.summary.error).toBe(1);
+  });
+
+  it.each(["Easy", "Medium", "Hard"] as const)(
+    "keeps importing the pre-Extreme difficulty %s",
+    async (difficulty) => {
+      const rows = await parseRows([
+        row({ id: "", slug: `legacy-${difficulty.toLowerCase()}`, difficulty }),
+      ]);
+
+      const preview = buildExperienceImportPreview(rows, []);
+
+      expect(preview.summary.error).toBe(0);
+      expect(preview.summary.create).toBe(1);
+    },
+  );
+
   it("does not treat blank Excel text and DB null as a change", async () => {
     const existing = existingItem({
       description: null,

@@ -1,4 +1,5 @@
 import { normalizeWhitespace, slugify } from "./normalize.mjs";
+import { EXPERIENCE_DIFFICULTIES } from "../../../lib/experiences/difficulty.mjs";
 
 export const CATEGORIES = [
   "Adventure",
@@ -13,7 +14,7 @@ export const CATEGORIES = [
   "Travel",
 ];
 
-export const DIFFICULTIES = ["Easy", "Medium", "Hard"];
+export const DIFFICULTIES = EXPERIENCE_DIFFICULTIES;
 
 function findCaseInsensitive(list, value) {
   return list.find((item) => item.toLowerCase() === value.toLowerCase());

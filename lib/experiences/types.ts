@@ -1,6 +1,10 @@
+import type { EXPERIENCE_DIFFICULTIES } from "./difficulty.mjs";
+
 export type ExperienceLocationType = "global" | "country" | "city";
 
-export type ExperienceDifficulty = "Easy" | "Medium" | "Hard" | null;
+export type ExperienceDifficulty =
+  | (typeof EXPERIENCE_DIFFICULTIES)[number]
+  | null;
 
 export interface Experience {
   id: string;

@@ -110,4 +110,26 @@ test.describe("authentication", () => {
       }),
     ).toHaveAttribute("href", "/signup?next=%2Ffeed%2Fnew");
   });
+
+  test("guest save on a Wide editorial card redirects to login", async ({
+    page,
+  }) => {
+    await page.goto("/");
+
+    const wideSection = page.locator("section", {
+      has: page.getByRole("heading", { name: "Adventure picks" }),
+    });
+
+    if ((await wideSection.count()) === 0) {
+      test.skip();
+      return;
+    }
+
+    await wideSection
+      .getByRole("button", { name: /^Save /i })
+      .first()
+      .click();
+
+    await expect(page).toHaveURL(/\/login\?next=/);
+  });
 });

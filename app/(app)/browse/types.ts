@@ -1,4 +1,10 @@
+import { EXPERIENCE_DIFFICULTIES } from "@/lib/experiences/difficulty.mjs";
+
 export type { Experience } from "@/lib/experiences/types";
+export {
+  EXPERIENCE_DIFFICULTIES,
+  getDifficultyPresentation,
+} from "@/lib/experiences/difficulty.mjs";
 export type StatusFilter = "all" | "completed" | "uncompleted";
 export type ListStatus = "saved" | "completed";
 export type BrowseView = "grid" | "list";
@@ -33,11 +39,9 @@ export function hashString(value: string): number {
   return hash;
 }
 
-export const DIFFICULTIES = [
-  { label: "Easy" },
-  { label: "Medium" },
-  { label: "Hard" },
-] as const;
+export const DIFFICULTIES = EXPERIENCE_DIFFICULTIES.map((label) => ({
+  label,
+}));
 
 export const THUMBNAIL_HUES = [
   "#FED7AA",
