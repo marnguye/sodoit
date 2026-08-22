@@ -1,6 +1,5 @@
 "use client";
 
-import { useCallback, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 
 import type { BrowseSort, BrowseView, StatusFilter } from "../types";
@@ -31,25 +30,18 @@ function buildBrowseHref(state: BrowseState) {
 
 export function useBrowseNavigation(state: BrowseState) {
   const router = useRouter();
-  const stateRef = useRef(state);
 
-  useEffect(() => {
-    stateRef.current = state;
-  }, [state]);
+  function navigate(patch: Partial<BrowseState>) {
+    router.push(
+      buildBrowseHref({
+        ...state,
+        ...patch,
+      }),
+    );
+  }
 
-  const navigate = useCallback(
-    (patch: Partial<BrowseState>) => {
-      router.push(
-        buildBrowseHref({
-          ...stateRef.current,
-          ...patch,
-        }),
-      );
-    },
-    [router],
-  );
-
-  const clear = useCallback(() => router.push("/"), [router]);
-
-  return { navigate, clear };
+  return {
+    navigate,
+    clear: () => router.push("/"),
+  };
 }

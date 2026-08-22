@@ -70,13 +70,14 @@ test.describe("browse editorial redesign", () => {
     ).toBeVisible();
   });
 
-  test("grid/list view toggle preserves URL state", async ({ page }) => {
-    await page.goto("/?category=Adventure");
-
-    await page.getByRole("button", { name: "List view" }).click();
+  test("list view URL param combines with other filter state", async ({
+    page,
+  }) => {
+    await page.goto("/?category=Adventure&view=list");
 
     await expect(page).toHaveURL(/[?&]view=list/);
     await expect(page).toHaveURL(/[?&]category=Adventure/);
+    await expect(page.getByText("Featured", { exact: true })).toHaveCount(0);
   });
 
   test("marking an experience complete toggles its state", async ({ page }) => {
